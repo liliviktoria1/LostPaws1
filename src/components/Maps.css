@@ -1,0 +1,10 @@
+.map-container {
+    text-align: center;
+}
+
+#map {
+    height: 500px; /* Висота карти */
+    width: 100%;   /* Ширина карти */
+    margin: 0 auto;
+    border: 1px solid #ccc; /* Опціонально: рамка для карти */
+}

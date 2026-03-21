@@ -1,0 +1,136 @@
+/* Загальний стиль футера */
+.footer {
+    background-color: #181A32; /* Темний фон */
+    color: #FFFFFF;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 1440px;
+}
+
+/* Ліва частина футера */
+.footer-left {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.footer-logo {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+}
+
+.footer-title {
+    font-size: 24px;
+    font-weight: bold;
+    font-family: 'Poppins', sans-serif;
+}
+
+.footer-lost {
+    color: #FFFFFF; /* Білий */
+}
+
+.paws {
+    color: #FAC655; /* Жовтий */
+}
+
+/* Соціальні іконки */
+.social-icons {
+    display: flex;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.social-icon {
+    font-size: 24px;
+    color: #FFFFFF;
+    transition: color 0.3s;
+}
+
+.social-icon:hover {
+    color: #FAC655; /* Жовтий при наведенні */
+}
+
+/* Середня частина футера */
+.footer-middle {
+    margin-bottom: 20px;
+}
+
+.footer-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.footer-link {
+    text-decoration: none;
+    font-size: 16px;
+    font-family: 'Poppins', sans-serif;
+    color: #FFFFFF;
+    transition: color 0.3s;
+}
+
+.footer-link:hover {
+    color: #FAC655; /* Жовтий при наведенні */
+}
+
+/* Права частина футера */
+.footer-right {
+    background-color: #FAC655; /* Жовтий фон */
+    padding: 20px;
+    border-radius: 5px;
+    color: #181A32;
+    text-align: center;
+}
+
+.footer-support-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.footer-support-text {
+    font-size: 14px;
+    margin: 5px 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Адаптивність */
+@media (max-width: 768px) {
+    .footer-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .footer-left,
+    .footer-middle,
+    .footer-right {
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    .footer-nav {
+        flex-direction: row;
+        justify-content: center;
+        gap: 15px;
+    }
+}

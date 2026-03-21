@@ -1,0 +1,143 @@
+.announcements-page {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.filter-toggle-button {
+    padding: 10px 20px;
+    background-color: #f8c454;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.filter-toggle-button:hover {
+    background-color: #313561;
+}
+
+.filter-section {
+    margin-bottom: 20px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.filter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Відстань між елементами форми */
+}
+
+.filter-form label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #333;
+}
+
+.filter-form input[type="radio"] {
+    margin-right: 10px;
+    transform: scale(1.2); /* Збільшує розмір радіо-кнопок */
+    cursor: pointer;
+}
+
+.filter-form input[type="text"] {
+    width: 20%;
+    height: 30px; /* Зменшений розмір поля введення */
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 14px;
+}
+
+.filter-form .radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px; /* Відстань між радіо-кнопками */
+}
+
+.filter-form .radio-group label {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #333;
+}
+
+button {
+    padding: 10px 15px;
+    background-color: #313561;
+    width: 100%;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+button:hover {
+    background-color: #f8c454;
+}
+.announcements-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.announcement-card {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 15px;
+    background: white;
+    text-align: center;
+}
+
+.announcement-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.announcement-card h3 {
+    margin: 10px 0;
+}
+
+.announcement-card span {
+    font-weight: bold;
+}
+
+.announcement-card button {
+    padding: 10px 20px;
+    background-color: #f8c454;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.announcement-card button:hover {
+    background-color: #0056b3;
+}
+
+.announcement-card img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}

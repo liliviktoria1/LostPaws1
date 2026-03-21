@@ -1,0 +1,123 @@
+/* Загальний стиль для Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #FFFFFF; /* Темний фон */
+    color: #FFFFFF;
+    position: relative;
+    margin: 0;
+}
+
+/* Ліва частина Header */
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+/* Логотип та заголовок сайту */
+.logo-container {
+    display: flex;
+    padding-left: 50px;
+    align-items: center;
+}
+
+.logo {
+    width: 40px; /* Збільшений розмір логотипу */
+    height: 40px;
+    margin-right: 15px;
+    border-radius: 10px;
+}
+
+.site-title {
+    font-size: 36px; /* Збільшений текст LostPaws */
+    font-weight: bold;
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+}
+
+.header-lost {
+    color: #181A32; /* Синій текст */
+}
+
+.paws {
+    color: #FAC655; /* Жовтий текст */
+}
+
+/* Навігаційні посилання */
+.nav-links {
+    display: flex;
+    gap: 20px;
+    margin-left: 680px;
+}
+
+.nav-link {
+    text-decoration: none;
+    font-size: 18px;
+    font-family: 'Poppins', sans-serif;
+    color: #181A32;
+    transition: color 0.3s;
+}
+
+.nav-link:hover {
+    color: #FAC655; /* Жовтий при наведенні */
+}
+
+/* Права частина Header */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Кнопка Report */
+.report-button {
+    padding: 5px 25px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 5px;
+    background-color: #FAC655; /* Жовтий фон */
+    color: #181A32; /* Темний текст */
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.report-button:hover {
+    background-color: #E5B944; /* Темніший жовтий при наведенні */
+}
+
+/* Кнопка Log in */
+.login-button {
+    padding: 8px 15px;
+    font-size: 14px;
+    border: 1px solid #C9C7C7;
+    border-radius: 5px;
+    background-color: #C9C7C7; /* Сірий фон */
+    color: #FFFFFF;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.login-button:hover {
+    background-color: #A5A5A5; /* Темніший сірий */
+}
+
+/* Кнопка Sign in */
+.signup-button {
+    padding: 8px 15px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    background-color: #CAD9EF; /* Світло-блакитний фон */
+    color: #181A32; /* Темний текст */
+    cursor: pointer;
+    transition: background-color 0.3s;
+
+}
+
+.signup-button:hover {
+    background-color: #AFC7E0; /* Темніший блакитний */
+}
+
+
+
