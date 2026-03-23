@@ -4,6 +4,19 @@ import './Home.css';
 
 const Home = () => {
     const navigate = useNavigate();
+
+    const missingPets = [
+        { id: 1, name: "Ben", status: "Lost", location: "Kiev, Yurivka, 08170", image: "/assets/image/Ben.jpeg" },
+        { id: 2, name: "Murka", status: "Lost", location: "Lviv, Duliby, 82434", image: "/assets/image/Murka.jpeg" },
+        { id: 3, name: "Sharik", status: "Lost", location: "Chernivtsi, 58000", image: "/assets/image/Sharik.jpeg" },
+    ];
+
+    const foundPets = [
+        { id: 1, name: "Jon", status: "Found", location: "Kiev, Yurivka, 08170", image: "/assets/image/Jon.jpeg" },
+        { id: 2, name: "Luigi", status: "Found", location: "Lviv, Duliby, 82434", image: "/assets/image/Luigi.png" },
+        { id: 3, name: "Lisa", status: "Found", location: "Chernivtsi, 58000", image: "/assets/image/Lisa.jpeg" },
+    ];
+
     return (
         <div className="home">
             {/* Lost Your Pet Section */}
@@ -43,25 +56,25 @@ const Home = () => {
                 <div className="steps">
                     <div className="step">
                         <h3>Post a Listing</h3>
-                        <p>
+                        <div className="step-content">
                             <li> Describe your pet (species, breed, distinctive features).</li>
                             <li>Add photos and the last known location.</li>
                             <li>Provide contact details.</li>
-                        </p>
+                        </div>
                     </div>
                     <div className="step">
                         <h3>Engage with the Community</h3>
-                        <p>
+                        <div className="step-content">
                             <li>Leave comments on listings ("I spotted this pet here!").</li>
                             <li>Get real-time notifications about new listings nearby.</li>
-                        </p>
+                        </div>
                     </div>
                     <div className="step">
                         <h3>Search on the Map</h3>
-                        <p>
+                        <div className="step-content">
                             <li>Browse listings in your area.</li>
                             <li>Filter by pet type, date lost, or status ("lost"/"found").</li>
-                        </p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -78,19 +91,13 @@ const Home = () => {
                             </svg>
                         </button>
 
-                        <div className="slider-item">
-                            <img src="/assets/image/Ben.jpeg" alt="Ben"/>
-                            <p>Name : Ben<br/>Status : Lost<br/>Addresses : Kiev , Yurivka , 08170</p>
-                        </div>
-                        <div className="slider-item">
-                            <img src="/assets/image/Murka.jpeg" alt="Murka"/>
-                            <p>Name : Murka<br/>Status : Lost <br/>Addresses : Lviv, Duliby , 82434</p>
-                        </div>
+                        {missingPets.map(pet => (
+                            <div className="slider-item" key={pet.id}>
+                                <img src={pet.image} alt={pet.name}/>
+                                <p>Name : {pet.name}<br/>Status : {pet.status}<br/>Addresses : {pet.location}</p>
+                            </div>
+                        ))}
 
-                        <div className="slider-item">
-                            <img src="/assets/image/Sharik.jpeg" alt="Sharik"/>
-                            <p>Name : Sharik<br/>Status : Lost<br/>Addresses : Chernivtsi , 58000</p>
-                        </div>
                         <button className="slider-button right">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
                                 <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/>
@@ -112,19 +119,13 @@ const Home = () => {
                             </svg>
                         </button>
 
-                        <div className="slider-item">
-                            <img src="/assets/image/Jon.jpeg" alt="Jon"/>
-                            <p>Name : Jon<br/>Status : Found<br/>Addresses : Kiev , Yurivka , 08170</p>
-                        </div>
-                        <div className="slider-item">
-                            <img src="/assets/image/Luigi.png" alt="Luigi"/>
-                            <p>Name : Luigi<br/>Status : Found <br/>Addresses : Lviv, Duliby , 82434</p>
-                        </div>
+                        {foundPets.map(pet => (
+                            <div className="slider-item" key={pet.id}>
+                                <img src={pet.image} alt={pet.name}/>
+                                <p>Name : {pet.name}<br/>Status : {pet.status}<br/>Addresses : {pet.location}</p>
+                            </div>
+                        ))}
 
-                        <div className="slider-item">
-                            <img src="/assets/image/Lisa.jpeg" alt="Lisa"/>
-                            <p>Name : Lisa<br/>Status : Found<br/>Addresses : Chernivtsi , 58000</p>
-                        </div>
                         <button className="slider-button right">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
                                 <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/>
