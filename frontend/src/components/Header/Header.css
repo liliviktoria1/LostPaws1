@@ -1,177 +1,123 @@
+/* Загальний стиль для Header */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #FFFFFF;
-    color: #181A32;
-    padding: 1rem 4%;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
+    background-color: #FFFFFF; /* Темний фон */
+    color: #FFFFFF;
+    position: relative;
+    margin: 0;
 }
 
+/* Ліва частина Header */
 .header-left {
     display: flex;
     align-items: center;
 }
 
+/* Логотип та заголовок сайту */
 .logo-container {
     display: flex;
+    padding-left: 50px;
     align-items: center;
-    text-decoration: none;
 }
 
 .logo {
-    width: 38px;
-    height: 38px;
-    margin-right: 8px;
+    width: 40px; /* Збільшений розмір логотипу */
+    height: 40px;
+    margin-right: 15px;
+    border-radius: 10px;
 }
 
 .site-title {
-    font-size: 26px;
-    font-weight: 700;
+    font-size: 36px; /* Збільшений текст LostPaws */
+    font-weight: bold;
     font-family: 'Poppins', sans-serif;
+    display: flex;
 }
 
 .header-lost {
-    color: #181A32;
+    color: #181A32; /* Синій текст */
 }
 
 .paws {
-    color: #FAC655;
+    color: #FAC655; /* Жовтий текст */
 }
 
+/* Навігаційні посилання */
 .nav-links {
     display: flex;
-    gap: 30px;
+    gap: 20px;
+    margin-left: 680px;
 }
 
 .nav-link {
     text-decoration: none;
-    font-size: 16px;
-    font-weight: 500;
-    color: #4B5563;
+    font-size: 18px;
+    font-family: 'Poppins', sans-serif;
+    color: #181A32;
     transition: color 0.3s;
-    position: relative;
-    padding-bottom: 4px;
 }
 
 .nav-link:hover {
-    color: #181A32;
+    color: #FAC655; /* Жовтий при наведенні */
 }
 
-.nav-link.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background-color: #181A32;
-}
-
+/* Права частина Header */
 .header-right {
     display: flex;
     align-items: center;
-    gap: 8px; /* Reduced gap between buttons */
+    gap: 15px;
 }
 
+/* Кнопка Report */
 .report-button {
-    padding: 8px 16px; /* More compact padding */
-    font-size: 13px;
-    font-weight: 700;
-    text-decoration: none;
-    border-radius: 10px;
-    background-color: #FACC55;
-    color: #181A32;
+    padding: 5px 25px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 5px;
+    background-color: #FAC655; /* Жовтий фон */
+    color: #181A32; /* Темний текст */
+    cursor: pointer;
     transition: background-color 0.3s;
-    white-space: nowrap;
 }
 
 .report-button:hover {
-    background-color: #f7b92d;
+    background-color: #E5B944; /* Темніший жовтий при наведенні */
 }
 
-.globe-button {
-    background: none;
-    border: none;
-    font-size: 20px;
-    color: #9CA3AF;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    padding: 0 4px;
-}
-
+/* Кнопка Log in */
 .login-button {
-    padding: 8px 16px;
-    font-size: 13px;
-    font-weight: 600;
-    border: none;
-    border-radius: 10px;
-    background-color: #D1D5DB;
+    padding: 8px 15px;
+    font-size: 14px;
+    border: 1px solid #C9C7C7;
+    border-radius: 5px;
+    background-color: #C9C7C7; /* Сірий фон */
     color: #FFFFFF;
     cursor: pointer;
-    white-space: nowrap;
+    transition: background-color 0.3s;
 }
 
+.login-button:hover {
+    background-color: #A5A5A5; /* Темніший сірий */
+}
+
+/* Кнопка Sign in */
 .signup-button {
-    padding: 8px 16px;
-    font-size: 13px;
-    font-weight: 600;
+    padding: 8px 15px;
+    font-size: 14px;
     border: none;
-    border-radius: 10px;
-    background-color: #CAD9EF;
-    color: #4B5563;
+    border-radius: 5px;
+    background-color: #CAD9EF; /* Світло-блакитний фон */
+    color: #181A32; /* Темний текст */
     cursor: pointer;
-    white-space: nowrap;
+    transition: background-color 0.3s;
+
 }
 
-.mobile-menu-icon {
-    display: none;
-    flex-direction: column;
-    gap: 4px;
-    cursor: pointer;
+.signup-button:hover {
+    background-color: #AFC7E0; /* Темніший блакитний */
 }
 
-.menu-bar {
-    width: 25px;
-    height: 3px;
-    background-color: #181A32;
-    border-radius: 2px;
-}
 
-@media (max-width: 1024px) {
-    .nav-links {
-        gap: 15px;
-    }
-}
 
-@media (max-width: 992px) {
-    .nav-links {
-        display: none;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        width: 100%;
-        background: #fff;
-        flex-direction: column;
-        padding: 20px;
-        gap: 15px;
-        box-shadow: 0 5px 10px rgba(0,0,0,0.1);
-    }
-
-    .nav-links.open {
-        display: flex;
-    }
-
-    .mobile-menu-icon {
-        display: flex;
-    }
-}
-
-@media (max-width: 768px) {
-    .login-button, .signup-button, .globe-button {
-        display: none;
-    }
-}
