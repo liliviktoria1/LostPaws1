@@ -1,8 +1,8 @@
 require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const sequelize = require('./config/database');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -16,15 +16,18 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const reportRoutes = require('./routes/reports');
 app.use('/api/reports', reportRoutes);
 
-// Database Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/lostpaws')
-    .then(() => console.log('Connected to MongoDB'))
-    .catch(err => console.error('Could not connect to MongoDB', err));
-
 app.get('/', (req, res) => {
-    res.send('Lost Paws API is running...');
+    res.send('Lost Paws API (PostgreSQL) is running...');
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+// Database Sync and Server Start
+sequelize.sync({ force: false }) // Use { force: true } during development if you need to drop/recreate tables
+    .then(() => {
+        console.log('PostgreSQL Database connected and synced');
+        app.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+        });
+    })
+    .catch(err => {
+        console.error('Unable to connect to the database:', err);
+    });

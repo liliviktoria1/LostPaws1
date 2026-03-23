@@ -3,6 +3,7 @@ const router = express.Router();
 const PetReport = require('../models/PetReport');
 const multer = require('multer');
 const path = require('path');
+const { Op } = require('sequelize');
 
 // Configure Multer for photo uploads
 const storage = multer.diskStorage({
@@ -24,7 +25,9 @@ router.post('/', upload.array('photos', 5), async (req, res) => {
             petSpecies,
             petSex,
             description,
-            location,
+            locationAddress,
+            locationLat,
+            locationLng,
             dateLastSeen,
             contactName,
             contactNumber,
@@ -33,13 +36,15 @@ router.post('/', upload.array('photos', 5), async (req, res) => {
 
         const photoPaths = req.files ? req.files.map(file => ({ url: `/uploads/${file.filename}` })) : [];
 
-        const newReport = new PetReport({
+        const newReport = await PetReport.create({
             petStatus,
             petName,
             petSpecies,
             petSex,
             description,
-            location: location ? JSON.parse(location) : {},
+            locationAddress,
+            locationLat: locationLat ? parseFloat(locationLat) : null,
+            locationLng: locationLng ? parseFloat(locationLng) : null,
             dateLastSeen,
             contactName,
             contactNumber,
@@ -47,8 +52,7 @@ router.post('/', upload.array('photos', 5), async (req, res) => {
             photos: photoPaths
         });
 
-        const savedReport = await newReport.save();
-        res.status(201).json(savedReport);
+        res.status(201).json(newReport);
     } catch (err) {
         console.error('Error creating report:', err);
         res.status(400).json({ message: err.message });
@@ -59,17 +63,19 @@ router.post('/', upload.array('photos', 5), async (req, res) => {
 router.get('/', async (req, res) => {
     try {
         const { status, species, sex, location } = req.query;
-        let query = {};
+        let where = {};
 
-        if (status) query.petStatus = status;
-        if (species) query.petSpecies = species;
-        if (sex) query.petSex = sex;
+        if (status) where.petStatus = status;
+        if (species) where.petSpecies = species;
+        if (sex) where.petSex = sex;
         if (location) {
-            // Basic text search for address
-            query['location.address'] = { $regex: location, $options: 'i' };
+            where.locationAddress = { [Op.iLike]: `%${location}%` };
         }
 
-        const reports = await PetReport.find(query).sort({ createdAt: -1 });
+        const reports = await PetReport.findAll({
+            where,
+            order: [['createdAt', 'DESC']]
+        });
         res.json(reports);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -79,7 +85,7 @@ router.get('/', async (req, res) => {
 // GET /api/reports/:id - Get a specific report
 router.get('/:id', async (req, res) => {
     try {
-        const report = await PetReport.findById(req.params.id);
+        const report = await PetReport.findByPk(req.params.id);
         if (!report) return res.status(404).json({ message: 'Report not found' });
         res.json(report);
     } catch (err) {
@@ -90,12 +96,12 @@ router.get('/:id', async (req, res) => {
 // PATCH /api/reports/:id - Update a report
 router.patch('/:id', async (req, res) => {
     try {
-        const updatedReport = await PetReport.findByIdAndUpdate(
-            req.params.id,
-            { $set: req.body },
-            { new: true }
-        );
-        if (!updatedReport) return res.status(404).json({ message: 'Report not found' });
+        const [updated] = await PetReport.update(req.body, {
+            where: { id: req.params.id }
+        });
+        if (!updated) return res.status(404).json({ message: 'Report not found' });
+
+        const updatedReport = await PetReport.findByPk(req.params.id);
         res.json(updatedReport);
     } catch (err) {
         res.status(400).json({ message: err.message });
@@ -105,8 +111,10 @@ router.patch('/:id', async (req, res) => {
 // DELETE /api/reports/:id - Delete a report
 router.delete('/:id', async (req, res) => {
     try {
-        const report = await PetReport.findByIdAndDelete(req.params.id);
-        if (!report) return res.status(404).json({ message: 'Report not found' });
+        const deleted = await PetReport.destroy({
+            where: { id: req.params.id }
+        });
+        if (!deleted) return res.status(404).json({ message: 'Report not found' });
         res.json({ message: 'Report deleted successfully' });
     } catch (err) {
         res.status(500).json({ message: err.message });

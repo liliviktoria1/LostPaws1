@@ -1,51 +1,67 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
 
-const PetReportSchema = new mongoose.Schema({
+const PetReport = sequelize.define('PetReport', {
+    id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true
+    },
     petStatus: {
-        type: String,
-        required: true,
-        enum: ['lost', 'found']
+        type: DataTypes.ENUM('lost', 'found'),
+        allowNull: false
     },
     petName: {
-        type: String,
-        required: true
+        type: DataTypes.STRING,
+        allowNull: false
     },
     petSpecies: {
-        type: String,
-        required: true,
-        enum: ['cat', 'dog', 'other']
+        type: DataTypes.ENUM('cat', 'dog', 'other'),
+        allowNull: false
     },
     petSex: {
-        type: String,
-        enum: ['female', 'male', 'unknown']
+        type: DataTypes.ENUM('female', 'male', 'unknown'),
+        defaultValue: 'unknown'
     },
-    description: String,
-    location: {
-        address: String,
-        coordinates: {
-            lat: Number,
-            lng: Number
-        }
+    description: {
+        type: DataTypes.TEXT
+    },
+    locationAddress: {
+        type: DataTypes.STRING
+    },
+    locationLat: {
+        type: DataTypes.FLOAT
+    },
+    locationLng: {
+        type: DataTypes.FLOAT
     },
     dateLastSeen: {
-        type: Date,
-        default: Date.now
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
     },
-    contactName: String,
-    contactNumber: String,
+    contactName: {
+        type: DataTypes.STRING
+    },
+    contactNumber: {
+        type: DataTypes.STRING
+    },
     contactEmail: {
-        type: String,
-        required: true
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+            isEmail: true
+        }
     },
-    photos: [{
-        url: String,
-        publicId: String // For Cloudinary or similar
-    }],
-    embedding: [Number], // For AI matching
-    createdAt: {
-        type: Date,
-        default: Date.now
+    photos: {
+        type: DataTypes.JSONB, // Store photo URLs as an array in JSONB format
+        defaultValue: []
+    },
+    embedding: {
+        type: DataTypes.ARRAY(DataTypes.FLOAT), // For AI matching
+        allowNull: true
     }
+}, {
+    timestamps: true
 });
 
-module.exports = mongoose.model('PetReport', PetReportSchema);
+module.exports = PetReport;
