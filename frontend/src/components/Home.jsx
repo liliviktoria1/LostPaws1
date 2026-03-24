@@ -1,21 +1,46 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { reportService } from '../services/reportService';
 import './Home.css';
 
 const Home = () => {
     const navigate = useNavigate();
 
-    const missingPets = [
-        { id: 1, name: "Ben", status: "Lost", location: "Kiev, Yurivka, 08170", image: "/assets/image/Ben.jpeg" },
-        { id: 2, name: "Murka", status: "Lost", location: "Lviv, Duliby, 82434", image: "/assets/image/Murka.jpeg" },
-        { id: 3, name: "Sharik", status: "Lost", location: "Chernivtsi, 58000", image: "/assets/image/Sharik.jpeg" },
-    ];
+    const [missingPets, setMissingPets] = useState([]);
+    const [foundPets, setFoundPets] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const foundPets = [
-        { id: 1, name: "Jon", status: "Found", location: "Kiev, Yurivka, 08170", image: "/assets/image/Jon.jpeg" },
-        { id: 2, name: "Luigi", status: "Found", location: "Lviv, Duliby, 82434", image: "/assets/image/Luigi.png" },
-        { id: 3, name: "Lisa", status: "Found", location: "Chernivtsi, 58000", image: "/assets/image/Lisa.jpeg" },
-    ];
+    useEffect(() => {
+        const fetchPets = async () => {
+            try {
+                const [lostData, foundData] = await Promise.all([
+                    reportService.getReports({ status: 'lost' }),
+                    reportService.getReports({ status: 'found' })
+                ]);
+                // Keep only top 3 for the home page slider
+                setMissingPets(lostData.slice(0, 3));
+                setFoundPets(foundData.slice(0, 3));
+            } catch (err) {
+                console.error('Error fetching pets:', err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchPets();
+    }, []);
+
+    const getImageUrl = (pet) => {
+        if (pet.photos && pet.photos.length > 0) {
+            const url = pet.photos[0].url;
+            // If it's a local asset from public folder, return as is
+            if (url.startsWith('/assets')) return url;
+            // If it's a full URL, return as is
+            if (url.startsWith('http')) return url;
+            // Otherwise, it's a backend upload
+            return `http://localhost:5000${url}`;
+        }
+        return '/assets/image/Dog.png'; 
+    };
 
     return (
         <div className="home">
@@ -91,12 +116,18 @@ const Home = () => {
                             </svg>
                         </button>
 
-                        {missingPets.map(pet => (
-                            <div className="slider-item" key={pet.id}>
-                                <img src={pet.image} alt={pet.name}/>
-                                <p>Name : {pet.name}<br/>Status : {pet.status}<br/>Addresses : {pet.location}</p>
-                            </div>
-                        ))}
+                        {isLoading ? (
+                            <p>Loading...</p>
+                        ) : missingPets.length > 0 ? (
+                            missingPets.map(pet => (
+                                <div className="slider-item" key={pet.id}>
+                                    <img src={getImageUrl(pet)} alt={pet.petName}/>
+                                    <p>Name : {pet.petName}<br/>Status : Lost<br/>Addresses : {pet.locationAddress}</p>
+                                </div>
+                            ))
+                        ) : (
+                            <p>No missing pets found.</p>
+                        )}
 
                         <button className="slider-button right">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
@@ -119,12 +150,18 @@ const Home = () => {
                             </svg>
                         </button>
 
-                        {foundPets.map(pet => (
-                            <div className="slider-item" key={pet.id}>
-                                <img src={pet.image} alt={pet.name}/>
-                                <p>Name : {pet.name}<br/>Status : {pet.status}<br/>Addresses : {pet.location}</p>
-                            </div>
-                        ))}
+                        {isLoading ? (
+                            <p>Loading...</p>
+                        ) : foundPets.length > 0 ? (
+                            foundPets.map(pet => (
+                                <div className="slider-item" key={pet.id}>
+                                    <img src={getImageUrl(pet)} alt={pet.petName}/>
+                                    <p>Name : {pet.petName}<br/>Status : Found<br/>Addresses : {pet.locationAddress}</p>
+                                </div>
+                            ))
+                        ) : (
+                            <p>No found pets reported.</p>
+                        )}
 
                         <button className="slider-button right">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">

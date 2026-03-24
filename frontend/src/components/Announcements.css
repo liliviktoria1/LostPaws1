@@ -1,143 +1,154 @@
 .announcements-page {
-    padding: 20px;
-    font-family: Arial, sans-serif;
+    padding: 4rem 8%;
+    background-color: #FEF9EF;
+    min-height: 100vh;
+    font-family: 'Poppins', sans-serif;
 }
 
-.filter-toggle-button {
-    padding: 10px 20px;
-    background-color: #f8c454;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    margin-bottom: 20px;
+.announcements-header {
+    text-align: center;
+    margin-bottom: 3rem;
 }
 
-.filter-toggle-button:hover {
-    background-color: #313561;
+.announcements-header h1 {
+    font-family: 'Rubik One', serif;
+    font-size: 3rem;
+    color: #181A32;
+    margin-bottom: 1.5rem;
 }
 
-.filter-section {
-    margin-bottom: 20px;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    background-color: #f9f9f9;
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.filter-form {
+.filter-buttons {
     display: flex;
-    flex-direction: column;
-    gap: 15px; /* Відстань між елементами форми */
+    justify-content: center;
+    gap: 1rem;
 }
 
-.filter-form label {
-    font-weight: bold;
-    margin-bottom: 5px;
-    font-size: 14px;
-    color: #333;
-}
-
-.filter-form input[type="radio"] {
-    margin-right: 10px;
-    transform: scale(1.2); /* Збільшує розмір радіо-кнопок */
+.filter-buttons button {
+    padding: 10px 25px;
+    border-radius: 20px;
+    border: 2px solid #181A32;
+    background: transparent;
+    color: #181A32;
+    font-weight: 600;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.filter-form input[type="text"] {
-    width: 20%;
-    height: 30px; /* Зменшений розмір поля введення */
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    border-radius: 5px;
-    padding: 5px 10px;
-    font-size: 14px;
+.filter-buttons button.active, .filter-buttons button:hover {
+    background-color: #181A32;
+    color: #fff;
 }
 
-.filter-form .radio-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px; /* Відстань між радіо-кнопками */
-}
-
-.filter-form .radio-group label {
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-    color: #333;
-}
-
-button {
-    padding: 10px 15px;
-    background-color: #313561;
-    width: 100%;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-button:hover {
-    background-color: #f8c454;
-}
-.announcements-list {
+.announcements-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2.5rem;
 }
 
 .announcement-card {
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    padding: 15px;
-    background: white;
-    text-align: center;
+    background: #fff;
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
 }
 
-.announcement-card img {
+.announcement-card:hover {
+    transform: translateY(-10px);
+}
+
+.card-image {
+    position: relative;
+    height: 250px;
+}
+
+.card-image img {
     width: 100%;
-    height: 150px;
+    height: 100%;
     object-fit: cover;
-    border-radius: 10px;
 }
 
-.announcement-card h3 {
-    margin: 10px 0;
+.status-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 5px 15px;
+    border-radius: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 12px;
 }
 
-.announcement-card span {
-    font-weight: bold;
+.status-badge.lost { background-color: #FEE2E2; color: #DC2626; }
+.status-badge.found { background-color: #DCFCE7; color: #16A34A; }
+
+.card-content {
+    padding: 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
-.announcement-card button {
-    padding: 10px 20px;
-    background-color: #f8c454;
-    color: white;
+.card-content h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #181A32;
+}
+
+.species {
+    color: #6B7280;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    font-style: italic;
+}
+
+.description {
+    font-size: 1rem;
+    color: #4B5563;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+}
+
+.card-footer {
+    margin-top: auto;
+    border-top: 1px solid #F3F4F6;
+    padding-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+}
+
+.location { color: #374151; font-weight: 500; }
+.date { color: #9CA3AF; }
+
+.contact-info {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.contact-btn {
+    padding: 8px 15px;
+    background-color: #FACC55;
     border: none;
-    border-radius: 5px;
+    border-radius: 10px;
+    font-weight: 600;
+    color: #181A32;
     cursor: pointer;
 }
 
-.announcement-card button:hover {
-    background-color: #0056b3;
+.loading-state, .no-reports {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #6B7280;
+    padding: 4rem;
 }
 
-.announcement-card img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    margin-bottom: 10px;
+@media (max-width: 768px) {
+    .announcements-grid {
+        grid-template-columns: 1fr;
+    }
 }

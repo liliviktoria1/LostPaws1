@@ -218,3 +218,37 @@ input[type="text"] {
 .contact .sub-label {
     padding-top: 15px;
 }
+.map-selection-container {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 15px;
+}
+
+.detect-location-btn {
+    background-color: #181A32;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    transition: background-color 0.3s;
+}
+
+.detect-location-btn:hover {
+    background-color: #2a2e55;
+}
+
+.coords-display {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #666;
+    font-weight: 500;
+}
+
+#form-map {
+    z-index: 1;
+}
