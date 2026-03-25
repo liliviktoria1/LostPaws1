@@ -53,5 +53,23 @@ export const reportService = {
         });
         if (!response.ok) throw new Error('Failed to delete report');
         return response.json();
+    },
+
+    // Analyze pet photo with AI
+    analyzePetImage: async (photoFile) => {
+        const formData = new FormData();
+        formData.append('photo', photoFile);
+
+        const response = await fetch(`${API_URL}/reports/analyze`, {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'AI Analysis failed');
+        }
+
+        return response.json();
     }
 };

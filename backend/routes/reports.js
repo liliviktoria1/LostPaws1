@@ -4,6 +4,7 @@ const PetReport = require('../models/PetReport');
 const multer = require('multer');
 const path = require('path');
 const { Op } = require('sequelize');
+const { analyzePetImage } = require('../config/ai');
 
 // Configure Multer for photo uploads
 const storage = multer.diskStorage({
@@ -15,6 +16,21 @@ const storage = multer.diskStorage({
     }
 });
 const upload = multer({ storage: storage });
+
+// POST /api/reports/analyze - Analyze pet image with AI
+router.post('/analyze', upload.single('photo'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No photo provided' });
+        }
+
+        const analysis = await analyzePetImage(req.file.path);
+        res.json(analysis);
+    } catch (err) {
+        console.error('AI Analysis Route Error:', err);
+        res.status(500).json({ message: 'AI Analysis failed' });
+    }
+});
 
 // POST /api/reports - Create a new report
 router.post('/', upload.array('photos', 5), async (req, res) => {

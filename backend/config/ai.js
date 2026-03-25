@@ -1,0 +1,43 @@
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const fs = require("fs");
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+const analyzePetImage = async (imagePath) => {
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        const imageData = fs.readFileSync(imagePath);
+        const imagePart = {
+            inlineData: {
+                data: imageData.toString("base64"),
+                mimeType: "image/jpeg",
+            },
+        };
+
+        const prompt = `
+            Analyze this image of a pet and return a JSON object with the following fields:
+            - species: (cat, dog, or other)
+            - suggestedBreed: (be specific)
+            - primaryColor: (main color)
+            - secondaryColor: (secondary color if any)
+            - distinctiveFeatures: (e.g. spots, blue eyes, missing ear)
+            - estimatedAge: (baby, young, adult, senior)
+            
+            Return ONLY the JSON object.
+        `;
+
+        const result = await model.generateContent([prompt, imagePart]);
+        const response = await result.response;
+        const text = response.text();
+        
+        // Clean up the response if it contains markdown formatting
+        const cleanJson = text.replace(/```json|```/g, "").trim();
+        return JSON.parse(cleanJson);
+    } catch (error) {
+        console.error("AI Analysis Error:", error);
+        throw new Error("Failed to analyze image with AI");
+    }
+};
+
+module.exports = { analyzePetImage };

@@ -87,11 +87,34 @@ const LostPawsForm = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleDrop = (acceptedFiles) => {
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+    const handleDrop = async (acceptedFiles) => {
         setFormData(prev => ({
             ...prev,
             photos: [...prev.photos, ...acceptedFiles]
         }));
+
+        // Automatically analyze the first photo uploaded
+        if (acceptedFiles.length > 0) {
+            setIsAnalyzing(true);
+            try {
+                const analysis = await reportService.analyzePetImage(acceptedFiles[0]);
+                
+                // Update form with AI suggestions
+                setFormData(prev => ({
+                    ...prev,
+                    petSpecies: analysis.species || prev.petSpecies,
+                    petName: prev.petName || (analysis.suggestedBreed ? `Maybe a ${analysis.suggestedBreed}?` : ''),
+                    description: `${analysis.suggestedBreed || ''} ${analysis.primaryColor || ''} ${analysis.distinctiveFeatures || ''}`.trim()
+                }));
+                alert("AI has suggested some details based on your photo!");
+            } catch (err) {
+                console.error("AI Auto-fill failed:", err);
+            } finally {
+                setIsAnalyzing(false);
+            }
+        }
     };
 
     const handleRemovePhoto = (index) => {
