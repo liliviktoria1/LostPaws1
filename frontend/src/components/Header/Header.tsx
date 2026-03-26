@@ -6,6 +6,13 @@ import './Header.css';
 function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+    const navLinks = [
+        { path: '/', label: 'Home' },
+        { path: '/maps', label: 'Maps' },
+        { path: '/announcements', label: 'Announcements' },
+        { path: '/contact', label: 'Contact Us' },
+    ];
+
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
@@ -23,10 +30,15 @@ function Header() {
             </div>
 
             <nav className={`nav-links ${isMenuOpen ? 'open' : ''}`}>
-                <Link to="/" className="nav-link active">Home</Link>
-                <Link to="/maps" className="nav-link">Maps</Link>
-                <Link to="/announcements" className="nav-link">Announcements</Link>
-                <Link to="/contact" className="nav-link">Contact Us</Link>
+                {navLinks.map((link) => (
+                    <Link 
+                        key={link.path} 
+                        to={link.path} 
+                        className="nav-link"
+                    >
+                        {link.label}
+                    </Link>
+                ))}
             </nav>
 
             <div className="header-right">

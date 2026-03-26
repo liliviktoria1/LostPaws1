@@ -1,3 +1,15 @@
+:root {
+  --primary-color: #181A32;
+  --secondary-color: #FF5C00;
+  --text-color: #333333;
+  --light-text: #666666;
+  --white: #FFFFFF;
+  --background-light: #F8F9FA;
+  --border-radius: 10px;
+  --font-main: 'Poppins', sans-serif;
+  --header-height: 80px;
+}
+
 @font-face {
   font-family: 'Poppins';
   src: url('/public/assets/fonts/Poppins-Regular.ttf') format('truetype'); /* Абсолютний шлях */
@@ -16,10 +28,10 @@
 
 body {
   margin: 0;
-  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
-  'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
-  'Helvetica Neue', sans-serif;
+  font-family: var(--font-main);
   font-size: 16px;
+  color: var(--text-color);
+  background-color: var(--white);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

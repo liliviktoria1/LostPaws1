@@ -182,28 +182,22 @@ const LostPawsForm: React.FC = () => {
                             <div className="form-group">
                             <label>Pets Status:</label>
                             <div className="radio-group">
-                                <label>
-                                    <input
-                                        type="radio"
-                                        name="petStatus"
-                                        value="lost"
-                                        checked={formData.petStatus === 'lost'}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                    Lost
-                                </label>
-                                <label>
-                                    <input
-                                        type="radio"
-                                        name="petStatus"
-                                        value="found"
-                                        checked={formData.petStatus === 'found'}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                    Found / Stray
-                                </label>
+                                {[
+                                    { value: 'lost', label: 'Lost' },
+                                    { value: 'found', label: 'Found / Stray' }
+                                ].map(option => (
+                                    <label key={option.value}>
+                                        <input
+                                            type="radio"
+                                            name="petStatus"
+                                            value={option.value}
+                                            checked={formData.petStatus === option.value}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                        {option.label}
+                                    </label>
+                                ))}
                             </div>
                           </div>
                         </div>
@@ -225,39 +219,23 @@ const LostPawsForm: React.FC = () => {
                         <div className="form-group">
                             <label>Pets Species:</label>
                             <div className="radio-group">
-                                <label>
-                                    <input
-                                        type="radio"
-                                        name="petSpecies"
-                                        value="cat"
-                                        checked={formData.petSpecies === 'cat'}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                    Cat
-                                </label>
-                                <label>
-                                    <input
-                                        type="radio"
-                                        name="petSpecies"
-                                        value="dog"
-                                        checked={formData.petSpecies === 'dog'}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                    Dog
-                                </label>
-                                <label>
-                                    <input
-                                        type="radio"
-                                        name="petSpecies"
-                                        value="other"
-                                        checked={formData.petSpecies === 'other'}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                    Other
-                                </label>
+                                {[
+                                    { value: 'cat', label: 'Cat' },
+                                    { value: 'dog', label: 'Dog' },
+                                    { value: 'other', label: 'Other' }
+                                ].map(option => (
+                                    <label key={option.value}>
+                                        <input
+                                            type="radio"
+                                            name="petSpecies"
+                                            value={option.value}
+                                            checked={formData.petSpecies === option.value}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                        {option.label}
+                                    </label>
+                                ))}
                             </div>
                         </div>
 
@@ -265,36 +243,22 @@ const LostPawsForm: React.FC = () => {
                         <div className="form-group">
                             <label>Pets Sex:</label>
                             <div className="radio-group">
-                                <label>
-                                    <input
-                                        type="radio"
-                                        name="petSex"
-                                        value="female"
-                                        checked={formData.petSex === 'female'}
-                                        onChange={handleChange}
-                                    />
-                                    Female
-                                </label>
-                                <label>
-                                    <input
-                                        type="radio"
-                                        name="petSex"
-                                        value="male"
-                                        checked={formData.petSex === 'male'}
-                                        onChange={handleChange}
-                                    />
-                                    Male
-                                </label>
-                                <label>
-                                    <input
-                                        type="radio"
-                                        name="petSex"
-                                        value="unknown"
-                                        checked={formData.petSex === 'unknown'}
-                                        onChange={handleChange}
-                                    />
-                                    Unknown
-                                </label>
+                                {[
+                                    { value: 'female', label: 'Female' },
+                                    { value: 'male', label: 'Male' },
+                                    { value: 'unknown', label: 'Unknown' }
+                                ].map(option => (
+                                    <label key={option.value}>
+                                        <input
+                                            type="radio"
+                                            name="petSex"
+                                            value={option.value}
+                                            checked={formData.petSex === option.value}
+                                            onChange={handleChange}
+                                        />
+                                        {option.label}
+                                    </label>
+                                ))}
                             </div>
                         </div>
 
