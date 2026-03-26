@@ -2,20 +2,22 @@ import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { reportService } from "../services/reportService";
+import { PetReport } from "../types";
 import "./Maps.css";
 
 // Fix for default Leaflet icon paths
-delete L.Icon.Default.prototype._getIconUrl;
+const DefaultIcon = L.Icon.Default as any;
+delete DefaultIcon.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
     iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-const Maps = () => {
-    const mapRef = useRef(null);
-    const markersGroupRef = useRef(L.layerGroup());
-    const [reports, setReports] = useState([]);
+const Maps: React.FC = () => {
+    const mapRef = useRef<L.Map | null>(null);
+    const markersGroupRef = useRef<L.LayerGroup>(L.layerGroup());
+    const [reports, setReports] = useState<PetReport[]>([]);
 
     useEffect(() => {
         // Initialize Map
@@ -52,8 +54,11 @@ const Maps = () => {
                             shadowSize: [41, 41]
                         });
 
-                        const imageUrl = report.photos && report.photos.length > 0 
-                            ? (report.photos[0].url.startsWith('/assets') ? report.photos[0].url : `http://localhost:5000${report.photos[0].url}`)
+                        const photo = report.photos && report.photos.length > 0 ? report.photos[0] : null;
+                        const photoUrl = typeof photo === 'string' ? photo : (photo as any)?.url;
+
+                        const imageUrl = photoUrl
+                            ? (photoUrl.startsWith('/assets') ? photoUrl : `http://localhost:5000${photoUrl}`)
                             : '/assets/image/Dog.png';
 
                         const popupContent = `

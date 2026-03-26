@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { reportService } from '../services/reportService';
+import { PetReport, PetStatus, Announcement } from '../types';
 import './Announcements.css';
 
-const Announcements = () => {
-    const [reports, setReports] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [filter, setFilter] = useState('all');
+interface AnnouncementsProps {
+    announcements?: Announcement[];
+}
+
+const Announcements: React.FC<AnnouncementsProps> = ({ announcements }) => {
+    const [reports, setReports] = useState<PetReport[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [filter, setFilter] = useState<PetStatus | 'all'>('all');
 
     useEffect(() => {
         const fetchReports = async () => {
             try {
-                const query = filter === 'all' ? {} : { status: filter };
+                const query = filter === 'all' ? {} : { petStatus: filter };
                 const data = await reportService.getReports(query);
                 setReports(data);
             } catch (err) {
@@ -22,9 +27,12 @@ const Announcements = () => {
         fetchReports();
     }, [filter]);
 
-    const getImageUrl = (report) => {
+    const getImageUrl = (report: PetReport): string => {
         if (report.photos && report.photos.length > 0) {
-            const url = report.photos[0].url;
+            const photo = report.photos[0];
+            const url = typeof photo === 'string' ? photo : (photo as any).url;
+
+            if (!url) return '/assets/image/Dog.png';
             if (url.startsWith('/assets')) return url;
             if (url.startsWith('http')) return url;
             return `http://localhost:5000${url}`;
@@ -71,7 +79,7 @@ const Announcements = () => {
                                     <p className="description">{report.description}</p>
                                     <div className="card-footer">
                                         <p className="location">📍 {report.locationAddress}</p>
-                                        <p className="date">📅 {new Date(report.dateLastSeen).toLocaleDateString()}</p>
+                                        <p className="date">📅 {report.dateLastSeen ? new Date(report.dateLastSeen).toLocaleDateString() : 'N/A'}</p>
                                     </div>
                                     <div className="contact-info">
                                         <p>Contact: <strong>{report.contactName || 'Anonymous'}</strong></p>

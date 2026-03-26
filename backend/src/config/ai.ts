@@ -1,9 +1,9 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-const fs = require("fs");
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import fs from "fs";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
 
-const analyzePetImage = async (imagePath) => {
+export const analyzePetImage = async (imagePath: string): Promise<any> => {
     try {
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
@@ -39,5 +39,3 @@ const analyzePetImage = async (imagePath) => {
         throw new Error("Failed to analyze image with AI");
     }
 };
-
-module.exports = { analyzePetImage };

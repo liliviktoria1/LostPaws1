@@ -9,8 +9,10 @@ import ContactUs from './components/ContactUs';
 import LostPawsForm from './components/LostPawsForm';
 
 
+import { Announcement } from './types';
+
 function App() {
-    const announcementsData = [
+    const announcementsData: Announcement[] = [
         {
             id: 1,
             name: "Ben",

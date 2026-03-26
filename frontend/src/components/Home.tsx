@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { reportService } from '../services/reportService';
+import { PetReport } from '../types';
 import './Home.css';
 
-const Home = () => {
+const Home: React.FC = () => {
     const navigate = useNavigate();
 
-    const [missingPets, setMissingPets] = useState([]);
-    const [foundPets, setFoundPets] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [missingPets, setMissingPets] = useState<PetReport[]>([]);
+    const [foundPets, setFoundPets] = useState<PetReport[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
 
     useEffect(() => {
         const fetchPets = async () => {
             try {
                 const [lostData, foundData] = await Promise.all([
-                    reportService.getReports({ status: 'lost' }),
-                    reportService.getReports({ status: 'found' })
+                    reportService.getReports({ petStatus: 'lost' }),
+                    reportService.getReports({ petStatus: 'found' })
                 ]);
                 // Keep only top 3 for the home page slider
                 setMissingPets(lostData.slice(0, 3));
@@ -29,9 +30,12 @@ const Home = () => {
         fetchPets();
     }, []);
 
-    const getImageUrl = (pet) => {
+    const getImageUrl = (pet: PetReport): string => {
         if (pet.photos && pet.photos.length > 0) {
-            const url = pet.photos[0].url;
+            const photo = pet.photos[0];
+            const url = typeof photo === 'string' ? photo : (photo as any).url;
+            
+            if (!url) return '/assets/image/Dog.png';
             // If it's a local asset from public folder, return as is
             if (url.startsWith('/assets')) return url;
             // If it's a full URL, return as is

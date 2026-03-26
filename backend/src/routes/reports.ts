@@ -1,10 +1,11 @@
-const express = require('express');
-const router = express.Router();
-const PetReport = require('../models/PetReport');
-const multer = require('multer');
-const path = require('path');
-const { Op } = require('sequelize');
-const { analyzePetImage } = require('../config/ai');
+import express, { Request, Response, Router } from 'express';
+import PetReport from '../models/PetReport';
+import multer from 'multer';
+import path from 'path';
+import { Op } from 'sequelize';
+import { analyzePetImage } from '../config/ai';
+
+const router: Router = express.Router();
 
 // Configure Multer for photo uploads
 const storage = multer.diskStorage({
@@ -18,7 +19,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // POST /api/reports/analyze - Analyze pet image with AI
-router.post('/analyze', upload.single('photo'), async (req, res) => {
+router.post('/analyze', upload.single('photo'), async (req: Request, res: Response) => {
     try {
         if (!req.file) {
             return res.status(400).json({ message: 'No photo provided' });
@@ -33,7 +34,7 @@ router.post('/analyze', upload.single('photo'), async (req, res) => {
 });
 
 // POST /api/reports - Create a new report
-router.post('/', upload.array('photos', 5), async (req, res) => {
+router.post('/', upload.array('photos', 5), async (req: Request, res: Response) => {
     try {
         const {
             petStatus,
@@ -50,9 +51,10 @@ router.post('/', upload.array('photos', 5), async (req, res) => {
             contactEmail
         } = req.body;
 
-        const photoPaths = req.files ? req.files.map(file => ({ url: `/uploads/${file.filename}` })) : [];
+        const files = req.files as Express.Multer.File[];
+        const photoPaths = files ? files.map(file => ({ url: `/uploads/${file.filename}` })) : [];
 
-        const newReport = await PetReport.create({
+        const newReport = await (PetReport as any).create({
             petStatus,
             petName,
             petSpecies,
@@ -69,72 +71,72 @@ router.post('/', upload.array('photos', 5), async (req, res) => {
         });
 
         res.status(201).json(newReport);
-    } catch (err) {
+    } catch (err: any) {
         console.error('Error creating report:', err);
         res.status(400).json({ message: err.message });
     }
 });
 
 // GET /api/reports - Get all reports with optional filters
-router.get('/', async (req, res) => {
+router.get('/', async (req: Request, res: Response) => {
     try {
-        const { status, species, sex, location } = req.query;
-        let where = {};
+        const { petStatus, petSpecies, petSex, location } = req.query;
+        let where: any = {};
 
-        if (status) where.petStatus = status;
-        if (species) where.petSpecies = species;
-        if (sex) where.petSex = sex;
+        if (petStatus) where.petStatus = petStatus;
+        if (petSpecies) where.petSpecies = petSpecies;
+        if (petSex) where.petSex = petSex;
         if (location) {
             where.locationAddress = { [Op.iLike]: `%${location}%` };
         }
 
-        const reports = await PetReport.findAll({
+        const reports = await (PetReport as any).findAll({
             where,
             order: [['createdAt', 'DESC']]
         });
         res.json(reports);
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).json({ message: err.message });
     }
 });
 
 // GET /api/reports/:id - Get a specific report
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req: Request, res: Response) => {
     try {
-        const report = await PetReport.findByPk(req.params.id);
+        const report = await (PetReport as any).findByPk(req.params.id);
         if (!report) return res.status(404).json({ message: 'Report not found' });
         res.json(report);
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).json({ message: err.message });
     }
 });
 
 // PATCH /api/reports/:id - Update a report
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', async (req: Request, res: Response) => {
     try {
-        const [updated] = await PetReport.update(req.body, {
+        const [updated] = await (PetReport as any).update(req.body, {
             where: { id: req.params.id }
         });
         if (!updated) return res.status(404).json({ message: 'Report not found' });
 
-        const updatedReport = await PetReport.findByPk(req.params.id);
+        const updatedReport = await (PetReport as any).findByPk(req.params.id);
         res.json(updatedReport);
-    } catch (err) {
+    } catch (err: any) {
         res.status(400).json({ message: err.message });
     }
 });
 
 // DELETE /api/reports/:id - Delete a report
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req: Request, res: Response) => {
     try {
-        const deleted = await PetReport.destroy({
+        const deleted = await (PetReport as any).destroy({
             where: { id: req.params.id }
         });
         if (!deleted) return res.status(404).json({ message: 'Report not found' });
         res.json({ message: 'Report deleted successfully' });
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).json({ message: err.message });
     }
 });
 
-module.exports = router;
+export default router;

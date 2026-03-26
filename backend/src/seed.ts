@@ -1,12 +1,12 @@
-const sequelize = require('./config/database');
-const PetReport = require('./models/PetReport');
+import sequelize from './config/database';
+import PetReport from './models/PetReport';
 
 const seedData = async () => {
     try {
         await sequelize.sync({ force: true });
         console.log('Database synced');
 
-        await PetReport.bulkCreate([
+        await (PetReport as any).bulkCreate([
             {
                 petStatus: 'lost',
                 petName: 'Ben',

@@ -1,26 +1,44 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useDropzone } from 'react-dropzone';
+import React, { useState, useEffect, useRef, ChangeEvent, FormEvent } from 'react';
+import { useDropzone, FileRejection, DropEvent } from 'react-dropzone';
 import { useNavigate } from 'react-router-dom';
 import { reportService } from '../services/reportService';
+import { PetStatus, PetSpecies, PetSex } from '../types';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './LostPawsForm.css';
 
 // Fix for default Leaflet icon paths
-delete L.Icon.Default.prototype._getIconUrl;
+const DefaultIcon = L.Icon.Default as any;
+delete DefaultIcon.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
     iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-const LostPawsForm = () => {
+interface FormData {
+    petStatus: PetStatus | '';
+    petName: string;
+    petSpecies: PetSpecies | '';
+    petSex: PetSex | '';
+    description: string;
+    locationAddress: string;
+    locationLat: number | null;
+    locationLng: number | null;
+    dateLastSeen: string;
+    contactName: string;
+    contactNumber: string;
+    contactEmail: string;
+    photos: File[];
+}
+
+const LostPawsForm: React.FC = () => {
     const navigate = useNavigate();
-    const mapRef = useRef(null);
-    const markerRef = useRef(null);
+    const mapRef = useRef<L.Map | null>(null);
+    const markerRef = useRef<L.Marker | null>(null);
     
-    const [isSubmitting, setIsLoading] = useState(false);
-    const [formData, setFormData] = useState({
+    const [isSubmitting, setIsLoading] = useState<boolean>(false);
+    const [formData, setFormData] = useState<FormData>({
         petStatus: '',
         petName: '',
         petSpecies: '',
@@ -39,14 +57,14 @@ const LostPawsForm = () => {
     // Initialize Map
     useEffect(() => {
         if (!mapRef.current) {
-            const initialCoords = [50.4501, 30.5234]; // Kyiv default
+            const initialCoords: [number, number] = [50.4501, 30.5234]; // Kyiv default
             const map = L.map('form-map').setView(initialCoords, 13);
             
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
 
-            map.on('click', (e) => {
+            map.on('click', (e: L.LeafletMouseEvent) => {
                 const { lat, lng } = e.latlng;
                 updateLocation(lat, lng);
             });
@@ -62,12 +80,12 @@ const LostPawsForm = () => {
         };
     }, []);
 
-    const updateLocation = (lat, lng) => {
+    const updateLocation = (lat: number, lng: number) => {
         setFormData(prev => ({ ...prev, locationLat: lat, locationLng: lng }));
         
         if (markerRef.current) {
             markerRef.current.setLatLng([lat, lng]);
-        } else {
+        } else if (mapRef.current) {
             markerRef.current = L.marker([lat, lng]).addTo(mapRef.current);
         }
     };
@@ -76,20 +94,22 @@ const LostPawsForm = () => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition((position) => {
                 const { latitude, longitude } = position.coords;
-                mapRef.current.setView([latitude, longitude], 15);
-                updateLocation(latitude, longitude);
+                if (mapRef.current) {
+                    mapRef.current.setView([latitude, longitude], 15);
+                    updateLocation(latitude, longitude);
+                }
             });
         }
     };
 
-    const handleChange = (e) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
 
-    const handleDrop = async (acceptedFiles) => {
+    const handleDrop = async (acceptedFiles: File[]) => {
         setFormData(prev => ({
             ...prev,
             photos: [...prev.photos, ...acceptedFiles]
@@ -117,14 +137,14 @@ const LostPawsForm = () => {
         }
     };
 
-    const handleRemovePhoto = (index) => {
+    const handleRemovePhoto = (index: number) => {
         setFormData((prev) => ({
             ...prev,
             photos: prev.photos.filter((_, i) => i !== index)
         }));
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         if (!formData.petName || !formData.contactEmail || !formData.petStatus) {
             alert("Please fill in all required fields (Name, Email, Status)");
@@ -133,10 +153,10 @@ const LostPawsForm = () => {
 
         setIsLoading(true);
         try {
-            await reportService.createReport(formData);
+            await reportService.createReport(formData as any);
             alert("Report created successfully!");
             navigate('/announcements');
-        } catch (err) {
+        } catch (err: any) {
             console.error('Error submitting form:', err);
             alert("Failed to create report: " + err.message);
         } finally {
@@ -339,7 +359,7 @@ const LostPawsForm = () => {
                                     📍 Detect My Location
                                 </button>
                                 <div id="form-map" style={{ height: '300px', width: '100%', marginTop: '10px', borderRadius: '10px', border: '1px solid #ccc' }}></div>
-                                {formData.locationLat && (
+                                {formData.locationLat !== null && formData.locationLng !== null && (
                                     <p className="coords-display">
                                         Pinned: {formData.locationLat.toFixed(4)}, {formData.locationLng.toFixed(4)}
                                     </p>

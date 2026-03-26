@@ -1,8 +1,11 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const sequelize = require('./config/database');
+import dotenv from 'dotenv';
+import express, { Request, Response } from 'express';
+import cors from 'cors';
+import path from 'path';
+import sequelize from './config/database';
+import reportRoutes from './routes/reports';
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -13,10 +16,9 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
-const reportRoutes = require('./routes/reports');
 app.use('/api/reports', reportRoutes);
 
-app.get('/', (req, res) => {
+app.get('/', (req: Request, res: Response) => {
     res.send('Lost Paws API (PostgreSQL) is running...');
 });
 
@@ -28,6 +30,6 @@ sequelize.sync({ force: false }) // Use { force: true } during development if yo
             console.log(`Server is running on port ${PORT}`);
         });
     })
-    .catch(err => {
+    .catch((err: any) => {
         console.error('Unable to connect to the database:', err);
     });

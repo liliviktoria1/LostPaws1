@@ -1,35 +1,38 @@
+import { PetReport, PetFilters } from '../types';
+
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 export const reportService = {
     // Fetch all reports with optional filters
-    getReports: async (filters = {}) => {
-        const queryParams = new URLSearchParams(filters).toString();
+    getReports: async (filters: PetFilters = {}): Promise<PetReport[]> => {
+        const queryParams = new URLSearchParams(filters as Record<string, string>).toString();
         const response = await fetch(`${API_URL}/reports?${queryParams}`);
         if (!response.ok) throw new Error('Failed to fetch reports');
         return response.json();
     },
 
     // Get a single report by ID
-    getReportById: async (id) => {
+    getReportById: async (id: string): Promise<PetReport> => {
         const response = await fetch(`${API_URL}/reports/${id}`);
         if (!response.ok) throw new Error('Failed to fetch report');
         return response.json();
     },
 
     // Create a new report (handles multipart/form-data for photos)
-    createReport: async (reportData) => {
+    createReport: async (reportData: Partial<PetReport> & { photos?: File[] }): Promise<PetReport> => {
         const formData = new FormData();
 
         // Append all text fields
-        Object.keys(reportData).forEach(key => {
-            if (key === 'photos') {
-                reportData.photos.forEach(file => {
-                    formData.append('photos', file);
+        Object.keys(reportData).forEach(key => {        
+            const value = (reportData as any)[key];
+            if (key === 'photos' && Array.isArray(value)) {
+                value.forEach((file: File) => {     
+                    formData.append('photos', file);    
                 });
-            } else if (key === 'location') {
-                formData.append(key, JSON.stringify(reportData[key]));
-            } else {
-                formData.append(key, reportData[key]);
+            } else if (key === 'location' && typeof value === 'object') {
+                formData.append(key, JSON.stringify(value));
+            } else if (value !== undefined) {
+                formData.append(key, value as string);  
             }
         });
 
@@ -39,7 +42,7 @@ export const reportService = {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json();    
             throw new Error(errorData.message || 'Failed to create report');
         }
 
@@ -47,7 +50,7 @@ export const reportService = {
     },
 
     // Delete a report
-    deleteReport: async (id) => {
+    deleteReport: async (id: string): Promise<void> => {
         const response = await fetch(`${API_URL}/reports/${id}`, {
             method: 'DELETE',
         });
@@ -56,7 +59,7 @@ export const reportService = {
     },
 
     // Analyze pet photo with AI
-    analyzePetImage: async (photoFile) => {
+    analyzePetImage: async (photoFile: File): Promise<any> => {
         const formData = new FormData();
         formData.append('photo', photoFile);
 
@@ -66,10 +69,11 @@ export const reportService = {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json();    
             throw new Error(errorData.message || 'AI Analysis failed');
         }
 
         return response.json();
     }
 };
+

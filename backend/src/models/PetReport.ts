@@ -1,5 +1,23 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+import { DataTypes, Model } from 'sequelize';
+import sequelize from '../config/database';
+
+export interface PetReportAttributes {
+    id: string;
+    petStatus: 'lost' | 'found';
+    petName: string;
+    petSpecies: 'cat' | 'dog' | 'other';
+    petSex?: 'female' | 'male' | 'unknown';
+    description?: string;
+    locationAddress?: string;
+    locationLat?: number;
+    locationLng?: number;
+    dateLastSeen?: Date;
+    contactName?: string;
+    contactNumber?: string;
+    contactEmail: string;
+    photos?: any;
+    embedding?: number[];
+}
 
 const PetReport = sequelize.define('PetReport', {
     id: {
@@ -64,4 +82,4 @@ const PetReport = sequelize.define('PetReport', {
     timestamps: true
 });
 
-module.exports = PetReport;
+export default PetReport;
