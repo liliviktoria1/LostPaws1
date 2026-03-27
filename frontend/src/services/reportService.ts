@@ -1,19 +1,20 @@
 import { PetReport, PetFilters } from '../types';
+import { authService } from './authService';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const BASE_API_URL = (process.env.REACT_APP_API_URL || 'http://localhost:8080/api').replace(/\/$/, '');
 
 export const reportService = {
     // Fetch all reports with optional filters
     getReports: async (filters: PetFilters = {}): Promise<PetReport[]> => {
         const queryParams = new URLSearchParams(filters as Record<string, string>).toString();
-        const response = await fetch(`${API_URL}/reports?${queryParams}`);
+        const response = await fetch(`${BASE_API_URL}/reports?${queryParams}`);
         if (!response.ok) throw new Error('Failed to fetch reports');
         return response.json();
     },
 
     // Get a single report by ID
     getReportById: async (id: string): Promise<PetReport> => {
-        const response = await fetch(`${API_URL}/reports/${id}`);
+        const response = await fetch(`${BASE_API_URL}/reports/${id}`);
         if (!response.ok) throw new Error('Failed to fetch report');
         return response.json();
     },
@@ -21,6 +22,7 @@ export const reportService = {
     // Create a new report (handles multipart/form-data for photos)
     createReport: async (reportData: Partial<PetReport> & { photos?: File[] }): Promise<PetReport> => {
         const formData = new FormData();
+        const token = authService.getToken();
 
         // Append all text fields
         Object.keys(reportData).forEach(key => {        
@@ -36,8 +38,9 @@ export const reportService = {
             }
         });
 
-        const response = await fetch(`${API_URL}/reports`, {
+        const response = await fetch(`${BASE_API_URL}/reports`, {
             method: 'POST',
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {},
             body: formData, // Browser automatically sets Content-Type to multipart/form-data
         });
 
@@ -51,8 +54,10 @@ export const reportService = {
 
     // Delete a report
     deleteReport: async (id: string): Promise<void> => {
-        const response = await fetch(`${API_URL}/reports/${id}`, {
+        const token = authService.getToken();
+        const response = await fetch(`${BASE_API_URL}/reports/${id}`, {
             method: 'DELETE',
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {},
         });
         if (!response.ok) throw new Error('Failed to delete report');
         return response.json();
@@ -63,7 +68,7 @@ export const reportService = {
         const formData = new FormData();
         formData.append('photo', photoFile);
 
-        const response = await fetch(`${API_URL}/reports/analyze`, {
+        const response = await fetch(`${BASE_API_URL}/reports/analyze`, {
             method: 'POST',
             body: formData,
         });

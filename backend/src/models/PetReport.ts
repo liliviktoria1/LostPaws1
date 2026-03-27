@@ -1,5 +1,5 @@
 import { DataTypes, Model } from 'sequelize';
-import sequelize from '../config/database';
+import sequelize from '../config/database.js';
 
 export interface PetReportAttributes {
     id: string;
@@ -73,6 +73,10 @@ const PetReport = sequelize.define('PetReport', {
     photos: {
         type: DataTypes.JSONB, // Store photo URLs as an array in JSONB format
         defaultValue: []
+    },
+    userId: {
+        type: DataTypes.UUID,
+        allowNull: true, // Allow anonymous reports for now
     },
     embedding: {
         type: DataTypes.ARRAY(DataTypes.FLOAT), // For AI matching

@@ -2,6 +2,12 @@ export type PetStatus = 'lost' | 'found';
 export type PetSpecies = 'cat' | 'dog' | 'other';
 export type PetSex = 'female' | 'male' | 'unknown';
 
+export interface User {
+    id: string;
+    name: string;
+    email: string;
+}
+
 export interface PetReport {
     id: string;
     petStatus: PetStatus;
@@ -18,6 +24,7 @@ export interface PetReport {
     contactEmail: string;
     photos?: string[];
     embedding?: number[];
+    userId?: string;
     createdAt?: string;
     updatedAt?: string;
 }

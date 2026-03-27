@@ -1,9 +1,10 @@
 import express, { Request, Response, Router } from 'express';
-import PetReport from '../models/PetReport';
+import PetReport from '../models/PetReport.js';
 import multer from 'multer';
 import path from 'path';
 import { Op } from 'sequelize';
-import { analyzePetImage } from '../config/ai';
+import { analyzePetImage } from '../config/ai.js';
+import { authMiddleware, AuthRequest } from '../middleware/auth.js';
 
 const router: Router = express.Router();
 
@@ -34,7 +35,7 @@ router.post('/analyze', upload.single('photo'), async (req: Request, res: Respon
 });
 
 // POST /api/reports - Create a new report
-router.post('/', upload.array('photos', 5), async (req: Request, res: Response) => {
+router.post('/', [authMiddleware, upload.array('photos', 5)], async (req: AuthRequest, res: Response) => {
     try {
         const {
             petStatus,
@@ -67,7 +68,8 @@ router.post('/', upload.array('photos', 5), async (req: Request, res: Response) 
             contactName,
             contactNumber,
             contactEmail,
-            photos: photoPaths
+            photos: photoPaths,
+            userId: req.userId // Associate with logged in user
         });
 
         res.status(201).json(newReport);
@@ -127,12 +129,17 @@ router.patch('/:id', async (req: Request, res: Response) => {
 });
 
 // DELETE /api/reports/:id - Delete a report
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
     try {
-        const deleted = await (PetReport as any).destroy({
-            where: { id: req.params.id }
-        });
-        if (!deleted) return res.status(404).json({ message: 'Report not found' });
+        const report = await (PetReport as any).findByPk(req.params.id);
+        if (!report) return res.status(404).json({ message: 'Report not found' });
+
+        // Check ownership
+        if (report.userId !== req.userId) {
+            return res.status(403).json({ message: 'User not authorized to delete this report' });
+        }
+
+        await report.destroy();
         res.json({ message: 'Report deleted successfully' });
     } catch (err: any) {
         res.status(500).json({ message: err.message });

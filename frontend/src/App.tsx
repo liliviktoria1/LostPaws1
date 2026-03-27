@@ -8,24 +8,27 @@ import Announcements from './components/Announcements';
 import ContactUs from './components/ContactUs';
 import LostPawsForm from './components/LostPawsForm';
 import { mockAnnouncements } from './data/mockData';
+import { AuthProvider } from './context/AuthContext';
 
 function App() {
     return (
-        <Router>
-            <div className="App">
-                <Header />
-                <main className="content">
-                    <Routes>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/maps" element={<Maps />} />
-                        <Route path="/announcements" element={<Announcements announcements={mockAnnouncements} />} />
-                        <Route path="/contact" element={<ContactUs />} />
-                        <Route path="/report" element={<LostPawsForm />} />
-                    </Routes>
-                </main>
-                <Footer />
-            </div>
-        </Router>
+        <AuthProvider>
+            <Router>
+                <div className="App">
+                    <Header />
+                    <main className="content">
+                        <Routes>
+                            <Route path="/" element={<Home />} />
+                            <Route path="/maps" element={<Maps />} />
+                            <Route path="/announcements" element={<Announcements announcements={mockAnnouncements} />} />
+                            <Route path="/contact" element={<ContactUs />} />
+                            <Route path="/report" element={<LostPawsForm />} />
+                        </Routes>
+                    </main>
+                    <Footer />
+                </div>
+            </Router>
+        </AuthProvider>
     );
 }
 

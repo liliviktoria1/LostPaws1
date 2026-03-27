@@ -4,7 +4,7 @@
     align-items: center;
     background-color: var(--white);
     color: var(--primary-color);
-    padding: 1rem 4%;
+    padding: 15px 4%;
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -13,6 +13,7 @@
 .header-left {
     display: flex;
     align-items: center;
+    flex: 1;
 }
 
 .logo-container {
@@ -22,13 +23,13 @@
 }
 
 .logo {
-    width: 38px;
-    height: 38px;
-    margin-right: 8px;
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
 }
 
 .site-title {
-    font-size: 26px;
+    font-size: 28px;
     font-weight: 700;
     font-family: var(--font-main);
 }
@@ -38,50 +39,48 @@
 }
 
 .paws {
-    color: #FAC655; /* Keep specific brand yellow if not in variables */
+    color: #FACC55; 
 }
 
 .nav-links {
     display: flex;
-    gap: 30px;
+    gap: 25px;
+    justify-content: center;
+    flex: 2;
 }
 
 .nav-link {
     text-decoration: none;
     font-size: 16px;
-    font-weight: 500;
-    color: var(--light-text);
-    transition: color 0.3s;
-    position: relative;
-    padding-bottom: 4px;
+    font-weight: 600;
+    color: #6B7280; /* Grey text like in image */
+    transition: all 0.3s;
+    padding: 5px 0;
 }
 
 .nav-link:hover {
     color: var(--primary-color);
 }
 
-.nav-link.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background-color: var(--primary-color);
+.nav-link.active {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
 }
 
-.header-right {
+.header-actions {
     display: flex;
     align-items: center;
-    gap: 8px; /* Reduced gap between buttons */
+    justify-content: flex-end;
+    gap: 40px; /* Large gap between button and icons */
+    flex: 1;
 }
 
 .report-button {
-    padding: 8px 16px; /* More compact padding */
-    font-size: 13px;
+    padding: 10px 24px;
+    font-size: 16px;
     font-weight: 700;
     text-decoration: none;
-    border-radius: var(--border-radius);
+    border-radius: 12px;
     background-color: #FACC55;
     color: var(--primary-color);
     transition: background-color 0.3s;
@@ -92,53 +91,97 @@
     background-color: #f7b92d;
 }
 
+.header-icons {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
 .globe-button {
     background: none;
     border: none;
-    font-size: 20px;
+    font-size: 22px;
     color: #9CA3AF;
     cursor: pointer;
     display: flex;
     align-items: center;
-    padding: 0 4px;
+    padding: 0;
 }
 
-.login-button {
-    padding: 8px 16px;
-    font-size: 13px;
-    font-weight: 600;
+.profile-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.profile-button {
+    background: none;
     border: none;
-    border-radius: var(--border-radius);
-    background-color: #D1D5DB;
-    color: var(--white);
+    font-size: 32px;
+    color: #000000; /* Black profile icon */
     cursor: pointer;
-    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    transition: opacity 0.3s;
 }
 
-.signup-button {
-    padding: 8px 16px;
-    font-size: 13px;
-    font-weight: 600;
-    border: none;
-    border-radius: var(--border-radius);
-    background-color: #CAD9EF;
-    color: var(--light-text);
-    cursor: pointer;
-    white-space: nowrap;
+.profile-button:hover {
+    opacity: 0.7;
 }
 
-.mobile-menu-icon {
-    display: none;
+.profile-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 10px;
+    background-color: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    min-width: 200px;
+    padding: 15px;
+    z-index: 1001;
+    display: flex;
     flex-direction: column;
-    gap: 4px;
-    cursor: pointer;
+    gap: 10px;
+    border: 1px solid #eee;
 }
 
-.menu-bar {
-    width: 25px;
-    height: 3px;
-    background-color: var(--primary-color);
-    border-radius: 2px;
+.dropdown-user-info {
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+}
+
+.dropdown-user-info strong {
+    color: var(--primary-color);
+}
+
+.dropdown-user-info span {
+    color: var(--light-text);
+    font-size: 12px;
+}
+
+.profile-dropdown hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 5px 0;
+}
+
+.dropdown-item {
+    background: none;
+    border: none;
+    text-align: left;
+    padding: 8px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #B91C1C;
+    cursor: pointer;
+    transition: opacity 0.3s;
+}
+
+.dropdown-item:hover {
+    opacity: 0.7;
 }
 
 @media (max-width: 1024px) {

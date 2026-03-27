@@ -1,5 +1,5 @@
-import sequelize from './config/database';
-import PetReport from './models/PetReport';
+import sequelize from './config/database.js';
+import PetReport from './models/PetReport.js';
 
 const seedData = async () => {
     try {
