@@ -62,7 +62,7 @@ const Home: React.FC = () => {
             </section>
 
             {/* Our Mission Section */}
-            <section className="mission lost-pet-content">
+            <section className="mission">
                 <div className="decorative-shape">
                     {/* Фоновий декоративний елемент */}
                     <img src="/assets/image/Dog.png" alt="Dog"/>

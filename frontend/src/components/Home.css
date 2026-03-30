@@ -7,7 +7,7 @@
 .lost-pet-section {
     justify-content: space-between;
     background-color: #f8c454; /* Soft yellow background */
-    padding: 3rem 2rem;
+    padding: 6rem 2rem;
     position: relative;
     overflow: hidden;
     display: flex;
@@ -18,7 +18,7 @@
 .lost-pet-content {
     flex: 1;
     text-align: left;
-    padding: 0 2rem;
+    padding: 0 4rem;
 }
 
 .lost-pet-content h1 {
@@ -63,50 +63,69 @@
     position: relative;
     display: flex;
     align-items: center;
-    justify-content: space-evenly;
-    background-image: url('/public/assets/vector/Group-mision.svg');/* Абсолютний шлях до файлу в папці public */
-    background-repeat: no-repeat; /* Щоб зображення не повторювалося */
-    background-size: cover; /* Робимо зображення адаптивним */
-    background-position: left top;
-    padding: 0;
-    border-radius: 20px;
-    margin: 0;
+    justify-content: flex-end; /* Push content to the right */
+    background-image: url('/public/assets/vector/Group-mision.svg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    padding: 10rem 6% 10rem 2rem;
+    margin: 0; /* Removed margin as requested */
     overflow: hidden;
-    height: 820px; /* Запобігає виходу декоративного зображення за межі секції */
+    min-height: 700px;
 }
 
+.mission .decorative-shape {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50%;
+    z-index: 1;
+}
 
 .mission .decorative-shape img {
-    width: 1100px; /* Задаємо ширину зображення собаки */
-    height: auto; /* Зберігаємо пропорції */
-    position: absolute;
-    object-fit: cover; /* Забезпечує розтягування без обрізання */
-    transform: translate(-30%, -60%); /* Зміщуємо елемент для гарного розташування */
+    width: 100%;
+    max-width: 1100px; /* Restored to original scale */
+    height: auto;
+    /* Removed rotation to keep it "as it was" (upside down in source) */
+    transform: translate(-10%, 0); 
+    opacity: 1;
 }
 
 .mission .mission-content {
     position: relative;
-    z-index: 2; /* Текст розташований поверх декоративного елемента */
-    color: #ffffff; /* Білий текст */
+    z-index: 2;
+    color: #ffffff;
     text-align: left;
-    max-width: 800px; /* Обмежуємо ширину текстового блоку */
+    width: 793px; /* Specific width requested */
+    height: 341px; /* Specific height requested */
     background: #181a32;
-    border-radius: 50px;
-    padding: 50px;/* Темний фон для текстового блоку */
+    border-radius: 78px; /* Specific border-radius requested */
+    padding: 50px 60px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .mission .mission-content h2 {
-    font-size: 3rem;
-    font-weight: 500;
+    font-size: 3.5rem;
+    font-weight: 700;
     margin-bottom: 1rem;
-    color: #ffffff; /* Білий заголовок */
+    color: #ffffff;
+}
+
+.mission .mission-content p {
+    font-size: 1.5rem;
+    line-height: 1.6;
+    color: #ffffff;
 }
 .Lost {
     color: #f8c454;
 }
 .mission .mission-content p {
     font-size: 1.5rem;
-    line-height: 1.6;
+    line-height: 1.8;
     color: #ffffff; /* Білий текст */
 }
 
@@ -118,39 +137,40 @@
 .how-it-works {
     background-color: #d8e5f5; /* Світло-блакитний фон секції */
     padding: 10rem 2rem;
-    height: 580px;  /* Простір для тексту */
+    min-height: 600px;  /* Простір для тексту */
     text-align: center; /* Центрування заголовка */
+    margin: 4rem 0;
 }
 
 .how-it-works h2 {
     font-size: 3.2rem;
     font-weight: 500;
     color: #181a32; /* Темно-синій заголовок */
-    margin-bottom: 3rem; /* Відстань між заголовком і блоками */
+    margin-bottom: 5rem; /* Відстань між заголовком і блоками */
 }
 
 .steps {
     display: flex;
     justify-content: space-evenly; /* Рівномірний розподіл блоків */
-   /* gap: 2rem; /* Проміжок між блоками */
+    gap: 2rem; /* Проміжок між блоками */
     flex-wrap: wrap; /* Адаптивність для малих екранів */
 }
 
 .step {
     background-color: #ffffff; /* Білий фон для кожного блоку */
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Легкий тіньовий ефект */
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1); /* Легкий тіньовий ефект */
     border-radius: 20px; /* Закруглені краї */
-    padding: 2rem;
+    padding: 3rem 2rem;
     width: 20%; /* Ширина кожного блоку */
-    min-width: 250px; /* Мінімальна ширина для адаптивності */
+    min-width: 280px; /* Мінімальна ширина для адаптивності */
     text-align: left; /* Вирівнювання тексту в середині */
 }
 
 .step h3 {
-    font-size: 1.8rem;
+    font-size: 2rem;
     font-weight: bold;
     color: #181a32; /* Темно-синій заголовок блоку */
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
     text-align: center;
 }
 
@@ -158,7 +178,7 @@
     font-size: 1.5rem;
     color: #555555; /* Колір тексту */
     line-height: 1.6;
-    margin-top: 50px;
+    margin-top: 30px;
 }
 
 @media (max-width: 768px) {
@@ -179,23 +199,24 @@
     background-repeat: no-repeat; /* Щоб зображення не повторювалося */
     background-size: cover; /* Робимо зображення адаптивним */
     background-position: left top;/* Світло-блакитний фон */
-    padding: 4rem 2rem; /* Відступи для секції */
+    padding: 8rem 2rem; /* Відступи для секції */
     text-align: center; /* Центрування заголовка і тексту */
     position: relative; /* Для кнопок слайдера */
     overflow: hidden; /* Запобігання виходу елементів за межі */
+    margin: 4rem 0;
 }
 
 .missing-pets h2 {
     font-size: 5rem;
     font-weight: 500;
     color: #181a32; /* Темний синій текст */
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
 }
 
 .missing-pets p {
-    font-size: 2rem;
+    font-size: 2.2rem;
     color: #555555; /* Сірий текст */
-    margin-bottom: 2rem;
+    margin-bottom: 4rem;
 }
 
 .found-pets {
@@ -204,39 +225,40 @@
     background-repeat: no-repeat; /* Щоб зображення не повторювалося */
     background-size: cover; /* Робимо зображення адаптивним */
     background-position: left top;/* Світло-блакитний фон */
-    padding: 4rem 2rem; /* Відступи для секції */
+    padding: 8rem 2rem; /* Відступи для секції */
     text-align: center; /* Центрування заголовка і тексту */
     position: relative; /* Для кнопок слайдера */
     overflow: hidden; /* Запобігання виходу елементів за межі */
+    margin: 4rem 0;
 }
 
 .found-pets h2 {
     font-size: 5rem;
     font-weight: 500;
     color: #181a32; /* Темний синій текст */
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
 }
 
 .found-pets p {
-    font-size: 2rem;
+    font-size: 2.2rem;
     color: #555555; /* Сірий текст */
-    margin-bottom: 2rem;
+    margin-bottom: 4rem;
 }
 
 .slider {
     display: flex;
     justify-content:center;
-    gap: 0; /* Відстань між слайдами */
-    padding: 1rem 0;
+    gap: 2rem; /* Відстань між слайдами */
+    padding: 2rem 0;
 }
 
 .slider-item {
     flex: 0 0 400px; /* Фіксована ширина слайду */
     border-radius: 20px; /* Закруглені краї */
     background-color: #ffffff; /* Білий фон для слайду */
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Легкий тіньовий ефект */
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1); /* Легкий тіньовий ефект */
     text-align: left;
-    padding: 1rem;
+    padding: 1.5rem;
     margin: 0 auto;
 
     display: flex; /* Робимо контейнер флекс-контейнером */
@@ -245,36 +267,38 @@
 }
 
 .slider-item img {
-    width: 80%; /* Зображення займає 80% ширини слайду */
-    height: auto; /* Зберігаємо пропорції зображення */
+    width: 90%; /* Зображення займає 80% ширини слайду */
+    height: 250px;
+    object-fit: cover; /* Зберігаємо пропорції зображення */
     border-radius: 15px; /* Закруглені краї для зображення */
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .slider-item h3 {
     font-size: 3rem;
     font-weight: 500;
     color: #181a32; /* Темний синій текст */
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.5rem;
     text-align: left;
     align-self: flex-start;
 }
 
 .slider-item p {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     color: #555555; /* Сірий текст */
-    margin-bottom: 5px;
+    margin-bottom: 10px;
     text-align: left;
     align-self: flex-start;
     margin-top: 0 !important;
+    line-height: 1.5;
 }
 
 .slider-item a {
-    font-size: 1rem;
+    font-size: 1.1rem;
     color: #fbc02d; /* Жовтий текст для посилання */
     text-decoration: none;
     font-weight: bold;
-    margin-top: 5px;
+    margin-top: 10px;
 }
 
 .slider-item a:hover {
@@ -373,42 +397,44 @@
     justify-content: center;
     align-items: center;
     background-color: #313561;
-    padding: 2rem;
-    margin:  0;
+    padding: 8rem 2rem;
+    margin:  4rem 0 0 0;
     color: #ffffff;
     position: relative;
 }
 
 .cta-content {
     text-align: center; /* Центрує текст і кнопку */
-    max-width: 500px; /* Обмежує ширину блоку контенту */
+    max-width: 600px; /* Обмежує ширину блоку контенту */
     z-index: 1; /* Забезпечує, що контент відображається поверх */
 }
 
 .cta-button {
     background-color: #f8c454;
     color: #181a32;
-    font-size: 4rem;
+    font-size: 3rem;
     font-weight: bold;
-    padding: 2rem 4rem;
+    padding: 1.5rem 3rem;
     border: none;
-    border-radius: 10px;
+    border-radius: 15px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    margin-bottom: 2rem;
 }
 
 .cta-button:hover {
     background-color: #f7b13f;
+    transform: scale(1.05);
 }
 .cta h2 {
-    margin-top: 1rem;
-    font-size: 1.8rem;
+    margin-top: 1.5rem;
+    font-size: 2.2rem;
     color: #ffffff;
 }
 .cta p {
     margin-top: 1rem;
-    font-size: 1.2rem;
+    font-size: 1.4rem;
+    opacity: 0.9;
 }
 
 .decorative-image img {
