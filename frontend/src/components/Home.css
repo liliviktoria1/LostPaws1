@@ -84,16 +84,16 @@
   min-height: 520px;
 }
 
-.mission .decorative-shape {
+.mission .dog-image {
   position: absolute;
   left: 0;
   top: 50%;
-  transform: translateY(-50%);
+  transform: translateY(-57%);
   width: 50%;
   z-index: 1;
 }
 
-.mission .decorative-shape img {
+.mission .dog-image img {
   width: 100%;
   max-width: 1100px; /* Restored to original scale */
   height: auto;
@@ -112,6 +112,7 @@
   background: #181a32;
   border-radius: 78px; /* Specific border-radius requested */
   padding: 50px 60px;
+  margin-right: 80px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
