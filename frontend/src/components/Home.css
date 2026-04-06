@@ -143,50 +143,65 @@
 }
 
 .how-it-works {
-  background-color: #d8e5f5; /* Світло-блакитний фон секції */
-  padding: 10rem 2rem;
-  min-height: 600px; /* Простір для тексту */
+  background-color: #cad9ef; /* Світло-блакитний фон секції */
+  padding: 50px 2rem 70px 2rem; /* Відступи для секції */
+  min-height: 538px; /* Простір для тексту */
   text-align: center; /* Центрування заголовка */
-  margin: 4rem 0;
+  width: 100%;
+  margin-left: 0; /* override */
 }
 
 .how-it-works h2 {
+  font-family: Rubik One;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 48px;
+  line-height: 100%;
+  letter-spacing: 0%;
   font-size: 3.2rem;
   font-weight: 500;
-  color: #181a32; /* Темно-синій заголовок */
+  color: #fff;
   margin-bottom: 5rem; /* Відстань між заголовком і блоками */
 }
 
 .steps {
   display: flex;
   justify-content: space-evenly; /* Рівномірний розподіл блоків */
-  gap: 2rem; /* Проміжок між блоками */
   flex-wrap: wrap; /* Адаптивність для малих екранів */
 }
 
 .step {
-  background-color: #ffffff; /* Білий фон для кожного блоку */
-  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1); /* Легкий тіньовий ефект */
-  border-radius: 20px; /* Закруглені краї */
-  padding: 3rem 2rem;
-  width: 20%; /* Ширина кожного блоку */
-  min-width: 280px; /* Мінімальна ширина для адаптивності */
-  text-align: left; /* Вирівнювання тексту в середині */
+  width: 27%;
+  text-align: left;
 }
 
 .step h3 {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #181a32; /* Темно-синій заголовок блоку */
-  margin-bottom: 1.5rem;
+  font-family: Poppins;
+  font-weight: 600;
+  font-style: SemiBold;
+  font-size: 24px;
+  color: #000;
   text-align: center;
 }
 
-.step p {
+.step .step-content {
   font-size: 1.5rem;
   color: #555555; /* Колір тексту */
   line-height: 1.6;
   margin-top: 30px;
+  background-color: #ffffff;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 47px;
+  padding: 3rem 2rem;
+  min-height: 220px;
+}
+
+.step .step-content li {
+  font-family: Poppins;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 16px;
+  color: #000;
 }
 
 @media (max-width: 768px) {
