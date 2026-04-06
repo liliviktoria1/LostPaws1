@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { reportService } from '../services/reportService';
 import { PetReport } from '../types';
@@ -6,6 +6,8 @@ import './Home.css';
 
 const Home: React.FC = () => {
     const navigate = useNavigate();
+    const missingSliderRef = useRef<HTMLDivElement>(null);
+    const foundSliderRef = useRef<HTMLDivElement>(null);
 
     const [missingPets, setMissingPets] = useState<PetReport[]>([]);
     const [foundPets, setFoundPets] = useState<PetReport[]>([]);
@@ -18,9 +20,9 @@ const Home: React.FC = () => {
                     reportService.getReports({ petStatus: 'lost' }),
                     reportService.getReports({ petStatus: 'found' })
                 ]);
-                // Keep only top 3 for the home page slider
-                setMissingPets(lostData.slice(0, 3));
-                setFoundPets(foundData.slice(0, 3));
+                // Keep top 10 for the home page slider
+                setMissingPets(lostData.slice(0, 10));
+                setFoundPets(foundData.slice(0, 10));
             } catch (err) {
                 console.error('Error fetching pets:', err);
             } finally {
@@ -36,19 +38,23 @@ const Home: React.FC = () => {
             const url = typeof photo === 'string' ? photo : (photo as any).url;
             
             if (!url) return '/assets/image/Dog.png';
-            // If it's a local asset from public folder, return as is
             if (url.startsWith('/assets')) return url;
-            // If it's a full URL, return as is
             if (url.startsWith('http')) return url;
-            // Otherwise, it's a backend upload
-            return `http://localhost:5000${url}`;
+            return `http://localhost:8080${url}`;
         }
         return '/assets/image/Dog.png'; 
     };
 
+    const scrollSlider = (ref: React.RefObject<HTMLDivElement | null>, direction: 'left' | 'right') => {
+        if (ref.current) {
+            const scrollAmount = direction === 'left' ? -400 : 400;
+            ref.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+    };
+
     return (
         <div className="home">
-            {/* Lost Your Pet Section */}
+            {/* ... rest of existing code up to Missing Pets Section ... */}
             <section className="lost-pet-section">
                 <div className="lost-pet-content">
                     <h1>Lost your pet? Don’t worry</h1>
@@ -56,12 +62,10 @@ const Home: React.FC = () => {
                     <p>We search. We find. We reunite.</p>
                 </div>
                 <div className="lost-pet-images">
-                    {/* Decorative images */}
                     <img src="/assets/image/jeki-eshli.png" alt="Dog and cat illustration"/>
                 </div>
             </section>
 
-            {/* Our Mission Section */}
             <section className="mission">
                 <div className="dog-image">
                     {/* Фоновий декоративний елемент */}
@@ -79,8 +83,7 @@ const Home: React.FC = () => {
                 </div>
             </section>
 
-            {/* How It Works Section */}
-            <section className="how-it-works lost-pet-content">
+            <section className="how-it-works full-width-section">
                 <h2>How It Works?</h2>
                 <div className="steps">
                     <div className="step">
@@ -109,17 +112,18 @@ const Home: React.FC = () => {
             </section>
 
             {/* Missing Pets Section */}
-            <section className="missing-pets lost-pet-content">
+            <section className="missing-pets full-width-section">
                 <h2>Missing Pets</h2>
                 <p>Help get these paws home</p>
-                <div className="slider">
-                    <div className="slider-navigation">
-                        <button className="slider-button left">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                                <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/>
-                            </svg>
-                        </button>
+                <div className="slider-container-wrapper">
+                    <button 
+                        className="slider-button left"
+                        onClick={() => scrollSlider(missingSliderRef, 'left')}
+                    >
+                        <svg viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/></svg>
+                    </button>
 
+                    <div className="slider-items-container" ref={missingSliderRef}>
                         {isLoading ? (
                             <p>Loading...</p>
                         ) : missingPets.length > 0 ? (
@@ -132,28 +136,30 @@ const Home: React.FC = () => {
                         ) : (
                             <p>No missing pets found.</p>
                         )}
-
-                        <button className="slider-button right">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/>
-                            </svg>
-                        </button>
                     </div>
+
+                    <button 
+                        className="slider-button right"
+                        onClick={() => scrollSlider(missingSliderRef, 'right')}
+                    >
+                        <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+                    </button>
                 </div>
             </section>
 
             {/* Found Pets Section */}
-            <section className="found-pets lost-pet-content">
+            <section className="found-pets full-width-section">
                 <h2>Found Pets</h2>
                 <p>Read about recently reunited pets.</p>
-                <div className="slider">
-                    <div className="slider-navigation">
-                        <button className="slider-button left">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                                <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/>
-                            </svg>
-                        </button>
+                <div className="slider-container-wrapper">
+                    <button 
+                        className="slider-button left"
+                        onClick={() => scrollSlider(foundSliderRef, 'left')}
+                    >
+                        <svg viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/></svg>
+                    </button>
 
+                    <div className="slider-items-container" ref={foundSliderRef}>
                         {isLoading ? (
                             <p>Loading...</p>
                         ) : foundPets.length > 0 ? (
@@ -166,25 +172,21 @@ const Home: React.FC = () => {
                         ) : (
                             <p>No found pets reported.</p>
                         )}
-
-                        <button className="slider-button right">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/>
-                            </svg>
-                        </button>
                     </div>
+
+                    <button 
+                        className="slider-button right"
+                        onClick={() => scrollSlider(foundSliderRef, 'right')}
+                    >
+                        <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+                    </button>
                 </div>
             </section>
 
             {/* Call to Action Section */}
             <section className="cta">
                 <div className="cta-content">
-                    <button
-                        className="cta-button"
-                        onClick={() => navigate('/report')}
-                    >
-                        Submit a Pet Alert
-                    </button>
+                    <button className="cta-button" onClick={() => navigate('/report')}>Submit a Pet Alert</button>
                     <h2>Find and Report Lost & Found Pets</h2>
                     <p>Fill out the advert form for search/find animals</p>
                 </div>

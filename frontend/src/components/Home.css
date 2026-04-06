@@ -13,7 +13,7 @@
 .lost-pet-section {
   justify-content: flex-start;
   background-color: #f8c454;
-  padding: 60px 0 0 0; /* Removed bottom padding */
+  padding: 60px 0 0 0;
   position: relative;
   overflow: hidden;
   display: flex;
@@ -23,9 +23,9 @@
 }
 
 .lost-pet-content {
-  flex: 0 0 1227px; /* Fixed width as requested */
+  flex: 0 0 1227px;
   width: 1227px;
-  margin-left: 113px; /* 'left' position as requested */
+  margin-left: 113px;
   text-align: left;
   padding: 16px;
   z-index: 2;
@@ -33,11 +33,11 @@
 
 .lost-pet-content h1 {
   font-family: "Rubik One", serif;
-  font-size: 70px; /* Specific font size requested */
+  font-size: 70px;
   font-weight: 400;
   margin: 0;
   color: #181a32;
-  line-height: 1; /* 100% line-height */
+  line-height: 1;
   letter-spacing: 0;
 }
 
@@ -53,10 +53,10 @@
 
 .lost-pet-images {
   position: absolute;
-  top: 250px; /* Specific top position requested */
-  left: 860px; /* Specific left position requested */
-  width: 497px; /* Specific width requested */
-  height: 249.77px; /* Specific height requested */
+  top: 250px;
+  left: 860px;
+  width: 497px;
+  height: 249.77px;
   z-index: 1;
 }
 
@@ -70,7 +70,7 @@
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: flex-end; /* Push content to the right */
+  justify-content: flex-end;
   background-image: url("/public/assets/vector/Group-mision.svg");
   background-repeat: no-repeat;
   background-size: cover;
@@ -92,9 +92,8 @@
 
 .mission .dog-image img {
   width: 100%;
-  max-width: 1100px; /* Restored to original scale */
+  max-width: 1100px;
   height: auto;
-  /* Removed rotation to keep it "as it was" (upside down in source) */
   transform: translate(-10%, 100);
   opacity: 1;
 }
@@ -104,10 +103,10 @@
   z-index: 2;
   color: #ffffff;
   text-align: left;
-  width: 793px; /* Specific width requested */
-  height: 341px; /* Specific height requested */
+  width: 793px;
+  height: 341px;
   background: #181a32;
-  border-radius: 78px; /* Specific border-radius requested */
+  border-radius: 78px;
   padding: 50px 60px;
   margin-right: 80px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
@@ -128,46 +127,32 @@
   line-height: 1.6;
   color: #ffffff;
 }
+
 .Lost {
   color: #f8c454;
 }
-.mission .mission-content p {
-  font-size: 1.5rem;
-  line-height: 1.8;
-  color: #ffffff; /* Білий текст */
-}
-
-.mission .mission-content p span {
-  color: #fbc02d; /* Виділення ключових слів жовтим кольором */
-  font-weight: bold;
-}
 
 .how-it-works {
-  background-color: #cad9ef; /* Світло-блакитний фон секції */
-  padding: 50px 2rem 70px 2rem; /* Відступи для секції */
-  min-height: 538px; /* Простір для тексту */
-  text-align: center; /* Центрування заголовка */
+  background-color: #cad9ef;
+  padding: 50px 2rem 70px 2rem;
+  min-height: 538px;
+  text-align: center;
   width: 100%;
-  margin-left: 0; /* override */
+  margin-left: 0;
 }
 
 .how-it-works h2 {
   font-family: Rubik One;
-  font-weight: 400;
-  font-style: Regular;
-  font-size: 48px;
-  line-height: 100%;
-  letter-spacing: 0%;
   font-size: 3.2rem;
   font-weight: 500;
   color: #fff;
-  margin-bottom: 5rem; /* Відстань між заголовком і блоками */
+  margin-bottom: 5rem;
 }
 
 .steps {
   display: flex;
-  justify-content: space-evenly; /* Рівномірний розподіл блоків */
-  flex-wrap: wrap; /* Адаптивність для малих екранів */
+  justify-content: space-evenly;
+  flex-wrap: wrap;
 }
 
 .step {
@@ -178,7 +163,6 @@
 .step h3 {
   font-family: Poppins;
   font-weight: 600;
-  font-style: SemiBold;
   font-size: 24px;
   color: #000;
   text-align: center;
@@ -186,7 +170,7 @@
 
 .step .step-content {
   font-size: 1.5rem;
-  color: #555555; /* Колір тексту */
+  color: #555555;
   line-height: 1.6;
   margin-top: 30px;
   background-color: #ffffff;
@@ -199,220 +183,151 @@
 .step .step-content li {
   font-family: Poppins;
   font-weight: 400;
-  font-style: Regular;
   font-size: 16px;
   color: #000;
 }
 
 @media (max-width: 768px) {
   .steps {
-    flex-direction: column; /* Вертикальний вигляд для менших екранів */
+    flex-direction: column;
     align-items: center;
   }
 
   .step {
-    width: 100%; /* Блоки займають всю ширину */
+    width: 100%;
     margin-bottom: 2rem;
   }
 }
 
-.missing-pets {
+.missing-pets, .found-pets {
   background-color: #ffffff;
-  background-image: url("/public/assets/vector/Group1.svg"); /* Абсолютний шлях до файлу в папці public */
-  background-repeat: no-repeat; /* Щоб зображення не повторювалося */
-  background-size: cover; /* Робимо зображення адаптивним */
-  background-position: left top; /* Світло-блакитний фон */
-  padding: 8rem 2rem; /* Відступи для секції */
-  text-align: center; /* Центрування заголовка і тексту */
-  position: relative; /* Для кнопок слайдера */
-  overflow: hidden; /* Запобігання виходу елементів за межі */
-  margin: 4rem 0;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: left top;
+  padding: 8rem 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  margin: 0;
+  width: 100%;
 }
 
-.missing-pets h2 {
-  font-size: 5rem;
-  font-weight: 500;
-  color: #181a32; /* Темний синій текст */
-  margin-bottom: 2rem;
-}
-
-.missing-pets p {
-  font-size: 2.2rem;
-  color: #555555; /* Сірий текст */
-  margin-bottom: 4rem;
+.missing-pets {
+  background-image: url("/public/assets/vector/Group1.svg");
 }
 
 .found-pets {
-  background-color: #ffffff;
-  background-image: url("/public/assets/vector/Group2.svg"); /* Абсолютний шлях до файлу в папці public */
-  background-repeat: no-repeat; /* Щоб зображення не повторювалося */
-  background-size: cover; /* Робимо зображення адаптивним */
-  background-position: left top; /* Світло-блакитний фон */
-  padding: 8rem 2rem; /* Відступи для секції */
-  text-align: center; /* Центрування заголовка і тексту */
-  position: relative; /* Для кнопок слайдера */
-  overflow: hidden; /* Запобігання виходу елементів за межі */
-  margin: 4rem 0;
+  background-image: url("/public/assets/vector/Group2.svg");
 }
 
-.found-pets h2 {
+.missing-pets h2, .found-pets h2 {
   font-size: 5rem;
   font-weight: 500;
-  color: #181a32; /* Темний синій текст */
+  color: #181a32;
   margin-bottom: 2rem;
 }
 
-.found-pets p {
+.missing-pets p, .found-pets p {
   font-size: 2.2rem;
-  color: #555555; /* Сірий текст */
+  color: #555555;
   margin-bottom: 4rem;
 }
 
-.slider {
+.full-width-section {
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.slider-container-wrapper {
+  position: relative;
   display: flex;
-  justify-content: center;
-  gap: 2rem; /* Відстань між слайдами */
-  padding: 2rem 0;
+  align-items: center;
+  width: 100%;
+  padding: 0 115px; /* Offset to allow buttons to sit nicely */
+}
+
+.slider-items-container {
+  display: flex;
+  gap: 2rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  width: 100%;
+  padding: 1rem 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  justify-content: flex-start;
+}
+
+.slider-items-container::-webkit-scrollbar {
+  display: none;
 }
 
 .slider-item {
-  flex: 0 0 400px; /* Фіксована ширина слайду */
-  border-radius: 20px; /* Закруглені краї */
-  background-color: #ffffff; /* Білий фон для слайду */
-  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1); /* Легкий тіньовий ефект */
+  flex: 0 0 calc((100% - 4rem) / 3);
+  min-width: 300px;
+  border-radius: 20px;
+  background-color: #ffffff;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
   text-align: left;
   padding: 1.5rem;
-  margin: 0 auto;
-
-  display: flex; /* Робимо контейнер флекс-контейнером */
-  flex-direction: column; /* Елементи розташовуються вертикально */
-  align-items: center; /* Центруємо елементи по горизонталі */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .slider-item img {
-  width: 90%; /* Зображення займає 80% ширини слайду */
+  width: 90%;
   height: 250px;
-  object-fit: cover; /* Зберігаємо пропорції зображення */
-  border-radius: 15px; /* Закруглені краї для зображення */
+  object-fit: cover;
+  border-radius: 15px;
   margin-bottom: 1.5rem;
-}
-
-.slider-item h3 {
-  font-size: 3rem;
-  font-weight: 500;
-  color: #181a32; /* Темний синій текст */
-  margin-bottom: 0.5rem;
-  text-align: left;
-  align-self: flex-start;
 }
 
 .slider-item p {
   font-size: 1.3rem;
-  color: #555555; /* Сірий текст */
+  color: #555555;
   margin-bottom: 10px;
   text-align: left;
   align-self: flex-start;
-  margin-top: 0 !important;
   line-height: 1.5;
 }
 
-.slider-item a {
-  font-size: 1.1rem;
-  color: #fbc02d; /* Жовтий текст для посилання */
-  text-decoration: none;
-  font-weight: bold;
-  margin-top: 10px;
-}
-
-.slider-item a:hover {
-  text-decoration: underline;
-}
-
 .slider-button {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: #ffffff; /* Білий фон кнопки */
+  width: 47px;
+  height: 258px;
+  opacity: 1;
+  background-color: #ffffff;
   border: none;
-  border-radius: 50%;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Легкий тіньовий ефект */
-  width: 40px;
-  height: 40px;
+  box-shadow: 0px 4px 14.7px 1px #00000021;
+  border-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 10;
+  z-index: 20;
+  transition: all 0.2s ease;
+  padding: 0;
 }
 
 .slider-button.left {
-  left: 1rem;
+  left: 30px;
 }
 
 .slider-button.right {
-  right: 1rem;
+  right: 30px;
 }
 
 .slider-button:hover {
-  background-color: #fbc02d; /* Жовтий фон при наведенні */
+  background-color: #f8c454;
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
 }
 
 .slider-button svg {
-  fill: #181a32; /* Темний синій колір для стрілок */
-  width: 20px;
-  height: 20px;
-}
-
-@media (max-width: 768px) {
-  .slider {
-    gap: 1rem; /* Менший проміжок між слайдами */
-  }
-
-  .slider-item {
-    flex: 0 0 80%; /* Адаптивна ширина для мобільних */
-  }
-}
-
-.slider-navigation {
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.slider-button {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: #ffffff; /* Білий фон кнопки */
-  border: none;
-  border-radius: 20px; /* Закруглені краї */
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Легкий тіньовий ефект */
-  width: 60px;
-  height: 150px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 10;
-}
-
-.slider-button.left {
-  left: 10px;
-}
-
-.slider-button.right {
-  right: 10px;
-}
-
-.slider-button svg {
-  fill: #181a32; /* Темний синій колір для стрілок */
-  width: 30px;
-  height: 30px;
-}
-
-.slider-button:hover {
-  background-color: #f0f0f0; /* Світло-сірий фон при наведенні */
+  fill: #181a32;
+  width: 24px;
+  height: 24px;
 }
 
 .cta {
@@ -427,9 +342,9 @@
 }
 
 .cta-content {
-  text-align: center; /* Центрує текст і кнопку */
-  max-width: 600px; /* Обмежує ширину блоку контенту */
-  z-index: 1; /* Забезпечує, що контент відображається поверх */
+  text-align: center;
+  max-width: 600px;
+  z-index: 1;
 }
 
 .cta-button {
@@ -449,11 +364,13 @@
   background-color: #f7b13f;
   transform: scale(1.05);
 }
+
 .cta h2 {
   margin-top: 1.5rem;
   font-size: 2.2rem;
   color: #ffffff;
 }
+
 .cta p {
   margin-top: 1rem;
   font-size: 1.4rem;

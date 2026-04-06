@@ -14,7 +14,7 @@
     align-items: center;
     background-color: var(--white);
     padding: 0 4%;
-    height: 50px; /* Reduced to specific height requested */
+    height: 53px; /* Set to specific height requested */
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -35,7 +35,7 @@
 }
 
 .logo {
-    width: 32px; /* Scaled down for 50px header */
+    width: 32px;
     height: 32px;
     margin-right: 8px;
     display: block;
@@ -89,6 +89,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    height: 100%;
 }
 
 .report-button {
@@ -117,6 +118,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    height: 100%;
 }
 
 .login-button {
@@ -154,16 +156,16 @@
     display: none;
     flex-direction: column;
     justify-content: center;
-    gap: 5px;
+    align-items: center;
+    gap: 4px;
     cursor: pointer;
-    width: 28px;
-    height: 28px;
-    padding: 4px;
+    width: 32px;
+    height: 32px;
     z-index: 1001;
 }
 
 .menu-bar {
-    width: 100%;
+    width: 22px;
     height: 2px;
     background-color: #1B2132; /* Using explicit brand navy color */
     border-radius: 2px;
@@ -190,7 +192,7 @@
         display: none;
         flex-direction: column;
         position: absolute;
-        top: 50px; /* Exact height of header */
+        top: 53px; /* Exact height of header */
         left: 0;
         width: 100%;
         background: white;
