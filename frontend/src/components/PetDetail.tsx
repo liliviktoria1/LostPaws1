@@ -4,6 +4,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { reportService } from '../services/reportService';
 import { PetReport } from '../types';
+import PetSlider from './Common/PetSlider';
 import './PetDetail.css';
 
 // Fix for default Leaflet icon paths
@@ -19,6 +20,8 @@ const PetDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [report, setReport] = useState<PetReport | null>(null);
     const [loading, setLoading] = useState(true);
+    const [otherPets, setOtherPets] = useState<PetReport[]>([]);
+    const [loadingOthers, setLoadingOthers] = useState(true);
     const navigate = useNavigate();
     const mapRef = useRef<L.Map | null>(null);
 
@@ -31,10 +34,15 @@ const PetDetail: React.FC = () => {
                 if (found) {
                     setReport(found);
                 }
+                
+                // Fetch other missing pets for the slider
+                const others = await reportService.getReports({ petStatus: 'lost' });
+                setOtherPets(others.filter(p => p.id !== id).slice(0, 10));
             } catch (error) {
                 console.error("Error fetching pet details:", error);
             } finally {
                 setLoading(false);
+                setLoadingOthers(false);
             }
         };
         fetchReport();
@@ -148,6 +156,17 @@ const PetDetail: React.FC = () => {
             <div className="detail-map-section">
                 <h3>Last Known Location</h3>
                 <div id="pet-detail-map"></div>
+            </div>
+
+            <div className="other-pets-slider-section">
+                <PetSlider 
+                    title="Other Missing Pets"
+                    subtitle="Help get these paws home"
+                    pets={otherPets}
+                    isLoading={loadingOthers}
+                    emptyMessage="No other missing pets found."
+                    sectionClass="other-pets-slider"
+                />
             </div>
         </div>
     );
