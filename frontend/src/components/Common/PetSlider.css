@@ -15,19 +15,18 @@
   display: flex;
   align-items: center;
   width: 100%;
-  max-width: 1200px; /* Constrain width to show only 3 cards on large screens */
+  max-width: 1250px;
   margin: 0 auto;
-  padding: 0 75px;   /* Space for buttons */
+  padding: 0 80px;
 }
 
 .slider-items-container {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   overflow-x: auto;
   scroll-behavior: smooth;
-  width: 1049px;     /* Exactly 3 cards: 339*3 + 16*2 */
-  max-width: 100%;
-  padding: 1rem 0;
+  width: 100%;
+  padding: 1.5rem 0;
   scrollbar-width: none;
   -ms-overflow-style: none;
   justify-content: flex-start;
@@ -38,31 +37,37 @@
 }
 
 .slider-item {
-  flex: 0 0 339px;   /* Fixed width */
-  height: 271px;     /* Fixed height */
-  border-radius: 20px;
+  flex: 0 0 339px;
+  height: 271px;
+  border-radius: 30px;
   background-color: #ffffff;
-  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.05);
   text-align: left;
-  padding: 20px 60px;
+  padding: 25px 30px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.slider-item:hover {
+  transform: translateY(-5px);
 }
 
 .slider-item img {
-  width: 100%;
-  height: 130px;
+  width: 230px;
+  height: 140px;
   object-fit: cover;
-  border-radius: 15px;
-  margin-bottom: 0.8rem;
+  border-radius: 20px;
+  margin: 0 auto 15px auto;
+  display: block;
 }
 
 .slider-item p {
-  font-size: 0.85rem;
-  color: #555555;
-  margin-bottom: 4px;
+  font-size: 0.75rem;
+  color: #888888;
+  margin-bottom: 2px;
   text-align: left;
   line-height: 1.4;
   width: 100%;
@@ -70,16 +75,17 @@
 
 .pet-value {
   color: #000000;
-  font-weight: 500;
+  font-weight: 600;
+  margin-left: 4px;
 }
 
 .status-label {
-  padding: 2px 10px;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.8rem;
+  padding: 1px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.7rem;
   display: inline-block;
-  margin-top: 2px;
+  margin-left: 4px;
 }
 
 .status-label.lost {
@@ -95,14 +101,14 @@
 .view-post-btn {
   background: none;
   border: none;
-  color: #888888;
+  color: #999999;
   text-decoration: underline;
   font-family: Poppins, sans-serif;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 400;
   cursor: pointer;
   padding: 0;
-  margin-top: 0;
+  margin-top: auto;
   align-self: flex-end;
   transition: color 0.2s ease;
 }
@@ -117,32 +123,33 @@
   height: var(--btn-height);
   background-color: #ffffff;
   border: none;
-  box-shadow: 0px 4px 14.7px 1px #00000021;
-  border-radius: 20px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 25px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   z-index: 20;
+  transition: background-color 0.2s;
+}
+
+.slider-button:hover {
+  background-color: #f9f9f9;
 }
 
 .slider-button.left {
-  left: 10px; /* Smaller gap between btn and card area */
+  left: 15px;
 }
 
 .slider-button.right {
-  right: 10px;
+  right: 15px;
 }
 
 .slider-button svg {
-  fill: #888888;
-  width: 24px;
-  height: 24px;
-  transition: fill 0.2s ease;
-}
-
-.slider-button:hover svg {
   fill: #181a32;
+  width: 20px;
+  height: 20px;
+  opacity: 0.6;
 }
 
 /* RESPONSIVE */
@@ -154,38 +161,25 @@
 
 @media (max-width: 768px) {
   .slider-container-wrapper {
-    padding: 0 40px;
+    padding: 0 45px;
   }
   
   .slider-button {
-    width: 30px;
-    height: 150px;
+    width: 35px;
+    height: 180px;
   }
 
   .slider-button.left { left: 5px; }
   .slider-button.right { right: 5px; }
 
   .slider-item {
-    flex: 0 0 100%;
-    height: 320px;
-    padding: 20px 30px;
+    flex: 0 0 280px;
+    height: 300px;
+    padding: 20px;
   }
+  
   .slider-item img {
-    height: 160px;
-  }
-}
-
-@media (max-width: 480px) {
-  .slider-container-wrapper {
-    padding: 0 35px;
-  }
-  
-  .slider-button {
-    width: 25px;
-    height: 120px;
-  }
-  
-  .slider-item {
-    padding: 15px 20px;
+    width: 100%;
+    height: 150px;
   }
 }
