@@ -128,14 +128,14 @@ const Home: React.FC = () => {
                             <p>Loading...</p>
                         ) : missingPets.length > 0 ? (
                             missingPets.map(pet => (
-                                <div className="slider-item" key={pet.id}>
+                                <div className="slider-item" key={pet.id} onClick={() => navigate(`/pet/${pet.id}`)}>
                                     <img src={getImageUrl(pet)} alt={pet.petName}/>
                                     <p>
                                         Name : <span className="pet-value">{pet.petName}</span><br/>
                                         Status : <span className="status-label lost">Lost</span><br/>
                                         Addresses : <span className="pet-value">{pet.locationAddress}</span>
                                     </p>
-                                    <button className="view-post-btn" onClick={() => navigate(`/announcements`)}>View Post</button>
+                                    <button className="view-post-btn" onClick={(e) => { e.stopPropagation(); navigate(`/pet/${pet.id}`); }}>View Post</button>
                                 </div>
                             ))
                         ) : (
@@ -169,14 +169,14 @@ const Home: React.FC = () => {
                             <p>Loading...</p>
                         ) : foundPets.length > 0 ? (
                             foundPets.map(pet => (
-                                <div className="slider-item" key={pet.id}>
+                                <div className="slider-item" key={pet.id} onClick={() => navigate(`/pet/${pet.id}`)}>
                                     <img src={getImageUrl(pet)} alt={pet.petName}/>
                                     <p>
                                         Name : <span className="pet-value">{pet.petName}</span><br/>
                                         Status : <span className="status-label found">Found</span><br/>
                                         Addresses : <span className="pet-value">{pet.locationAddress}</span>
                                     </p>
-                                    <button className="view-post-btn" onClick={() => navigate(`/announcements`)}>View Post</button>
+                                    <button className="view-post-btn" onClick={(e) => { e.stopPropagation(); navigate(`/pet/${pet.id}`); }}>View Post</button>
                                 </div>
                             ))
                         ) : (
