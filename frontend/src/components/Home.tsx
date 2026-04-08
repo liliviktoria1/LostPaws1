@@ -130,7 +130,12 @@ const Home: React.FC = () => {
                             missingPets.map(pet => (
                                 <div className="slider-item" key={pet.id}>
                                     <img src={getImageUrl(pet)} alt={pet.petName}/>
-                                    <p>Name : {pet.petName}<br/>Status : Lost<br/>Addresses : {pet.locationAddress}</p>
+                                    <p>
+                                        Name : <span className="pet-value">{pet.petName}</span><br/>
+                                        Status : <span className="status-label lost">Lost</span><br/>
+                                        Addresses : <span className="pet-value">{pet.locationAddress}</span>
+                                    </p>
+                                    <button className="view-post-btn" onClick={() => navigate(`/announcements`)}>View Post</button>
                                 </div>
                             ))
                         ) : (
@@ -166,7 +171,12 @@ const Home: React.FC = () => {
                             foundPets.map(pet => (
                                 <div className="slider-item" key={pet.id}>
                                     <img src={getImageUrl(pet)} alt={pet.petName}/>
-                                    <p>Name : {pet.petName}<br/>Status : Found<br/>Addresses : {pet.locationAddress}</p>
+                                    <p>
+                                        Name : <span className="pet-value">{pet.petName}</span><br/>
+                                        Status : <span className="status-label found">Found</span><br/>
+                                        Addresses : <span className="pet-value">{pet.locationAddress}</span>
+                                    </p>
+                                    <button className="view-post-btn" onClick={() => navigate(`/announcements`)}>View Post</button>
                                 </div>
                             ))
                         ) : (
