@@ -91,7 +91,8 @@ const PetDetail: React.FC = () => {
             if (!url) return '/assets/image/Sharik.jpeg';
             if (url.startsWith('http')) return url;
             if (url.startsWith('/assets')) return url;
-            return `http://localhost:8080${url}`;
+            const baseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:8080/api').replace(/\/api$/, '');
+            return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
         }
         return '/assets/image/Sharik.jpeg';
     };

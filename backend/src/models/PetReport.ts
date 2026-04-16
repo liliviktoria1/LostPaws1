@@ -1,4 +1,4 @@
-import { DataTypes, Model } from 'sequelize';
+import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../config/database.js';
 
 export interface PetReportAttributes {
@@ -15,11 +15,38 @@ export interface PetReportAttributes {
     contactName?: string;
     contactNumber?: string;
     contactEmail: string;
-    photos?: any;
+    photos?: { url: string }[];
     embedding?: number[];
+    userId?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
-const PetReport = sequelize.define('PetReport', {
+export interface PetReportCreationAttributes extends Optional<PetReportAttributes, 'id'> {}
+
+class PetReport extends Model<PetReportAttributes, PetReportCreationAttributes> implements PetReportAttributes {
+    public id!: string;
+    public petStatus!: 'lost' | 'found';
+    public petName!: string;
+    public petSpecies!: 'cat' | 'dog' | 'other';
+    public petSex!: 'female' | 'male' | 'unknown';
+    public description!: string;
+    public locationAddress!: string;
+    public locationLat!: number;
+    public locationLng!: number;
+    public dateLastSeen!: Date;
+    public contactName!: string;
+    public contactNumber!: string;
+    public contactEmail!: string;
+    public photos!: { url: string }[];
+    public embedding!: number[];
+    public userId!: string;
+
+    public readonly createdAt!: Date;
+    public readonly updatedAt!: Date;
+}
+
+PetReport.init({
     id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
@@ -71,18 +98,20 @@ const PetReport = sequelize.define('PetReport', {
         }
     },
     photos: {
-        type: DataTypes.JSONB, // Store photo URLs as an array in JSONB format
+        type: DataTypes.JSONB,
         defaultValue: []
     },
     userId: {
         type: DataTypes.UUID,
-        allowNull: true, // Allow anonymous reports for now
+        allowNull: true,
     },
     embedding: {
-        type: DataTypes.ARRAY(DataTypes.FLOAT), // For AI matching
+        type: DataTypes.ARRAY(DataTypes.FLOAT),
         allowNull: true
     }
 }, {
+    sequelize,
+    modelName: 'PetReport',
     timestamps: true
 });
 

@@ -39,3 +39,25 @@ export const analyzePetImage = async (imagePath: string): Promise<any> => {
         throw new Error("Failed to analyze image with AI");
     }
 };
+
+export const generatePetEmbedding = async (petData: any): Promise<number[]> => {
+    try {
+        // Since we are using Gemini, we can use the embedding model
+        // We'll create a text string that describes the pet based on analysis and form data
+        const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
+        
+        const textToEmbed = `
+            Species: ${petData.petSpecies}
+            Breed: ${petData.suggestedBreed || 'Unknown'}
+            Color: ${petData.primaryColor || ''} ${petData.secondaryColor || ''}
+            Features: ${petData.distinctiveFeatures || ''}
+            Description: ${petData.description || ''}
+        `.trim();
+
+        const result = await model.embedContent(textToEmbed);
+        return result.embedding.values;
+    } catch (error) {
+        console.error("Embedding Generation Error:", error);
+        return []; // Return empty array if embedding fails
+    }
+};

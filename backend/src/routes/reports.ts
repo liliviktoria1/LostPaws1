@@ -3,8 +3,11 @@ import PetReport from '../models/PetReport.js';
 import multer from 'multer';
 import path from 'path';
 import { Op } from 'sequelize';
-import { analyzePetImage } from '../config/ai.js';
+import { analyzePetImage, generatePetEmbedding } from '../config/ai.js';
 import { authMiddleware, AuthRequest } from '../middleware/auth.js';
+
+import { geocodeAddress } from '../services/geocoding.js';
+import { findMatchesForReport } from '../services/matching.js';
 
 const router: Router = express.Router();
 
@@ -55,24 +58,52 @@ router.post('/', [authMiddleware, upload.array('photos', 5)], async (req: AuthRe
         const files = req.files as Express.Multer.File[];
         const photoPaths = files ? files.map(file => ({ url: `/uploads/${file.filename}` })) : [];
 
-        const newReport = await (PetReport as any).create({
+        // Automatic Geocoding if coordinates are missing but address is present
+        let finalLat = locationLat ? parseFloat(locationLat) : undefined;
+        let finalLng = locationLng ? parseFloat(locationLng) : undefined;
+
+        if (!finalLat || !finalLng) {
+            if (locationAddress) {
+                const geo = await geocodeAddress(locationAddress);
+                if (geo) {
+                    finalLat = geo.lat;
+                    finalLng = geo.lng;
+                }
+            }
+        }
+
+        // Generate Embedding for matching
+        const embedding = await generatePetEmbedding({
+            petSpecies,
+            description,
+            // Include other fields if they were analyzed
+        });
+
+        const newReport = await PetReport.create({
             petStatus,
             petName,
             petSpecies,
             petSex,
             description,
             locationAddress,
-            locationLat: locationLat ? parseFloat(locationLat) : null,
-            locationLng: locationLng ? parseFloat(locationLng) : null,
+            locationLat: finalLat,
+            locationLng: finalLng,
             dateLastSeen,
             contactName,
             contactNumber,
             contactEmail,
             photos: photoPaths,
-            userId: req.userId // Associate with logged in user
+            userId: req.userId, // Associate with logged in user
+            embedding
         });
 
-        res.status(201).json(newReport);
+        // Find potential matches
+        const matches = await findMatchesForReport(newReport.id);
+
+        res.status(201).json({
+            report: newReport,
+            potentialMatches: matches
+        });
     } catch (err: any) {
         console.error('Error creating report:', err);
         res.status(400).json({ message: err.message });
@@ -92,7 +123,7 @@ router.get('/', async (req: Request, res: Response) => {
             where.locationAddress = { [Op.iLike]: `%${location}%` };
         }
 
-        const reports = await (PetReport as any).findAll({
+        const reports = await PetReport.findAll({
             where,
             order: [['createdAt', 'DESC']]
         });
@@ -105,7 +136,7 @@ router.get('/', async (req: Request, res: Response) => {
 // GET /api/reports/:id - Get a specific report
 router.get('/:id', async (req: Request, res: Response) => {
     try {
-        const report = await (PetReport as any).findByPk(req.params.id);
+        const report = await PetReport.findByPk(req.params.id as string);
         if (!report) return res.status(404).json({ message: 'Report not found' });
         res.json(report);
     } catch (err: any) {
@@ -116,12 +147,12 @@ router.get('/:id', async (req: Request, res: Response) => {
 // PATCH /api/reports/:id - Update a report
 router.patch('/:id', async (req: Request, res: Response) => {
     try {
-        const [updated] = await (PetReport as any).update(req.body, {
-            where: { id: req.params.id }
+        const [updated] = await PetReport.update(req.body, {
+            where: { id: req.params.id as string }
         });
         if (!updated) return res.status(404).json({ message: 'Report not found' });
 
-        const updatedReport = await (PetReport as any).findByPk(req.params.id);
+        const updatedReport = await PetReport.findByPk(req.params.id as string);
         res.json(updatedReport);
     } catch (err: any) {
         res.status(400).json({ message: err.message });
@@ -131,7 +162,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
 // DELETE /api/reports/:id - Delete a report
 router.delete('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
     try {
-        const report = await (PetReport as any).findByPk(req.params.id);
+        const report = await PetReport.findByPk(req.params.id as string);
         if (!report) return res.status(404).json({ message: 'Report not found' });
 
         // Check ownership

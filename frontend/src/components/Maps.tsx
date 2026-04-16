@@ -57,8 +57,9 @@ const Maps: React.FC = () => {
                         const photo = report.photos && report.photos.length > 0 ? report.photos[0] : null;
                         const photoUrl = typeof photo === 'string' ? photo : (photo as any)?.url;
 
+                        const baseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:8080/api').replace(/\/api$/, '');
                         const imageUrl = photoUrl
-                            ? (photoUrl.startsWith('/assets') ? photoUrl : `http://localhost:5000${photoUrl}`)
+                            ? (photoUrl.startsWith('/assets') ? photoUrl : `${baseUrl}${photoUrl.startsWith('/') ? '' : '/'}${photoUrl}`)
                             : '/assets/image/Dog.png';
 
                         const popupContent = `

@@ -17,7 +17,8 @@ const PetCard: React.FC<PetCardProps> = ({ pet }) => {
             if (!url) return '/assets/image/Dog.png';
             if (url.startsWith('/assets')) return url;
             if (url.startsWith('http')) return url;
-            return `http://localhost:8080${url}`;
+            const baseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:8080/api').replace(/\/api$/, '');
+            return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
         }
         return '/assets/image/Dog.png'; 
     };
@@ -25,12 +26,14 @@ const PetCard: React.FC<PetCardProps> = ({ pet }) => {
     return (
         <div className="slider-item" onClick={() => navigate(`/pet/${pet.id}`)}>
             <img src={getImageUrl(pet)} alt={pet.petName}/>
-            <p>
-                Name : <span className="pet-value">{pet.petName}</span><br/>
-                Status : <span className={`status-label ${pet.petStatus}`}>{pet.petStatus === 'lost' ? 'Lost' : 'Found'}</span><br/>
-                Addresses : <span className="pet-value">{pet.locationAddress}</span>
-            </p>
-            <button className="view-post-btn" onClick={(e) => { e.stopPropagation(); navigate(`/pet/${pet.id}`); }}>View Post</button>
+            <div className="pet-info-container">
+                <p>
+                    <span className="pet-label">Name:</span> <span className="pet-value">{pet.petName}</span><br/>
+                    <span className="pet-label">Status:</span> <span className={`status-label ${pet.petStatus}`}>{pet.petStatus === 'lost' ? 'Lost' : 'Found'}</span><br/>
+                    <span className="pet-label">Addresses:</span> <span className="pet-value">{pet.locationAddress}</span>
+                    <button className="view-post-btn" onClick={(e) => { e.stopPropagation(); navigate(`/pet/${pet.id}`); }}>View Post</button>
+                </p>
+            </div>
         </div>
     );
 };

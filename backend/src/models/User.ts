@@ -1,7 +1,30 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../config/database.js';
 
-const User = sequelize.define('User', {
+export interface UserAttributes {
+    id: string;
+    name: string;
+    email: string;
+    password?: string;
+    phoneNumber?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+}
+
+export interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
+
+class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
+    public id!: string;
+    public name!: string;
+    public email!: string;
+    public password!: string;
+    public phoneNumber!: string;
+
+    public readonly createdAt!: Date;
+    public readonly updatedAt!: Date;
+}
+
+User.init({
     id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
@@ -28,6 +51,8 @@ const User = sequelize.define('User', {
         allowNull: true
     }
 }, {
+    sequelize,
+    modelName: 'User',
     timestamps: true
 });
 

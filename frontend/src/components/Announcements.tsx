@@ -35,7 +35,8 @@ const Announcements: React.FC<AnnouncementsProps> = ({ announcements }) => {
             if (!url) return '/assets/image/Dog.png';
             if (url.startsWith('/assets')) return url;
             if (url.startsWith('http')) return url;
-            return `http://localhost:5000${url}`;
+            const baseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:8080/api').replace(/\/api$/, '');
+            return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
         }
         return '/assets/image/Dog.png';
     };
