@@ -7,32 +7,41 @@ export interface User {
     name: string;
     email: string;
 }
-
 export interface PetReport {
     id: string;
     petStatus: PetStatus;
     petName: string;
     petSpecies: PetSpecies;
-    petSex?: PetSex;
-    description?: string;
-    locationAddress?: string;
+    petSex: PetSex;
+    description: string;
+    locationAddress: string;
     locationLat?: number;
     locationLng?: number;
-    dateLastSeen?: string | Date;
-    contactName?: string;
-    contactNumber?: string;
+    dateLastSeen: string;
+    contactName: string;
+    contactNumber: string;
     contactEmail: string;
-    photos?: string[];
+    photos: { url: string }[];
     embedding?: number[];
     userId?: string;
     createdAt?: string;
-    updatedAt?: string;
+}
+
+export interface PetMatch {
+    report: PetReport;
+    score: number;
+}
+
+export interface CreateReportResponse {
+    report: PetReport;
+    potentialMatches: PetMatch[];
 }
 
 export interface PetFilters {
     petStatus?: PetStatus;
     petSpecies?: PetSpecies;
     petSex?: PetSex;
+    userId?: string;
 }
 
 export interface Announcement {

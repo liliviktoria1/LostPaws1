@@ -22,10 +22,16 @@ const PetCard: React.FC<PetCardProps> = ({ pet }) => {
         }
         return '/assets/image/Dog.png'; 
     };
-
     return (
         <div className="slider-item" onClick={() => navigate(`/pet/${pet.id}`)}>
-            <img src={getImageUrl(pet)} alt={pet.petName}/>
+            <div style={{ position: 'relative', width: '100%' }}>
+                <img src={getImageUrl(pet)} alt={pet.petName}/>
+                {pet.photos && pet.photos.length > 1 && (
+                    <div className="photo-count-badge">
+                        1/{pet.photos.length} 📷
+                    </div>
+                )}
+            </div>
             <div className="pet-info-container">
                 <p>
                     <span className="pet-label">Name:</span> <span className="pet-value">{pet.petName}</span><br/>

@@ -1,4 +1,4 @@
-import { PetReport, PetFilters } from '../types';
+import { PetReport, PetFilters, CreateReportResponse } from '../types';
 import { authService } from './authService';
 
 const BASE_API_URL = (process.env.REACT_APP_API_URL || 'http://localhost:8080/api').replace(/\/$/, '');
@@ -20,7 +20,7 @@ export const reportService = {
     },
 
     // Create a new report (handles multipart/form-data for photos)
-    createReport: async (reportData: Partial<PetReport> & { photos?: File[] }): Promise<PetReport> => {
+    createReport: async (reportData: Partial<PetReport> & { photos?: File[] }): Promise<CreateReportResponse> => {
         const formData = new FormData();
         const token = authService.getToken();
 

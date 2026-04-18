@@ -1,0 +1,53 @@
+.my-reports-page {
+    padding: 4rem 8%;
+    background-color: #FEF9EF;
+    min-height: 100vh;
+    font-family: 'Poppins', sans-serif;
+}
+
+.my-reports-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.my-reports-header h1 {
+    font-family: 'Rubik One', serif;
+    font-size: 3rem;
+    color: #181A32;
+    margin-bottom: 0.5rem;
+}
+
+.my-reports-header p {
+    color: #6B7280;
+    font-size: 1.1rem;
+}
+
+.my-reports-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(339px, 1fr));
+    gap: 2.5rem;
+    justify-items: center;
+}
+
+.my-report-card-wrapper {
+    position: relative;
+    width: 339px;
+}
+
+.no-reports {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.no-reports p {
+    font-size: 1.2rem;
+    color: #6B7280;
+}

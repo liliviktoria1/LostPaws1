@@ -38,12 +38,49 @@
 
 .pet-image-section {
     flex: 1;
-    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
     max-width: 500px;
-    height: 600px;
 }
 
-.pet-image-section img {
+.main-image-container {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.main-pet-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.photos-thumbnail-grid {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    scrollbar-width: thin;
+}
+
+.thumbnail-wrapper {
+    flex: 0 0 80px;
+    height: 80px;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.3s;
+}
+
+.thumbnail-wrapper:hover {
+    border-color: #FACC55;
+}
+
+.thumbnail-wrapper img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -188,4 +225,169 @@
     width: 100%;
     border-radius: 20px;
     z-index: 1;
+}
+
+/* Deep Scan Feature Styles */
+.deep-scan-btn {
+    background: linear-gradient(135deg, #FACC55 0%, #F8B52A 100%);
+    color: #181A32;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(250, 198, 85, 0.4);
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.deep-scan-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(250, 198, 85, 0.6);
+}
+
+.deep-scan-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.deep-matches-section {
+    margin-top: 3rem;
+    background: #FEF9EF;
+    padding: 2.5rem;
+    border-radius: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    border: 2px solid #FDE6B3;
+}
+
+.deep-matches-section h3 {
+    font-size: 1.6rem;
+    color: #181A32;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.matches-grid-detail {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.match-card-detail {
+    background: #ffffff;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.match-card-detail:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    border-color: #FACC55;
+}
+
+.match-image-detail {
+    position: relative;
+    height: 180px;
+}
+
+.match-image-detail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.match-score-badge-detail {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: #181A32;
+    color: #FACC55;
+    padding: 5px 12px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 0.8rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.match-info-detail {
+    padding: 15px;
+}
+
+.match-info-detail h4 {
+    margin: 0 0 8px 0;
+    font-size: 1.2rem;
+    color: #181A32;
+}
+
+.reasoning {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #6B7280;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.no-matches-msg {
+    color: #6B7280;
+    font-style: italic;
+    text-align: center;
+    padding: 2rem;
+}
+
+/* Scan Overlay */
+.scan-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(24, 26, 50, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
+    backdrop-filter: blur(8px);
+}
+
+.scan-modal {
+    background: white;
+    padding: 40px;
+    border-radius: 25px;
+    text-align: center;
+    max-width: 400px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+}
+
+.scan-spinner {
+    width: 60px;
+    height: 60px;
+    border: 6px solid #F3F4F6;
+    border-top: 6px solid #FACC55;
+    border-radius: 50%;
+    animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    margin: 0 auto 25px;
+}
+
+.scan-modal h3 {
+    color: #181A32;
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+}
+
+.scan-modal p {
+    color: #6B7280;
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
 }

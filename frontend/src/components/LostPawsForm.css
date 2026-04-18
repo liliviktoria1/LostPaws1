@@ -252,3 +252,135 @@ input[type="text"] {
 #form-map {
     z-index: 1;
 }
+
+/* Modal & Match Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    backdrop-filter: blur(5px);
+}
+
+.success-modal {
+    background: white;
+    width: 90%;
+    max-width: 600px;
+    max-height: 85vh;
+    border-radius: 30px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-header h2 {
+    font-family: 'Rubik One', serif;
+    font-size: 1.5rem;
+    color: #181A32;
+    margin: 0;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #999;
+}
+
+.modal-body {
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.ai-match-notice {
+    background: #FEF9EF;
+    border-left: 5px solid #FAC655;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.ai-sparkle { font-size: 1.5rem; }
+
+.matches-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(339px, 1fr));
+    gap: 20px;
+    justify-items: center;
+}
+
+.match-card-wrapper {
+    position: relative;
+    width: 339px;
+}
+
+.match-score-badge {
+    position: absolute;
+    top: 35px;
+    left: 60px;
+    background: #FAC655;
+    color: #181A32;
+    padding: 5px 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 800;
+    z-index: 10;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.modal-footer {
+    margin-top: 25px;
+    display: flex;
+    justify-content: center;
+}
+
+.btn-secondary {
+    background: #181A32;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 15px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.ai-loading-modal {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #FAC655;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

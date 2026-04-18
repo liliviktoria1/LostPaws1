@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef, ChangeEvent, FormEvent } from 'reac
 import { useDropzone, FileRejection, DropEvent } from 'react-dropzone';
 import { useNavigate } from 'react-router-dom';
 import { reportService } from '../services/reportService';
-import { PetStatus, PetSpecies, PetSex } from '../types';
+import { PetStatus, PetSpecies, PetSex, PetReport } from '../types';
+import PetCard from './Common/PetCard';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './LostPawsForm.css';
@@ -37,7 +38,7 @@ const LostPawsForm: React.FC = () => {
     const mapRef = useRef<L.Map | null>(null);
     const markerRef = useRef<L.Marker | null>(null);
     
-    const [isSubmitting, setIsLoading] = useState<boolean>(false);
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [formData, setFormData] = useState<FormData>({
         petStatus: '',
         petName: '',
@@ -108,6 +109,8 @@ const LostPawsForm: React.FC = () => {
     };
 
     const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
+    const [matches, setMatches] = useState<any[]>([]);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     const handleDrop = async (acceptedFiles: File[]) => {
         setFormData(prev => ({
@@ -151,16 +154,16 @@ const LostPawsForm: React.FC = () => {
             return;
         }
 
-        setIsLoading(true);
+        setIsSubmitting(true);
         try {
-            await reportService.createReport(formData as any);
-            alert("Report created successfully!");
-            navigate('/announcements');
+            const response = await reportService.createReport(formData as any);
+            setMatches(response.potentialMatches || []);
+            setShowSuccessModal(true);
         } catch (err: any) {
             console.error('Error submitting form:', err);
             alert("Failed to create report: " + err.message);
         } finally {
-            setIsLoading(false);
+            setIsSubmitting(false);
         }
     };
 
@@ -178,6 +181,7 @@ const LostPawsForm: React.FC = () => {
 
                 <div className="form-card">
                     <form onSubmit={handleSubmit}>
+                        {/* ... rest of the form ... */}
                         <div className="form-header">
                             <div className="form-group">
                             <label>Pets Status:</label>
@@ -383,6 +387,56 @@ const LostPawsForm: React.FC = () => {
                     </form>
                 </div>
             </div>
+
+            {/* Success Modal with Matches */}
+            {showSuccessModal && (
+                <div className="modal-overlay">
+                    <div className="success-modal">
+                        <div className="modal-header">
+                            <h2>Success! Report Created.</h2>
+                            <button className="close-modal" onClick={() => navigate('/announcements')}>×</button>
+                        </div>
+                        
+                        <div className="modal-body">
+                            {matches.length > 0 ? (
+                                <>
+                                    <div className="ai-match-notice">
+                                        <span className="ai-sparkle">✨</span>
+                                        <p>Our AI found <strong>{matches.length} potential matches</strong> for your pet!</p>
+                                    </div>
+                                    
+                                    <div className="matches-grid">
+                                        {matches.map((match, idx) => (
+                                            <div key={idx} className="match-card-wrapper">
+                                                <PetCard pet={match.report} />
+                                                <div className="match-score-badge">
+                                                    {(match.score * 100).toFixed(0)}% Match
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </>
+                            ) : (
+                                <p>No immediate matches found. We will notify you if a match is discovered!</p>
+                            )}
+                        </div>
+                        
+                        <div className="modal-footer">
+                            <button className="btn-secondary" onClick={() => navigate('/announcements')}>View All Announcements</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
+            {/* AI Analyzing Overlay */}
+            {isAnalyzing && (
+                <div className="modal-overlay">
+                    <div className="ai-loading-modal">
+                        <div className="spinner"></div>
+                        <p>AI is analyzing your photo to auto-fill the form...</p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

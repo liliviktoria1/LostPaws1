@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import sequelize from './config/database.js';
 import reportRoutes from './routes/reports.js';
 import authRoutes from './routes/auth.js';
+import notificationRoutes from './routes/notifications.js';
 
 console.log('---------------------------------------');
 console.log('BACKEND SERVER INITIALIZING...');
@@ -31,6 +32,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Routes
 app.use('/api/reports', reportRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Backend is reachable' });

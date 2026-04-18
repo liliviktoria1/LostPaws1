@@ -65,6 +65,19 @@
   display: block;
 }
 
+.photo-count-badge {
+  position: absolute;
+  bottom: 25px;
+  right: 15px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 9px;
+  font-weight: 600;
+  backdrop-filter: blur(2px);
+}
+
 .pet-info-container {
   display: flex;
   flex-direction: column;

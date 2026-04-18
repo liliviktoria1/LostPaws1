@@ -5,6 +5,8 @@ import 'leaflet/dist/leaflet.css';
 import { reportService } from '../services/reportService';
 import { PetReport } from '../types';
 import PetSlider from './Common/PetSlider';
+import { useAuth } from '../context/AuthContext';
+import { authService } from '../services/authService';
 import './PetDetail.css';
 
 // Fix for default Leaflet icon paths
@@ -22,8 +24,13 @@ const PetDetail: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [otherPets, setOtherPets] = useState<PetReport[]>([]);
     const [loadingOthers, setLoadingOthers] = useState(true);
+    const [mainImage, setMainImage] = useState<string | null>(null);
+    const [isScanning, setIsScanning] = useState(false);
+    const [deepMatches, setDeepMatches] = useState<any[] | null>(null);
+    
     const navigate = useNavigate();
     const mapRef = useRef<L.Map | null>(null);
+    const { user } = useAuth();
 
     useEffect(() => {
         const fetchReport = async () => {
@@ -33,6 +40,14 @@ const PetDetail: React.FC = () => {
                 const found = data.find(r => r.id === id);
                 if (found) {
                     setReport(found);
+                    if (found.photos && found.photos.length > 0) {
+                         const photo = found.photos[0];
+                         const url = typeof photo === 'string' ? photo : (photo as any).url;
+                         const fullUrl = url.startsWith('http') || url.startsWith('/assets') 
+                            ? url 
+                            : `${(process.env.REACT_APP_API_URL || 'http://localhost:8080/api').replace(/\/api$/, '')}${url.startsWith('/') ? '' : '/'}${url}`;
+                         setMainImage(fullUrl);
+                    }
                 }
                 
                 // Fetch other missing pets for the slider
@@ -83,7 +98,29 @@ const PetDetail: React.FC = () => {
         };
     }, [report]);
 
+    const handleDeepScan = async () => {
+        if (!id) return;
+        setIsScanning(true);
+        try {
+            const token = authService.getToken();
+            const baseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:8080/api').replace(/\/$/, '');
+            const response = await fetch(`${baseUrl}/reports/${id}/deep-scan`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (!response.ok) throw new Error('Scan failed');
+            const data = await response.json();
+            setDeepMatches(data.matches);
+        } catch (error) {
+            console.error('Deep scan error:', error);
+            alert("Failed to run deep scan. Please try again.");
+        } finally {
+            setIsScanning(false);
+        }
+    };
+
     const getImageUrl = (report: PetReport) => {
+        if (mainImage) return mainImage;
         if (report.photos && report.photos.length > 0) {
             const photo = report.photos[0];
             const url = typeof photo === 'string' ? photo : (photo as any).url;
@@ -97,8 +134,19 @@ const PetDetail: React.FC = () => {
         return '/assets/image/Sharik.jpeg';
     };
 
+    const getThumbnailUrl = (photo: any) => {
+        const url = typeof photo === 'string' ? photo : photo.url;
+        if (!url) return '/assets/image/Sharik.jpeg';
+        if (url.startsWith('http')) return url;
+        if (url.startsWith('/assets')) return url;
+        const baseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:8080/api').replace(/\/api$/, '');
+        return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
+    };
+
     if (loading) return <div className="loading-state">Loading pet details...</div>;
     if (!report) return <div className="error-state">Pet report not found.</div>;
+
+    const isOwner = user && report.userId === user.id;
 
     return (
         <div className="pet-detail-container">
@@ -108,14 +156,41 @@ const PetDetail: React.FC = () => {
             
             <div className="pet-detail-card">
                 <div className="pet-image-section">
-                    <img src={getImageUrl(report)} alt={report.petName} />
-                    <span className={`detail-status-badge ${report.petStatus}`}>
-                        {report.petStatus.toUpperCase()}
-                    </span>
+                    <div className="main-image-container">
+                        <img src={getImageUrl(report)} alt={report.petName} className="main-pet-image" />
+                        <span className={`detail-status-badge ${report.petStatus}`}>
+                            {report.petStatus.toUpperCase()}
+                        </span>
+                    </div>
+                    {report.photos && report.photos.length > 1 && (
+                        <div className="photos-thumbnail-grid">
+                            {report.photos.map((photo, index) => {
+                                const thumbUrl = getThumbnailUrl(photo);
+                                return (
+                                    <div key={index} className={`thumbnail-wrapper ${mainImage === thumbUrl ? 'active' : ''}`} onClick={() => {
+                                        setMainImage(thumbUrl);
+                                    }}>
+                                        <img src={thumbUrl} alt={`${report.petName} ${index + 1}`} />
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
                 </div>
 
                 <div className="pet-info-section">
-                    <h1 className="pet-detail-title">{report.petName}</h1>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <h1 className="pet-detail-title">{report.petName}</h1>
+                        {isOwner && (
+                            <button 
+                                className="deep-scan-btn" 
+                                onClick={handleDeepScan}
+                                disabled={isScanning}
+                            >
+                                {isScanning ? 'Scanning...' : '✨ Scan for Matches'}
+                            </button>
+                        )}
+                    </div>
                     
                     <div className="detail-grid">
                         <div className="detail-item">
@@ -154,6 +229,31 @@ const PetDetail: React.FC = () => {
                 </div>
             </div>
 
+            {/* Deep Scan Results Section */}
+            {deepMatches !== null && (
+                <div className="deep-matches-section">
+                    <h3>✨ AI Verified Matches</h3>
+                    {deepMatches.length > 0 ? (
+                        <div className="matches-grid-detail">
+                            {deepMatches.map((match, idx) => (
+                                <div key={idx} className="match-card-detail" onClick={() => navigate(`/pet/${match.report.id}`)}>
+                                    <div className="match-image-detail">
+                                        <img src={getThumbnailUrl(match.report.photos?.[0])} alt={match.report.petName} />
+                                        <div className="match-score-badge-detail">{(match.score * 100).toFixed(0)}% Visual Match</div>
+                                    </div>
+                                    <div className="match-info-detail">
+                                        <h4>{match.report.petName}</h4>
+                                        <p className="reasoning">{match.reasoning}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="no-matches-msg">No verified visual matches found at this time. We'll keep looking!</p>
+                    )}
+                </div>
+            )}
+
             <div className="detail-map-section">
                 <h3>Last Known Location</h3>
                 <div id="pet-detail-map"></div>
@@ -169,6 +269,17 @@ const PetDetail: React.FC = () => {
                     sectionClass="other-pets-slider"
                 />
             </div>
+            
+            {/* Full-screen loading overlay for scan */}
+            {isScanning && (
+                <div className="scan-overlay">
+                    <div className="scan-modal">
+                        <div className="scan-spinner"></div>
+                        <h3>Deep Scanning...</h3>
+                        <p>Our AI is visually comparing photos across the database. This may take a moment.</p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

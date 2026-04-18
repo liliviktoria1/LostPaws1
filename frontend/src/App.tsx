@@ -8,6 +8,7 @@ import Announcements from './components/Announcements';
 import ContactUs from './components/ContactUs';
 import LostPawsForm from './components/LostPawsForm';
 import PetDetail from './components/PetDetail';
+import MyReports from './components/MyReports';
 import { mockAnnouncements } from './data/mockData';
 import { AuthProvider } from './context/AuthContext';
 
@@ -25,6 +26,7 @@ function App() {
                             <Route path="/contact" element={<ContactUs />} />
                             <Route path="/report" element={<LostPawsForm />} />
                             <Route path="/pet/:id" element={<PetDetail />} />
+                            <Route path="/my-reports" element={<MyReports />} />
                         </Routes>
                     </main>
                     <Footer />

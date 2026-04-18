@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { reportService } from '../services/reportService';
 import { PetReport, PetStatus, Announcement } from '../types';
+import PetCard from './Common/PetCard';
 import './Announcements.css';
 
 interface AnnouncementsProps {
@@ -26,20 +27,6 @@ const Announcements: React.FC<AnnouncementsProps> = ({ announcements }) => {
         };
         fetchReports();
     }, [filter]);
-
-    const getImageUrl = (report: PetReport): string => {
-        if (report.photos && report.photos.length > 0) {
-            const photo = report.photos[0];
-            const url = typeof photo === 'string' ? photo : (photo as any).url;
-
-            if (!url) return '/assets/image/Dog.png';
-            if (url.startsWith('/assets')) return url;
-            if (url.startsWith('http')) return url;
-            const baseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:8080/api').replace(/\/api$/, '');
-            return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
-        }
-        return '/assets/image/Dog.png';
-    };
 
     return (
         <div className="announcements-page">
@@ -67,27 +54,7 @@ const Announcements: React.FC<AnnouncementsProps> = ({ announcements }) => {
                 <div className="announcements-grid">
                     {reports.length > 0 ? (
                         reports.map((report) => (
-                            <div key={report.id} className={`announcement-card ${report.petStatus}`}>
-                                <div className="card-image">
-                                    <img src={getImageUrl(report)} alt={report.petName} />
-                                    <span className={`status-badge ${report.petStatus}`}>
-                                        {report.petStatus}
-                                    </span>
-                                </div>
-                                <div className="card-content">
-                                    <h3>{report.petName}</h3>
-                                    <p className="species">{report.petSpecies} ({report.petSex})</p>
-                                    <p className="description">{report.description}</p>
-                                    <div className="card-footer">
-                                        <p className="location">📍 {report.locationAddress}</p>
-                                        <p className="date">📅 {report.dateLastSeen ? new Date(report.dateLastSeen).toLocaleDateString() : 'N/A'}</p>
-                                    </div>
-                                    <div className="contact-info">
-                                        <p>Contact: <strong>{report.contactName || 'Anonymous'}</strong></p>
-                                        <button className="contact-btn">View Contact</button>
-                                    </div>
-                                </div>
-                            </div>
+                            <PetCard key={report.id} pet={report} />
                         ))
                     ) : (
                         <p className="no-reports">No announcements found for this category.</p>

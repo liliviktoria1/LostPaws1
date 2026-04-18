@@ -5,9 +5,11 @@ import path from 'path';
 import { Op } from 'sequelize';
 import { analyzePetImage, generatePetEmbedding } from '../config/ai.js';
 import { authMiddleware, AuthRequest } from '../middleware/auth.js';
-
 import { geocodeAddress } from '../services/geocoding.js';
 import { findMatchesForReport } from '../services/matching.js';
+import Notification from '../models/Notification.js';
+import User from '../models/User.js';
+import { sendMatchAlertEmail } from '../services/email.js';
 
 const router: Router = express.Router();
 
@@ -36,6 +38,43 @@ router.post('/analyze', upload.single('photo'), async (req: Request, res: Respon
         res.status(500).json({ message: 'AI Analysis failed' });
     }
 });
+
+// Async background watcher
+const runPassiveWatcher = async (newReportId: string) => {
+    try {
+        console.log(`[Passive Watcher] Starting deep scan for report ${newReportId}`);
+        const matches = await findMatchesForReport(newReportId, 3, true); // Use deep scan, limit 3
+        
+        if (matches.length > 0) {
+            const newReport = await PetReport.findByPk(newReportId);
+            if (!newReport) return;
+
+            for (const match of matches) {
+                // If new report is 'found', notify the 'lost' report owner
+                if (newReport.petStatus === 'found' && match.report.userId) {
+                    await Notification.create({
+                        userId: match.report.userId,
+                        message: `High confidence match (${(match.score * 100).toFixed(0)}%) found for ${match.report.petName}!`,
+                        reportId: newReport.id,
+                        type: 'match_alert'
+                    });
+
+                    // Send email
+                    const owner = await User.findByPk(match.report.userId);
+                    if (owner) {
+                        const matchUrl = `http://localhost:3005/pet/${newReport.id}`; // Hardcoded frontend URL for now, could be env
+                        await sendMatchAlertEmail(owner.email, match.report.petName, matchUrl);
+                    }
+                }
+            }
+            console.log(`[Passive Watcher] Found ${matches.length} high-confidence matches.`);
+        } else {
+             console.log(`[Passive Watcher] No high-confidence matches found.`);
+        }
+    } catch (error) {
+        console.error(`[Passive Watcher] Error running watcher for ${newReportId}:`, error);
+    }
+};
 
 // POST /api/reports - Create a new report
 router.post('/', [authMiddleware, upload.array('photos', 5)], async (req: AuthRequest, res: Response) => {
@@ -97,12 +136,13 @@ router.post('/', [authMiddleware, upload.array('photos', 5)], async (req: AuthRe
             embedding
         });
 
-        // Find potential matches
-        const matches = await findMatchesForReport(newReport.id);
+        // Fire and forget the background watcher
+        runPassiveWatcher(newReport.id).catch(console.error);
 
+        // Immediate response for fast UI
         res.status(201).json({
             report: newReport,
-            potentialMatches: matches
+            message: "Report created. AI is scanning for matches in the background."
         });
     } catch (err: any) {
         console.error('Error creating report:', err);
@@ -110,15 +150,40 @@ router.post('/', [authMiddleware, upload.array('photos', 5)], async (req: AuthRe
     }
 });
 
+// GET /api/reports/:id/deep-scan - Synchronously perform deep visual scan
+router.get('/:id/deep-scan', authMiddleware, async (req: AuthRequest, res: Response) => {
+    try {
+        const reportId = req.params.id as string;
+        const report = await PetReport.findByPk(reportId);
+        
+        if (!report) {
+            return res.status(404).json({ message: 'Report not found' });
+        }
+
+        // Optional: Check ownership to prevent abuse
+        // if (report.userId !== req.userId) {
+        //     return res.status(403).json({ message: 'Unauthorized' });
+        // }
+
+        const matches = await findMatchesForReport(reportId, 5, true); // true = use deep visual scan
+        
+        res.json({ matches });
+    } catch (err: any) {
+        console.error('Deep Scan Error:', err);
+        res.status(500).json({ message: err.message });
+    }
+});
+
 // GET /api/reports - Get all reports with optional filters
 router.get('/', async (req: Request, res: Response) => {
     try {
-        const { petStatus, petSpecies, petSex, location } = req.query;
+        const { petStatus, petSpecies, petSex, location, userId } = req.query;
         let where: any = {};
 
         if (petStatus) where.petStatus = petStatus;
         if (petSpecies) where.petSpecies = petSpecies;
         if (petSex) where.petSex = petSex;
+        if (userId) where.userId = userId;
         if (location) {
             where.locationAddress = { [Op.iLike]: `%${location}%` };
         }
