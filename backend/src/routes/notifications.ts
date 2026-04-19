@@ -1,5 +1,5 @@
 import express, { Response, Router } from 'express';
-import Notification from '../models/Notification.js';
+import { Notification } from '../models/Notification.js';
 import { authMiddleware, AuthRequest } from '../middleware/auth.js';
 
 const router: Router = express.Router();

@@ -25,9 +25,12 @@ app.use(cors());
 app.use(express.json());
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    if (Object.keys(req.query).length > 0) {
+        console.log('Query Params:', JSON.stringify(req.query));
+    }
     next();
 });
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // Routes
 app.use('/api/reports', reportRoutes);
@@ -59,9 +62,9 @@ app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
     
     // Then Sync Database
-    sequelize.sync({ force: false })
+    sequelize.sync({ alter: true })
         .then(() => {
-            console.log('PostgreSQL Database connected and synced');
+            console.log('PostgreSQL Database connected and synced (Schema updated)');
         })
         .catch((err: any) => {
             console.error('DATABASE CONNECTION ERROR:', err.message);

@@ -8,11 +8,13 @@ import './MyReports.css';
 
 const MyReports: React.FC = () => {
     const [reports, setReports] = useState<PetReport[]>([]);
-    const [isLoading, setIsLoading] = useState<boolean>(true);
-    const { user } = useAuth();
+    const [isReportsLoading, setIsReportsLoading] = useState<boolean>(true);
+    const { user, isLoading: isAuthLoading } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
+        if (isAuthLoading) return;
+
         if (!user) {
             navigate('/');
             return;
@@ -20,17 +22,20 @@ const MyReports: React.FC = () => {
         
         const fetchMyReports = async () => {
             try {
+                console.log(`[MyReports] Fetching for userId: ${user.id}`);
                 const data = await reportService.getReports({ userId: user.id });
+                console.log(`[MyReports] Found ${data.length} reports.`);
                 setReports(data);
             } catch (err) {
                 console.error("Error fetching my reports:", err);
             } finally {
-                setIsLoading(false);
+                setIsReportsLoading(false);
             }
         };
         fetchMyReports();
-    }, [user, navigate]);
+    }, [user, isAuthLoading, navigate]);
 
+    if (isAuthLoading) return <div className="loading-state">Initializing session...</div>;
     if (!user) return null;
 
     return (
@@ -40,7 +45,7 @@ const MyReports: React.FC = () => {
                 <p>Manage your reported lost and found pets here.</p>
             </header>
 
-            {isLoading ? (
+            {isReportsLoading ? (
                 <div className="loading-state">Loading your reports...</div>
             ) : (
                 <div className="my-reports-grid">

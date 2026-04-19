@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, ChangeEvent, FormEvent } from 'reac
 import { useDropzone, FileRejection, DropEvent } from 'react-dropzone';
 import { useNavigate } from 'react-router-dom';
 import { reportService } from '../services/reportService';
-import { PetStatus, PetSpecies, PetSex, PetReport } from '../types';
+import { PetStatus, PetSpecies, PetSex, PetReport, PetAge } from '../types';
 import PetCard from './Common/PetCard';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -21,6 +21,9 @@ interface FormData {
     petStatus: PetStatus | '';
     petName: string;
     petSpecies: PetSpecies | '';
+    petBreed: string;
+    petColor: string;
+    petAge: PetAge | '';
     petSex: PetSex | '';
     description: string;
     locationAddress: string;
@@ -43,6 +46,9 @@ const LostPawsForm: React.FC = () => {
         petStatus: '',
         petName: '',
         petSpecies: '',
+        petBreed: '',
+        petColor: '',
+        petAge: '',
         petSex: '',
         description: '',
         locationAddress: '',
@@ -108,43 +114,30 @@ const LostPawsForm: React.FC = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
     const [matches, setMatches] = useState<any[]>([]);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [previews, setPreviews] = useState<string[]>([]);
 
-    const handleDrop = async (acceptedFiles: File[]) => {
+    const handleDrop = (acceptedFiles: File[]) => {
         setFormData(prev => ({
             ...prev,
             photos: [...prev.photos, ...acceptedFiles]
         }));
 
-        // Automatically analyze the first photo uploaded
-        if (acceptedFiles.length > 0) {
-            setIsAnalyzing(true);
-            try {
-                const analysis = await reportService.analyzePetImage(acceptedFiles[0]);
-                
-                // Update form with AI suggestions
-                setFormData(prev => ({
-                    ...prev,
-                    petSpecies: analysis.species || prev.petSpecies,
-                    petName: prev.petName || (analysis.suggestedBreed ? `Maybe a ${analysis.suggestedBreed}?` : ''),
-                    description: `${analysis.suggestedBreed || ''} ${analysis.primaryColor || ''} ${analysis.distinctiveFeatures || ''}`.trim()
-                }));
-                alert("AI has suggested some details based on your photo!");
-            } catch (err) {
-                console.error("AI Auto-fill failed:", err);
-            } finally {
-                setIsAnalyzing(false);
-            }
-        }
+        // Generate previews
+        const newPreviews = acceptedFiles.map(file => URL.createObjectURL(file));
+        setPreviews(prev => [...prev, ...newPreviews]);
     };
 
     const handleRemovePhoto = (index: number) => {
+        // Revoke the object URL to avoid memory leaks
+        URL.revokeObjectURL(previews[index]);
+        
         setFormData((prev) => ({
             ...prev,
             photos: prev.photos.filter((_, i) => i !== index)
         }));
+        setPreviews(prev => prev.filter((_, i) => i !== index));
     };
 
     const handleSubmit = async (e: FormEvent) => {
@@ -219,6 +212,30 @@ const LostPawsForm: React.FC = () => {
                             />
                         </div>
 
+                        {/* Pet Breed */}
+                        <div className="form-group">
+                            <label>Pets Breed:</label>
+                            <input
+                                type="text"
+                                name="petBreed"
+                                value={formData.petBreed}
+                                onChange={handleChange}
+                                placeholder="E.g.: Golden Retriever, Siamese, Unknown"
+                            />
+                        </div>
+
+                        {/* Pet Color */}
+                        <div className="form-group">
+                            <label>Pets Color:</label>
+                            <input
+                                type="text"
+                                name="petColor"
+                                value={formData.petColor}
+                                onChange={handleChange}
+                                placeholder="E.g.: Black & White, Brown, Tricolor"
+                            />
+                        </div>
+
                         {/* Pet Species */}
                         <div className="form-group">
                             <label>Pets Species:</label>
@@ -236,6 +253,30 @@ const LostPawsForm: React.FC = () => {
                                             checked={formData.petSpecies === option.value}
                                             onChange={handleChange}
                                             required
+                                        />
+                                        {option.label}
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Pet Age */}
+                        <div className="form-group">
+                            <label>Pets Age (approximate):</label>
+                            <div className="radio-group">
+                                {[
+                                    { value: 'baby', label: 'Baby / Puppy / Kitten' },
+                                    { value: 'young', label: 'Young' },
+                                    { value: 'adult', label: 'Adult' },
+                                    { value: 'senior', label: 'Senior' }
+                                ].map(option => (
+                                    <label key={option.value}>
+                                        <input
+                                            type="radio"
+                                            name="petAge"
+                                            value={option.value}
+                                            checked={formData.petAge === option.value}
+                                            onChange={handleChange}
                                         />
                                         {option.label}
                                     </label>
@@ -281,27 +322,31 @@ const LostPawsForm: React.FC = () => {
 
                         {/* Drag & Drop Area */}
                         <div className="form-group">
-                            <label>Add a photo:</label>
-                            <p className="sub-label">2-5 photo from a different perspective</p>
+                            <label>Add photos:</label>
+                            <p className="sub-label">Upload 2-5 photos from different perspectives</p>
                             <div {...getRootProps()} className={`upload-area ${isDragActive ? 'active' : ''}`}>
                                 <input {...getInputProps()} />
                                 <div className="upload-icon">📷</div>
                                 <p>{isDragActive ? "Drop files here..." : "Drag & Drop files here"}</p>
                             </div>
-                            {formData.photos && formData.photos.length > 0 && (
-                                <ul className="file-list">
-                                    {formData.photos.map((file, index) => (
-                                        <li key={index} className="file-item">{file.name}
-                                            <button
-                                                type="button"
-                                                className="remove-button"
-                                                onClick={() => handleRemovePhoto(index)}
-                                            >
-                                                ❌
-                                            </button>
-                                        </li>
-                                    ))}
-                                </ul>
+                            
+                            {previews.length > 0 && (
+                                <div className="image-previews-container">
+                                    <div className="previews-grid">
+                                        {previews.map((url, index) => (
+                                            <div key={index} className="preview-card">
+                                                <img src={url} alt="Preview" />
+                                                <button
+                                                    type="button"
+                                                    className="remove-preview-btn"
+                                                    onClick={() => handleRemovePhoto(index)}
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
                             )}
                         </div>
 
@@ -424,16 +469,6 @@ const LostPawsForm: React.FC = () => {
                         <div className="modal-footer">
                             <button className="btn-secondary" onClick={() => navigate('/announcements')}>View All Announcements</button>
                         </div>
-                    </div>
-                </div>
-            )}
-            
-            {/* AI Analyzing Overlay */}
-            {isAnalyzing && (
-                <div className="modal-overlay">
-                    <div className="ai-loading-modal">
-                        <div className="spinner"></div>
-                        <p>AI is analyzing your photo to auto-fill the form...</p>
                     </div>
                 </div>
             )}

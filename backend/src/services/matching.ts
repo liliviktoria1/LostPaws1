@@ -1,4 +1,4 @@
-import PetReport from '../models/PetReport.js';
+import { PetReport } from '../models/PetReport.js';
 import { Op } from 'sequelize';
 import { verifyPetMatch } from '../config/ai.js';
 import path from 'path';
@@ -31,67 +31,82 @@ export const findMatchesForReport = async (reportId: string, limit = 5, useDeepS
         if (!sourceReport || !sourceReport.embedding) return [];
 
         const targetStatus = sourceReport.petStatus === 'lost' ? 'found' : 'lost';
+        const allReports = await PetReport.findAll({ attributes: ['id', 'petName', 'petStatus', 'petSpecies'] });
+        console.log(`[Matching] DB DUMP: ${JSON.stringify(allReports.map(r => ({ name: r.petName, status: r.petStatus, species: r.petSpecies })))}`);
+        
+        console.log(`[Matching] Running scan for ${sourceReport.petName}. Target Status: ${targetStatus}, Species: ${sourceReport.petSpecies}`);
 
         // Step 1: Fast Vector Search (Candidate filtering)
         const where: any = {
             petStatus: targetStatus,
             petSpecies: sourceReport.petSpecies,
-            id: { [Op.ne]: reportId },
-            embedding: { [Op.not]: null }
+            id: { [Op.ne]: reportId }
         };
+        
+        console.log(`[Matching] Where clause: ${JSON.stringify(where)}`);
 
         const candidates = await PetReport.findAll({ where });
+        console.log(`[Matching] Query found ${candidates.length} candidates for ${sourceReport.petName}`);
 
         // Calculate text/embedding similarity
         let textMatches = candidates.map(candidate => {
+            if (!candidate.embedding || !sourceReport.embedding) return null;
             const score = cosineSimilarity(sourceReport.embedding, candidate.embedding);
             return {
                 report: candidate,
                 score,
-                reasoning: ''
+                reasoning: 'Matches by description and parameters.'
             };
-        });
+        }).filter(m => m !== null) as any[];
 
-        // Filter and get top candidates (e.g., top 10)
-        let topCandidates = textMatches
-            .filter(m => m.score > 0.6) // Lower threshold for initial pass
-            .sort((a, b) => b.score - a.score)
-            .slice(0, Math.max(limit, 10));
-
-        // Step 2: Deep Visual Scan (Optional, slower)
-        if (useDeepScan && sourceReport.photos && sourceReport.photos.length > 0) {
-            const sourcePhotoPath = path.join(process.cwd(), (sourceReport.photos[0] as any).url);
+        // Sort by text similarity
+        let topCandidates = textMatches.sort((a, b) => b.score - a.score).slice(0, limit);
             
-            const verifiedMatches = [];
+        console.log(`[Matching] Step 1 finished. ${topCandidates.length} candidates found.`);
+
+        // Step 2: Deep Visual Scan
+        if (useDeepScan && sourceReport.photos && sourceReport.photos.length > 0) {
+            console.log(`[Matching] Starting Deep Visual Scan...`);
+            const sourcePhotoUrl = (sourceReport.photos[0] as any).url;
+            const sourcePhotoPath = path.resolve(process.cwd(), sourcePhotoUrl.replace(/^\//, ''));
+            
+            const verificationResults = [];
 
             for (const candidate of topCandidates) {
                 if (candidate.report.photos && candidate.report.photos.length > 0) {
                     try {
-                        const targetPhotoPath = path.join(process.cwd(), (candidate.report.photos[0] as any).url);
+                        const targetPhotoUrl = (candidate.report.photos[0] as any).url;
+                        const targetPhotoPath = path.resolve(process.cwd(), targetPhotoUrl.replace(/^\//, ''));
+                        
+                        console.log(`[Matching] Calling Gemini for visual check...`);
                         const verification = await verifyPetMatch(sourcePhotoPath, targetPhotoPath);
                         
-                        // Only keep matches where visual confidence > 75%
-                        if (verification.score > 75) {
-                            verifiedMatches.push({
-                                report: candidate.report,
-                                score: verification.score / 100, // Normalize to 0-1 for UI consistency
-                                reasoning: verification.reasoning
-                            });
-                        }
+                        // Handle both 0-1 and 0-100 scales from AI
+                        const rawScore = verification.score;
+                        const normalizedScore = rawScore <= 1 ? rawScore : rawScore / 100;
+                        
+                        // Show all results that AI at least looked at
+                        verificationResults.push({
+                            report: candidate.report,
+                            score: normalizedScore,
+                            reasoning: verification.reasoning
+                        });
                     } catch (err) {
-                        console.error(`Visual scan failed for candidate ${candidate.report.id}`, err);
+                        console.error(`[Matching] Visual scan failed for ${candidate.report.id}`, err);
                     }
                 }
             }
             
-            // Return visual matches sorted by score
-            return verifiedMatches.sort((a, b) => b.score - a.score).slice(0, limit);
+            // If we found verified matches, return them. 
+            if (verificationResults.length > 0) {
+                console.log(`[Matching] Returning ${verificationResults.length} AI-verified matches.`);
+                return verificationResults.sort((a, b) => b.score - a.score);
+            }
+            
+            console.log(`[Matching] AI Scan found no verified matches. Falling back to text similarity.`);
         }
 
-        // If no deep scan, just return the text matches
-        return topCandidates
-            .filter(m => m.score > 0.7) // Stricter threshold if no visual check
-            .slice(0, limit);
+        return topCandidates;
 
     } catch (error) {
         console.error('Matching Error:', error);

@@ -36,8 +36,7 @@ const PetDetail: React.FC = () => {
         const fetchReport = async () => {
             if (!id) return;
             try {
-                const data = await reportService.getReports();
-                const found = data.find(r => r.id === id);
+                const found = await reportService.getReportById(id);
                 if (found) {
                     setReport(found);
                     if (found.photos && found.photos.length > 0) {
@@ -198,6 +197,18 @@ const PetDetail: React.FC = () => {
                             <span className="detail-value">{report.petSpecies}</span>
                         </div>
                         <div className="detail-item">
+                            <span className="detail-label">Breed</span>
+                            <span className="detail-value">{report.petBreed || 'Unknown'}</span>
+                        </div>
+                        <div className="detail-item">
+                            <span className="detail-label">Color</span>
+                            <span className="detail-value">{report.petColor || 'Unknown'}</span>
+                        </div>
+                        <div className="detail-item">
+                            <span className="detail-label">Age</span>
+                            <span className="detail-value" style={{ textTransform: 'capitalize' }}>{report.petAge || 'Unknown'}</span>
+                        </div>
+                        <div className="detail-item">
                             <span className="detail-label">Sex</span>
                             <span className="detail-value">{report.petSex || 'Unknown'}</span>
                         </div>
@@ -243,7 +254,7 @@ const PetDetail: React.FC = () => {
                                     </div>
                                     <div className="match-info-detail">
                                         <h4>{match.report.petName}</h4>
-                                        <p className="reasoning">{match.reasoning}</p>
+                                        <p className="match-reasoning"><strong>AI Reasoning:</strong> {match.reasoning}</p>
                                     </div>
                                 </div>
                             ))}

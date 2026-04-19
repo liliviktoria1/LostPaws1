@@ -1,6 +1,6 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../config/database.js';
-import User from './User.js';
+import { User } from './User.js';
 
 export interface NotificationAttributes {
     id: string;
@@ -67,4 +67,4 @@ Notification.init({
 User.hasMany(Notification, { foreignKey: 'userId' });
 Notification.belongsTo(User, { foreignKey: 'userId' });
 
-export default Notification;
+export { Notification };

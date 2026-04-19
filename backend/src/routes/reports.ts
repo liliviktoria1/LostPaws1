@@ -1,5 +1,5 @@
 import express, { Request, Response, Router } from 'express';
-import PetReport from '../models/PetReport.js';
+import { PetReport } from '../models/PetReport.js';
 import multer from 'multer';
 import path from 'path';
 import { Op } from 'sequelize';
@@ -7,8 +7,8 @@ import { analyzePetImage, generatePetEmbedding } from '../config/ai.js';
 import { authMiddleware, AuthRequest } from '../middleware/auth.js';
 import { geocodeAddress } from '../services/geocoding.js';
 import { findMatchesForReport } from '../services/matching.js';
-import Notification from '../models/Notification.js';
-import User from '../models/User.js';
+import { Notification } from '../models/Notification.js';
+import { User } from '../models/User.js';
 import { sendMatchAlertEmail } from '../services/email.js';
 
 const router: Router = express.Router();
@@ -83,6 +83,9 @@ router.post('/', [authMiddleware, upload.array('photos', 5)], async (req: AuthRe
             petStatus,
             petName,
             petSpecies,
+            petBreed,
+            petColor,
+            petAge,
             petSex,
             description,
             locationAddress,
@@ -122,6 +125,9 @@ router.post('/', [authMiddleware, upload.array('photos', 5)], async (req: AuthRe
             petStatus,
             petName,
             petSpecies,
+            petBreed,
+            petColor,
+            petAge,
             petSex,
             description,
             locationAddress,
@@ -157,20 +163,18 @@ router.get('/:id/deep-scan', authMiddleware, async (req: AuthRequest, res: Respo
         const report = await PetReport.findByPk(reportId);
         
         if (!report) {
-            return res.status(404).json({ message: 'Report not found' });
+            return res.status(404).json({ message: 'Report not found in database.' });
         }
 
-        // Optional: Check ownership to prevent abuse
-        // if (report.userId !== req.userId) {
-        //     return res.status(403).json({ message: 'Unauthorized' });
-        // }
+        if (!report.photos || report.photos.length === 0) {
+            return res.status(400).json({ message: 'This report has no photos to analyze.' });
+        }
 
-        const matches = await findMatchesForReport(reportId, 5, true); // true = use deep visual scan
-        
+        const matches = await findMatchesForReport(reportId, 5, true); 
         res.json({ matches });
     } catch (err: any) {
-        console.error('Deep Scan Error:', err);
-        res.status(500).json({ message: err.message });
+        console.error('Deep Scan Route Error:', err);
+        res.status(500).json({ message: `AI Scan failed: ${err.message}` });
     }
 });
 
@@ -183,7 +187,12 @@ router.get('/', async (req: Request, res: Response) => {
         if (petStatus) where.petStatus = petStatus;
         if (petSpecies) where.petSpecies = petSpecies;
         if (petSex) where.petSex = petSex;
-        if (userId) where.userId = userId;
+        
+        // Ensure userId is handled correctly as a string for the query
+        if (userId && userId !== 'undefined') {
+            where.userId = userId;
+        }
+
         if (location) {
             where.locationAddress = { [Op.iLike]: `%${location}%` };
         }
@@ -192,6 +201,7 @@ router.get('/', async (req: Request, res: Response) => {
             where,
             order: [['createdAt', 'DESC']]
         });
+        
         res.json(reports);
     } catch (err: any) {
         res.status(500).json({ message: err.message });

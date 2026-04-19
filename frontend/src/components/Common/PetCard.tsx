@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PetReport } from '../../types';
+import './PetCard.css';
 
 interface PetCardProps {
     pet: PetReport;

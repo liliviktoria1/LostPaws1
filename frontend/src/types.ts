@@ -1,6 +1,7 @@
 export type PetStatus = 'lost' | 'found';
 export type PetSpecies = 'cat' | 'dog' | 'other';
 export type PetSex = 'female' | 'male' | 'unknown';
+export type PetAge = 'baby' | 'young' | 'adult' | 'senior';
 
 export interface User {
     id: string;
@@ -12,6 +13,9 @@ export interface PetReport {
     petStatus: PetStatus;
     petName: string;
     petSpecies: PetSpecies;
+    petBreed?: string;
+    petColor?: string;
+    petAge?: PetAge;
     petSex: PetSex;
     description: string;
     locationAddress: string;
@@ -30,6 +34,7 @@ export interface PetReport {
 export interface PetMatch {
     report: PetReport;
     score: number;
+    reasoning?: string;
 }
 
 export interface CreateReportResponse {
@@ -40,6 +45,9 @@ export interface CreateReportResponse {
 export interface PetFilters {
     petStatus?: PetStatus;
     petSpecies?: PetSpecies;
+    petBreed?: string;
+    petColor?: string;
+    petAge?: PetAge;
     petSex?: PetSex;
     userId?: string;
 }

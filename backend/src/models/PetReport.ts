@@ -6,6 +6,9 @@ export interface PetReportAttributes {
     petStatus: 'lost' | 'found';
     petName: string;
     petSpecies: 'cat' | 'dog' | 'other';
+    petBreed?: string;
+    petColor?: string;
+    petAge?: 'baby' | 'young' | 'adult' | 'senior';
     petSex?: 'female' | 'male' | 'unknown';
     description?: string;
     locationAddress?: string;
@@ -64,6 +67,18 @@ PetReport.init({
         type: DataTypes.ENUM('cat', 'dog', 'other'),
         allowNull: false
     },
+    petBreed: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    petColor: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    petAge: {
+        type: DataTypes.ENUM('baby', 'young', 'adult', 'senior'),
+        defaultValue: 'young'
+    },
     petSex: {
         type: DataTypes.ENUM('female', 'male', 'unknown'),
         defaultValue: 'unknown'
@@ -115,4 +130,4 @@ PetReport.init({
     timestamps: true
 });
 
-export default PetReport;
+export { PetReport };

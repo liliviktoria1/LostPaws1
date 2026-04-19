@@ -33,7 +33,7 @@ export const reportService = {
                 });
             } else if (key === 'location' && typeof value === 'object') {
                 formData.append(key, JSON.stringify(value));
-            } else if (value !== undefined) {
+            } else if (value !== undefined && value !== null && value !== '') {
                 formData.append(key, value as string);  
             }
         });
