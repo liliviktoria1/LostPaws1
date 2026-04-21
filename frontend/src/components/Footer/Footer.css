@@ -1,136 +1,238 @@
 /* Загальний стиль футера */
 .footer {
-    background-color: #181A32; /* Темний фон */
+    background-color: #0D111F; /* Дуже темний синій/чорний як на фото */
     color: #FFFFFF;
-    padding: 20px 40px;
+    padding: 0; /* Прибираємо паддінг, щоб права частина була на всю висоту */
     display: flex;
     justify-content: center;
-    align-items: center;
+    min-height: 180px;
+    overflow: hidden;
 }
 
 .footer-container {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
+    align-items: center;
     width: 100%;
     max-width: 1440px;
 }
 
 /* Ліва частина футера */
 .footer-left {
-    margin-bottom: 20px;
+    padding: 20px 40px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    flex: 1;
 }
 
 .logo-container {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
 }
 
 .footer-logo {
-    width: 50px;
-    height: 50px;
-    margin-right: 10px;
+    width: 60px;
+    height: 60px;
+    margin-right: 15px;
 }
 
 .footer-title {
-    font-size: 24px;
+    font-size: 28px;
     font-weight: bold;
     font-family: 'Poppins', sans-serif;
 }
 
 .footer-lost {
-    color: #FFFFFF; /* Білий */
+    color: #FFFFFF;
 }
 
-.paws {
-    color: #FAC655; /* Жовтий */
+.footer-title .paws {
+    color: #FAC655;
 }
 
 /* Соціальні іконки */
 .social-icons {
     display: flex;
-    gap: 15px;
-    margin-top: 25px;
+    gap: 12px;
+    margin-top: 10px;
 }
 
-.social-icon {
-    font-size: 24px;
-    color: #FFFFFF;
-    transition: color 0.3s;
+.social-icon-svg {
+    border-radius: 50%;
+    transition: transform 0.2s;
+    display: block;
 }
 
-.social-icon:hover {
-    color: #FAC655; /* Жовтий при наведенні */
+.social-icon-svg:hover {
+    transform: scale(1.1);
 }
 
-/* Середня частина футера */
+/* Social Icon Layering */
+.social-icon-wrapper {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.social-icon-wrapper:hover {
+    transform: scale(1.1);
+}
+
+.social-icon-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.social-icon-foreground {
+    position: relative;
+    z-index: 1;
+    transform: translateY(-4px); /* Shifted up more aggressively to ensure visibility */
+}
+
+/* TikTok Layered Icon */
+.tiktok-icon-wrapper {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    background-color: black;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: transform 0.2s;
+}
+
+.tiktok-icon-wrapper:hover {
+    transform: scale(1.1);
+}
+
+.tiktok-layer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+}
+
+.tiktok-white {
+    transform: translate(-50%, -50%) scale(0.8);
+    z-index: 2;
+}
+
+.tiktok-red {
+    transform: translate(-51%, -48%) scale(0.8); /* Slightly left and lower */
+    z-index: 1;
+}
+
+.tiktok-cyan {
+    transform: translate(-49%, -52%) scale(0.8); /* Slightly right and higher */
+    z-index: 1;
+}
+
+/* Середня частина футера - дві колонки */
 .footer-middle {
-    margin-bottom: 20px;
+    flex: 2;
+    display: flex;
+    justify-content: center;
 }
 
 .footer-nav {
     display: flex;
+    gap: 60px; /* Відстань між колонками */
+}
+
+.nav-column {
+    display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 25px;
 }
 
 .footer-link {
     text-decoration: none;
-    font-size: 16px;
+    font-size: 18px;
     font-family: 'Poppins', sans-serif;
     color: #FFFFFF;
     transition: color 0.3s;
+    font-weight: 500;
 }
 
 .footer-link:hover {
-    color: #FAC655; /* Жовтий при наведенні */
+    color: #FAC655;
 }
 
-/* Права частина футера */
+/* Права частина футера - Жовтий блок */
 .footer-right {
-    background-color: #FAC655; /* Жовтий фон */
-    padding: 20px;
-    border-radius: 5px;
-    color: #181A32;
+    background-color: #9F814D; /* Більш приглушений золотий/коричневий як на фото */
+    height: 100%;
+    min-height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 40px;
+    min-width: 250px;
+}
+
+.support-content {
     text-align: center;
 }
 
 .footer-support-title {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 10px;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 15px;
     font-family: 'Poppins', sans-serif;
+    color: #FFFFFF;
 }
 
 .footer-support-text {
     font-size: 14px;
-    margin: 5px 0;
+    margin: 8px 0;
     font-family: 'Poppins', sans-serif;
+    color: #FFFFFF;
+}
+
+.highlight-email {
+    font-weight: 500;
 }
 
 /* Адаптивність */
+@media (max-width: 992px) {
+    .footer-nav {
+        gap: 30px;
+    }
+}
+
 @media (max-width: 768px) {
+    .footer {
+        flex-direction: column;
+        height: auto;
+    }
+    
     .footer-container {
         flex-direction: column;
         align-items: center;
-        text-align: center;
     }
 
     .footer-left,
     .footer-middle,
     .footer-right {
-        margin-bottom: 20px;
         width: 100%;
+        padding: 30px 20px;
+    }
+
+    .footer-right {
+        min-height: auto;
     }
 
     .footer-nav {
-        flex-direction: row;
         justify-content: center;
-        gap: 15px;
     }
 }
