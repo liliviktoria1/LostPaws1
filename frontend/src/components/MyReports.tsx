@@ -51,9 +51,7 @@ const MyReports: React.FC = () => {
                 <div className="my-reports-grid">
                     {reports.length > 0 ? (
                         reports.map((report) => (
-                            <div key={report.id} className="my-report-card-wrapper">
-                                <PetCard pet={report} />
-                            </div>
+                            <PetCard key={report.id} pet={report} />
                         ))
                     ) : (
                         <div className="no-reports">

@@ -29,11 +29,6 @@
     justify-items: center;
 }
 
-.my-report-card-wrapper {
-    position: relative;
-    width: 339px;
-}
-
 .no-reports {
     display: flex;
     flex-direction: column;

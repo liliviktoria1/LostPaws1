@@ -1,5 +1,6 @@
 .slider-item {
-  flex: 0 0 339px;
+  width: 339px;
+  min-width: 339px;
   height: 271px;
   border-radius: 30px;
   background-color: #ffffff;
@@ -12,7 +13,7 @@
   cursor: pointer;
   transition: transform 0.2s ease;
   position: relative;
-  box-sizing: border-box; /* Crucial for consistency between grid and flex */
+  box-sizing: border-box;
 }
 
 .slider-item:hover {
@@ -24,13 +25,13 @@
   height: 140px;
   object-fit: cover;
   border-radius: 20px;
-  margin: 0 auto 15px auto;
+  margin: 0 auto 20px auto;
   display: block;
 }
 
 .photo-count-badge {
   position: absolute;
-  bottom: 25px;
+  bottom: 20px;
   right: 15px;
   background: rgba(0, 0, 0, 0.6);
   color: white;
@@ -46,26 +47,27 @@
   flex-direction: column;
   width: 100%;
   height: 100%;
+  margin-top: 0px;
 }
 
-.slider-item p {
-  font-size: 10px;
+.slider-item .pet-info-container p {
+  font-size: 10px !important;
   color: #888888;
   margin-bottom: 4px;
   text-align: left;
-  line-height: 1.4;
+  line-height: 1.8;
   width: 100%;
 }
 
-.pet-value {
+.slider-item .pet-value {
   color: #000000;
   font-weight: 600;
   margin-left: 4px;
-  font-size: 10px;
+  font-size: 10px !important;
 }
 
-.pet-label {
-  font-size: 10px;
+.slider-item .pet-label {
+  font-size: 10px !important;
   color: #888888;
 }
 
@@ -98,7 +100,7 @@
   font-weight: 400;
   cursor: pointer;
   padding: 0;
-  margin-top: 2px;
+  margin-top: -4px;
   display: block;
   width: fit-content;
   margin-left: auto;
@@ -109,9 +111,11 @@
   color: #181a32;
 }
 
+/* RESPONSIVE CARD STYLES */
 @media (max-width: 768px) {
   .slider-item {
-    flex: 0 0 280px;
+    width: 280px;
+    min-width: 280px;
     height: 300px;
     padding: 20px;
   }

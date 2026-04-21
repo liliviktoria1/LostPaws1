@@ -5,69 +5,73 @@ import { generatePetEmbedding } from './config/ai.js';
 import bcrypt from 'bcryptjs';
 
 const seedData = async () => {
-    console.log('--- STARTING REALISTIC AI-TEST SEED PROCESS ---');
+    console.log('--- STARTING HIGH-LOGIC SEED PROCESS ---');
     try {
         await sequelize.authenticate();
         await sequelize.sync({ force: true });
-        console.log('Database schema reset.');
 
         const hashedPassword = await bcrypt.hash('admin123', 10);
-        // John's ID from your active session
         const johnId = '2972a8b5-7289-470b-966d-a913915e49e7'; 
 
-        console.log('Creating users...');
-        const users = await User.bulkCreate([
+        console.log('Creating unique users...');
+        const userList = [
             { id: johnId, name: 'John Owner', email: 'john@example.com', password: hashedPassword },
             { name: 'Sarah Finder', email: 'sarah@example.com', password: hashedPassword },
-            { name: 'Mike Helper', email: 'mike@example.com', password: hashedPassword }
-        ]);
+            { name: 'Mike LostCat', email: 'mike@example.com', password: hashedPassword },
+            { name: 'Anna CatFinder', email: 'anna@example.com', password: hashedPassword },
+            { name: 'Dmitro Odesa', email: 'dmitro@example.com', password: hashedPassword },
+            { name: 'Elena Lviv', email: 'elena@example.com', password: hashedPassword },
+            { name: 'Admin User', email: 'admin@lostpaws.com', password: hashedPassword }
+        ];
 
-        const sarahId = users[1].id;
-        const mikeId = users[2].id;
+        const users = await User.bulkCreate(userList);
 
-        const petReportsData = [
-            // SCENARIO 1: PERFECT MATCH (Same Image)
-            // John lost Ben. Sarah found Ben.
+        const reports = [
+            // SCENARIO: BEN (DOG)
             {
                 petStatus: 'lost', petName: 'Ben', petSpecies: 'dog', petBreed: 'Golden Retriever',
-                petColor: 'Golden', petAge: 'adult', petSex: 'male', description: 'Friendly dog, red collar.',
+                petColor: 'Golden', petAge: 'adult', petSex: 'male', description: 'He has a red collar and a small scar on his left paw.',
                 locationAddress: 'Kiev, Yurivka', locationLat: 50.34, locationLng: 30.36,
                 contactEmail: 'john@example.com', photos: [{ url: '/uploads/Ben.jpeg' }], userId: johnId
             },
             {
                 petStatus: 'found', petName: 'Found Retriever', petSpecies: 'dog', petBreed: 'Golden Retriever',
-                petColor: 'Golden', petAge: 'adult', petSex: 'male', description: 'Found a golden dog with a red collar.',
+                petColor: 'Golden/Yellow', petAge: 'adult', petSex: 'male', description: 'Found a very friendly retriever with a red collar near the park.',
                 locationAddress: 'Kiev, Podil', locationLat: 50.46, locationLng: 30.51,
-                contactEmail: 'sarah@example.com', photos: [{ url: '/uploads/Ben.jpeg' }], userId: sarahId
-            },
-            
-            // SCENARIO 2: SAME BREED, DIFFERENT DOG (Should be filtered by AI)
-            // Mike found a DIFFERENT Golden Retriever (using Jon.jpeg)
-            {
-                petStatus: 'found', petName: 'Stray Dog', petSpecies: 'dog', petBreed: 'Golden Retriever',
-                petColor: 'Yellow', petAge: 'young', petSex: 'male', description: 'Young retriever found near the lake.',
-                locationAddress: 'Kiev, Obolon', locationLat: 50.51, locationLng: 30.50,
-                contactEmail: 'mike@example.com', photos: [{ url: '/uploads/Jon.jpeg' }], userId: mikeId
+                contactEmail: 'sarah@example.com', photos: [{ url: '/uploads/Ben.jpeg' }], userId: users[1].id
             },
 
-            // SCENARIO 3: CAT MATCH
-            // John lost Murka. Mike found her.
+            // SCENARIO: MURKA (CAT)
             {
                 petStatus: 'lost', petName: 'Murka', petSpecies: 'cat', petBreed: 'Siamese',
-                petColor: 'Cream/Grey', petAge: 'adult', petSex: 'female', description: 'Siamese cat with blue eyes.',
-                locationAddress: 'Kiev, Obolon', locationLat: 50.511, locationLng: 30.501,
-                contactEmail: 'john@example.com', photos: [{ url: '/uploads/Murka.jpeg' }], userId: johnId
+                petColor: 'Cream', petAge: 'young', petSex: 'female', description: 'Blue eyes, very vocal Siamese cat.',
+                locationAddress: 'Lviv, Rynok Square', locationLat: 49.841, locationLng: 24.031,
+                contactEmail: 'mike@example.com', photos: [{ url: '/uploads/Murka.jpeg' }], userId: users[2].id
             },
             {
-                petStatus: 'found', petName: 'Beautiful Cat', petSpecies: 'cat', petBreed: 'Siamese',
-                petColor: 'Grey points', petAge: 'adult', petSex: 'female', description: 'Found a siamese cat wandering.',
-                locationAddress: 'Kiev, Center', locationLat: 50.45, locationLng: 30.52,
-                contactEmail: 'mike@example.com', photos: [{ url: '/uploads/Murka.jpeg' }], userId: mikeId
+                petStatus: 'found', petName: 'Beautiful Siamese', petSpecies: 'cat', petBreed: 'Siamese',
+                petColor: 'Cream/Grey', petAge: 'young', petSex: 'female', description: 'Siamese cat found near the city center. Very friendly.',
+                locationAddress: 'Lviv, Center', locationLat: 49.840, locationLng: 24.029,
+                contactEmail: 'anna@example.com', photos: [{ url: '/uploads/Murka.jpeg' }], userId: users[3].id
+            },
+
+            // OTHER INDEPENDENT REPORTS
+            {
+                petStatus: 'found', petName: 'Sharik', petSpecies: 'dog', petBreed: 'Mixed',
+                petColor: 'Black', petAge: 'young', petSex: 'male', description: 'Small black dog found on the beach.',
+                locationAddress: 'Odesa, Arcadia', locationLat: 46.42, locationLng: 30.76,
+                contactEmail: 'dmitro@example.com', photos: [{ url: '/uploads/Sharik.jpeg' }], userId: users[4].id
+            },
+            {
+                petStatus: 'lost', petName: 'Lisa', petSpecies: 'dog', petBreed: 'Husky',
+                petColor: 'Grey/White', petAge: 'adult', petSex: 'female', description: 'Grey husky with blue eyes. Ran away near the station.',
+                locationAddress: 'Lviv, Station', locationLat: 49.83, locationLng: 23.99,
+                contactEmail: 'elena@example.com', photos: [{ url: '/uploads/Lisa.jpeg' }], userId: users[5].id
             }
         ];
 
-        console.log(`Generating embeddings for ${petReportsData.length} reports...`);
-        for (const pet of petReportsData) {
+        console.log(`Generating AI embeddings for ${reports.length} logical reports...`);
+        for (const pet of reports) {
             process.stdout.write(`.`);
             const embedding = await generatePetEmbedding({
                 petSpecies: pet.petSpecies,
@@ -81,11 +85,11 @@ const seedData = async () => {
                 embedding
             } as any);
         }
-        console.log('\nDone.');
 
+        console.log('\nDone.');
         console.log(`--- SEEDING COMPLETED ---`);
-        console.log(`Lost and Found pairs are now owned by DIFFERENT users.`);
-        console.log(`Ben (Lost) and Found Retriever (Found) use the SAME image for a guaranteed match.`);
+        console.log(`John (You) only has 1 lost pet: Ben.`);
+        console.log(`Sarah has found a dog that matches Ben.`);
         process.exit(0);
     } catch (error: any) {
         console.error('SEEDING FAILED:', error.message);
