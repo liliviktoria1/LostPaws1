@@ -395,7 +395,6 @@ const LostPawsForm: React.FC = () => {
                         {/* Contact Information */}
                         <div className="form-group contact">
                             <label>Contact Information:</label>
-                            <p className="sub-label">Enter your name</p>
                             <input
                                 type="text"
                                 name="contactName"
@@ -403,7 +402,6 @@ const LostPawsForm: React.FC = () => {
                                 onChange={handleChange}
                                 placeholder="Your Name"
                             />
-                            <p className="sub-label">Enter your number</p>
                             <input
                                 type="text"
                                 name="contactNumber"
@@ -411,7 +409,6 @@ const LostPawsForm: React.FC = () => {
                                 onChange={handleChange}
                                 placeholder="Number"
                             />
-                            <p className="sub-label">Enter your email</p>
                             <input
                                 type="email"
                                 name="contactEmail"

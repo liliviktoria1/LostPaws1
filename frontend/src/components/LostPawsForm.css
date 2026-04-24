@@ -31,13 +31,13 @@
 
 .form-decorative-image {
     position: absolute;
-    bottom: -150px; /* Pull it lower to overlap the footer */
-    right: 0px; /* Move it closer to the edge */
-    width: 450px;
+    bottom: -100px;
+    right: -160px; /* Shifted even more to the right */
+    width: 350px;
     height: auto;
-    z-index: 10; /* Bring it to the front */
+    z-index: 10;
     pointer-events: none;
-    opacity: 1; /* Make it fully visible */
+    opacity: 1;
 }
 
 @media (max-width: 1200px) {
@@ -85,6 +85,12 @@
     color: #A5A6AF;
     margin-top: -4px;
     margin-bottom: 12px;
+}
+
+.form-group.contact {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 input[type="text"],
@@ -261,8 +267,9 @@ input:focus {
 
 /* Submit Button */
 .submit-button {
-    width: 100%;
-    padding: 16px;
+    width: fit-content; /* Reduced width */
+    min-width: 200px; /* Sensible minimum */
+    padding: 16px 40px; /* Added horizontal padding */
     background: #FAC655;
     border-radius: 15px;
     border: none;
@@ -271,6 +278,8 @@ input:focus {
     color: #181A32;
     cursor: pointer;
     margin-top: 30px;
+    margin-left: auto; /* Align to right */
+    display: block; /* Required for margin-left: auto to work on button */
     box-shadow: 0 4px 15px rgba(250, 198, 85, 0.3);
     transition: all 0.2s;
 }

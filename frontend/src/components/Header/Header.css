@@ -24,20 +24,20 @@
 .header-left {
     display: flex;
     align-items: center;
-    height: 100%;
+    position: relative;
+    top: 8px; /* Nudge the entire group down further */
 }
 
 .logo-container {
     display: flex;
     align-items: center;
     text-decoration: none;
-    height: 100%;
+    gap: 8px;
 }
 
 .logo {
     width: 32px;
     height: 32px;
-    margin-right: 8px;
     display: block;
 }
 
