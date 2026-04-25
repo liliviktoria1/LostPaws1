@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { PetReport } from '../../types';
 import PetCard from './PetCard';
+import { useTranslation } from 'react-i18next';
 import './PetSlider.css';
 
 interface PetSliderProps {
@@ -21,6 +22,7 @@ const PetSlider: React.FC<PetSliderProps> = ({
     sectionClass 
 }) => {
     const sliderRef = useRef<HTMLDivElement>(null);
+    const { t } = useTranslation();
 
     const scrollSlider = (direction: 'left' | 'right') => {
         if (sliderRef.current) {
@@ -43,7 +45,7 @@ const PetSlider: React.FC<PetSliderProps> = ({
 
                 <div className="slider-items-container" ref={sliderRef}>
                     {isLoading ? (
-                        <p>Loading...</p>
+                        <p>{t('common.loading')}</p>
                     ) : pets.length > 0 ? (
                         pets.map(pet => <PetCard key={pet.id} pet={pet} />)
                     ) : (

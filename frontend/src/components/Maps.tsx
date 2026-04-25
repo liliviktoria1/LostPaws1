@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { reportService } from "../services/reportService";
-import { PetReport } from "../types";
+import { PetReport, PetFilters, PetSpecies, PetStatus } from "../types";
+import { useTranslation } from "react-i18next";
 import "./Maps.css";
 
 // Fix for default Leaflet icon paths
@@ -14,13 +15,27 @@ L.Icon.Default.mergeOptions({
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
+interface MapFilters {
+    petSpecies: PetSpecies | '';
+    petStatus: PetStatus | '';
+    city: string;
+}
+
 const Maps: React.FC = () => {
+    const { t } = useTranslation();
     const mapRef = useRef<L.Map | null>(null);
     const markersGroupRef = useRef<L.LayerGroup>(L.layerGroup());
     const [reports, setReports] = useState<PetReport[]>([]);
+    
+    // Filter State
+    const [filters, setFilters] = useState<MapFilters>({
+        petSpecies: '',
+        petStatus: '',
+        city: ''
+    });
 
+    // Initialize Map only once
     useEffect(() => {
-        // Initialize Map
         if (mapRef.current === null) {
             mapRef.current = L.map("map").setView([50.4501, 30.5234], 12);
 
@@ -30,21 +45,31 @@ const Maps: React.FC = () => {
 
             markersGroupRef.current.addTo(mapRef.current);
         }
+    }, []);
 
+    // Fetch and Plot when filters or map change
+    useEffect(() => {
         const fetchAndPlotReports = async () => {
+            if (!mapRef.current) return;
+
             try {
-                const data = await reportService.getReports();
+                // Remove empty strings from filters
+                const activeFilters = Object.fromEntries(
+                    Object.entries(filters).filter(([_, v]) => v !== '')
+                );
+
+                const response = await reportService.getReports(activeFilters);
+                const data = response.reports;
                 setReports(data);
                 
                 // Clear existing markers
                 markersGroupRef.current.clearLayers();
 
                 // Add new markers
-                data.forEach(report => {
+                data.forEach((report: PetReport) => {
                     if (report.locationLat && report.locationLng) {
                         const markerColor = report.petStatus === 'lost' ? 'red' : 'green';
                         
-                        // Custom icon based on status
                         const icon = new L.Icon({
                             iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${markerColor}.png`,
                             shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
@@ -56,21 +81,22 @@ const Maps: React.FC = () => {
 
                         const photo = report.photos && report.photos.length > 0 ? report.photos[0] : null;
                         const photoUrl = typeof photo === 'string' ? photo : (photo as any)?.url;
-
                         const baseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:8080/api').replace(/\/api$/, '');
                         const imageUrl = photoUrl
                             ? (photoUrl.startsWith('/assets') ? photoUrl : `${baseUrl}${photoUrl.startsWith('/') ? '' : '/'}${photoUrl}`)
                             : '/assets/image/Dog.png';
 
+                        const statusText = t(`common.${report.petStatus}`).toUpperCase();
+
                         const popupContent = `
                             <div class="map-popup">
-                                <img src="${imageUrl}" alt="${report.petName}" style="width:100px; height:auto; border-radius:8px; margin-bottom:5px;"/>
-                                <h3 style="margin:0;">${report.petName}</h3>
-                                <p style="margin:5px 0; font-weight:bold; color:${markerColor === 'red' ? '#d32f2f' : '#388e3c'}">
-                                    ${report.petStatus.toUpperCase()}
+                                <img src="${imageUrl}" alt="${report.petName}" style="width:100px; height:80px; object-fit:cover; border-radius:8px; margin-bottom:5px;"/>
+                                <h3 style="margin:0; font-size:14px;">${report.petName}</h3>
+                                <p style="margin:2px 0; font-weight:bold; font-size:12px; color:${markerColor === 'red' ? '#d32f2f' : '#388e3c'}">
+                                    ${statusText}
                                 </p>
-                                <p style="margin:0; font-size:12px;">${report.locationAddress}</p>
-                                <a href="/announcements" style="display:inline-block; margin-top:5px; font-size:12px; color:#181A32; font-weight:600;">View Details</a>
+                                <p style="margin:0; font-size:11px; color:#666;">${report.locationAddress}</p>
+                                <a href="/pet/${report.id}" style="display:inline-block; margin-top:5px; font-size:11px; color:#181A32; font-weight:700; text-decoration:none;">${t('maps.view_details')} →</a>
                             </div>
                         `;
 
@@ -79,28 +105,78 @@ const Maps: React.FC = () => {
                             .addTo(markersGroupRef.current);
                     }
                 });
+
+                // Auto-center map if markers exist
+                if (data.length > 0 && mapRef.current) {
+                    const bounds = L.latLngBounds(data.map((r: PetReport) => [r.locationLat!, r.locationLng!]));
+                    mapRef.current.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
+                }
             } catch (err) {
                 console.error("Error fetching reports for map:", err);
             }
         };
 
         fetchAndPlotReports();
+    }, [filters, t]);
 
-        return () => {
-            if (mapRef.current) {
-                mapRef.current.remove();
-                mapRef.current = null;
-            }
-        };
-    }, []);
+    const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFilters(prev => ({ ...prev, [name]: value }));
+    };
+
+    const clearFilters = () => {
+        setFilters({ petSpecies: '', petStatus: '', city: '' });
+    };
 
     return (
         <div className="map-page">
-            <div className="map-header">
-                <h1>Pet Discovery Map</h1>
-                <p>Browse reports in your area. Red markers are <b>Lost</b>, Green are <b>Found</b>.</p>
+            <div className="map-container-main">
+                <div className="map-sidebar">
+                    <h2 className="sidebar-title">{t('maps.sidebar_title')}</h2>
+                    
+                    <div className="filter-group">
+                        <label>{t('maps.species_label')}</label>
+                        <select name="petSpecies" value={filters.petSpecies} onChange={handleFilterChange}>
+                            <option value="">{t('maps.all_animals')}</option>
+                            <option value="dog">{t('common.dog')}</option>
+                            <option value="cat">{t('common.cat')}</option>
+                            <option value="other">{t('common.other')}</option>
+                        </select>
+                    </div>
+
+                    <div className="filter-group">
+                        <label>{t('maps.status_label')}</label>
+                        <select name="petStatus" value={filters.petStatus} onChange={handleFilterChange}>
+                            <option value="">{t('maps.all_statuses')}</option>
+                            <option value="lost">{t('common.lost')}</option>
+                            <option value="found">{t('common.found')}</option>
+                        </select>
+                    </div>
+
+                    <div className="filter-group">
+                        <label>{t('maps.city_label')}</label>
+                        <input 
+                            type="text" 
+                            name="city" 
+                            placeholder={t('maps.city_label')} 
+                            value={filters.city} 
+                            onChange={handleFilterChange}
+                        />
+                    </div>
+
+                    <button className="clear-filters-btn" onClick={clearFilters}>
+                        {t('maps.reset_filters')}
+                    </button>
+
+                    <div className="map-stats">
+                        <p>{t('maps.found_reports', { count: reports.length })}</p>
+                    </div>
+                </div>
+
+                <div className="map-wrapper">
+                    <div id="map"></div>
+                </div>
             </div>
-            <div id="map" style={{ height: "calc(100vh - 200px)", width: "100%", borderRadius: "20px", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}></div>
         </div>
     );
 };

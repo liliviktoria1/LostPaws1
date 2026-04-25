@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef, ChangeEvent, FormEvent } from 'react';
-import { useDropzone, FileRejection, DropEvent } from 'react-dropzone';
+import { useDropzone } from 'react-dropzone';
 import { useNavigate } from 'react-router-dom';
 import { reportService } from '../services/reportService';
-import { PetStatus, PetSpecies, PetSex, PetReport, PetAge } from '../types';
+import { PetStatus, PetSpecies, PetSex, PetAge } from '../types';
 import PetCard from './Common/PetCard';
+import { useTranslation } from 'react-i18next';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './LostPawsForm.css';
@@ -37,6 +38,7 @@ interface FormData {
 }
 
 const LostPawsForm: React.FC = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const mapRef = useRef<L.Map | null>(null);
     const markerRef = useRef<L.Marker | null>(null);
@@ -124,15 +126,12 @@ const LostPawsForm: React.FC = () => {
             photos: [...prev.photos, ...acceptedFiles]
         }));
 
-        // Generate previews
         const newPreviews = acceptedFiles.map(file => URL.createObjectURL(file));
         setPreviews(prev => [...prev, ...newPreviews]);
     };
 
     const handleRemovePhoto = (index: number) => {
-        // Revoke the object URL to avoid memory leaks
         URL.revokeObjectURL(previews[index]);
-        
         setFormData((prev) => ({
             ...prev,
             photos: prev.photos.filter((_, i) => i !== index)
@@ -170,18 +169,17 @@ const LostPawsForm: React.FC = () => {
                     alt="Decorative Dog"
                     className="form-decorative-image"
                 />
-                <h2 className="form-title">Create a Pet Alert</h2>
+                <h2 className="form-title">{t('form.title')}</h2>
 
                 <div className="form-card">
                     <form onSubmit={handleSubmit}>
-                        {/* ... rest of the form ... */}
                         <div className="form-header">
                             <div className="form-group">
-                            <label>Pets Status:</label>
+                            <label>{t('form.status')}:</label>
                             <div className="radio-group">
                                 {[
-                                    { value: 'lost', label: 'Lost' },
-                                    { value: 'found', label: 'Found / Stray' }
+                                    { value: 'lost', label: t('common.lost') },
+                                    { value: 'found', label: t('common.found') }
                                 ].map(option => (
                                     <label key={option.value}>
                                         <input
@@ -199,51 +197,47 @@ const LostPawsForm: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Pet Name */}
                         <div className="form-group">
-                            <label>Pets Name:</label>
+                            <label>{t('form.pet_name')}:</label>
                             <input
                                 type="text"
                                 name="petName"
                                 value={formData.petName}
                                 onChange={handleChange}
-                                placeholder="Enter pets name"
+                                placeholder={t('form.pet_name')}
                                 required
                             />
                         </div>
 
-                        {/* Pet Breed */}
                         <div className="form-group">
-                            <label>Pets Breed:</label>
+                            <label>{t('form.breed')}:</label>
                             <input
                                 type="text"
                                 name="petBreed"
                                 value={formData.petBreed}
                                 onChange={handleChange}
-                                placeholder="E.g.: Golden Retriever, Siamese, Unknown"
+                                placeholder={t('form.breed')}
                             />
                         </div>
 
-                        {/* Pet Color */}
                         <div className="form-group">
-                            <label>Pets Color:</label>
+                            <label>{t('form.color')}:</label>
                             <input
                                 type="text"
                                 name="petColor"
                                 value={formData.petColor}
                                 onChange={handleChange}
-                                placeholder="E.g.: Black & White, Brown, Tricolor"
+                                placeholder={t('form.color')}
                             />
                         </div>
 
-                        {/* Pet Species */}
                         <div className="form-group">
-                            <label>Pets Species:</label>
+                            <label>{t('form.species')}:</label>
                             <div className="radio-group">
                                 {[
-                                    { value: 'cat', label: 'Cat' },
-                                    { value: 'dog', label: 'Dog' },
-                                    { value: 'other', label: 'Other' }
+                                    { value: 'cat', label: t('common.cat') },
+                                    { value: 'dog', label: t('common.dog') },
+                                    { value: 'other', label: t('common.other') }
                                 ].map(option => (
                                     <label key={option.value}>
                                         <input
@@ -260,15 +254,14 @@ const LostPawsForm: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Pet Age */}
                         <div className="form-group">
-                            <label>Pets Age (approximate):</label>
+                            <label>{t('form.age')}:</label>
                             <div className="radio-group">
                                 {[
-                                    { value: 'baby', label: 'Baby / Puppy / Kitten' },
-                                    { value: 'young', label: 'Young' },
-                                    { value: 'adult', label: 'Adult' },
-                                    { value: 'senior', label: 'Senior' }
+                                    { value: 'baby', label: t('common.baby') },
+                                    { value: 'young', label: t('common.young') },
+                                    { value: 'adult', label: t('common.adult') },
+                                    { value: 'senior', label: t('common.senior') }
                                 ].map(option => (
                                     <label key={option.value}>
                                         <input
@@ -284,14 +277,13 @@ const LostPawsForm: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Pet Sex */}
                         <div className="form-group">
-                            <label>Pets Sex:</label>
+                            <label>{t('form.sex')}:</label>
                             <div className="radio-group">
                                 {[
-                                    { value: 'female', label: 'Female' },
-                                    { value: 'male', label: 'Male' },
-                                    { value: 'unknown', label: 'Unknown' }
+                                    { value: 'female', label: t('common.female') },
+                                    { value: 'male', label: t('common.male') },
+                                    { value: 'unknown', label: t('common.unknown') }
                                 ].map(option => (
                                     <label key={option.value}>
                                         <input
@@ -307,27 +299,23 @@ const LostPawsForm: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Description */}
                         <div className="form-group">
-                            <label>Description:</label>
-                            <p className="sub-label">Color/Identifying Features:</p>
+                            <label>{t('form.description')}:</label>
                             <input
                                 type="text"
                                 name="description"
                                 value={formData.description}
                                 onChange={handleChange}
-                                placeholder="E.g.: Tricolor, missing tail, small"
+                                placeholder={t('form.description')}
                             />
                         </div>
 
-                        {/* Drag & Drop Area */}
                         <div className="form-group">
-                            <label>Add photos:</label>
-                            <p className="sub-label">Upload 2-5 photos from different perspectives</p>
+                            <label>{t('form.photos')}:</label>
                             <div {...getRootProps()} className={`upload-area ${isDragActive ? 'active' : ''}`}>
                                 <input {...getInputProps()} />
                                 <div className="upload-icon">📷</div>
-                                <p>{isDragActive ? "Drop files here..." : "Drag & Drop files here"}</p>
+                                <p>{isDragActive ? "Drop here..." : t('form.upload_text')}</p>
                             </div>
                             
                             {previews.length > 0 && (
@@ -350,40 +338,31 @@ const LostPawsForm: React.FC = () => {
                             )}
                         </div>
 
-                        {/* Location */}
                         <div className="form-group">
-                            <label>Location last seen:</label>
-                            <p className="sub-label">City, Zip, or Address</p>
+                            <label>{t('form.location')}:</label>
                             <input
                                 type="text"
                                 name="locationAddress"
                                 value={formData.locationAddress}
                                 onChange={handleChange}
                                 required
+                                placeholder="Kyiv, Ukraine..."
                             />
                             
                             <div className="map-selection-container">
-                                <p className="sub-label">Or pin the location on the map:</p>
                                 <button 
                                     type="button" 
                                     className="detect-location-btn"
                                     onClick={handleGetCurrentLocation}
                                 >
-                                    📍 Detect My Location
+                                    📍 {t('form.detect_loc')}
                                 </button>
                                 <div id="form-map" style={{ height: '300px', width: '100%', marginTop: '10px', borderRadius: '10px', border: '1px solid #ccc' }}></div>
-                                {formData.locationLat !== null && formData.locationLng !== null && (
-                                    <p className="coords-display">
-                                        Pinned: {formData.locationLat.toFixed(4)}, {formData.locationLng.toFixed(4)}
-                                    </p>
-                                )}
                             </div>
                         </div>
 
-                        {/* Date */}
                         <div className="form-group">
-                            <label>Date last seen:</label>
-                            <p className="sub-label">YYYY-MM-DD</p>
+                            <label>Date:</label>
                             <input
                                 type="date"
                                 name="dateLastSeen"
@@ -392,29 +371,28 @@ const LostPawsForm: React.FC = () => {
                             />
                         </div>
 
-                        {/* Contact Information */}
                         <div className="form-group contact">
-                            <label>Contact Information:</label>
+                            <label>{t('form.contact_info')}:</label>
                             <input
                                 type="text"
                                 name="contactName"
                                 value={formData.contactName}
                                 onChange={handleChange}
-                                placeholder="Your Name"
+                                placeholder={t('form.your_name')}
                             />
                             <input
                                 type="text"
                                 name="contactNumber"
                                 value={formData.contactNumber}
                                 onChange={handleChange}
-                                placeholder="Number"
+                                placeholder={t('form.phone')}
                             />
                             <input
                                 type="email"
                                 name="contactEmail"
                                 value={formData.contactEmail}
                                 onChange={handleChange}
-                                placeholder="Email"
+                                placeholder={t('form.email')}
                                 required
                             />
                         </div>
@@ -424,47 +402,34 @@ const LostPawsForm: React.FC = () => {
                             className="submit-button" 
                             disabled={isSubmitting}
                         >
-                            {isSubmitting ? "Sending..." : "Send Alert"}
+                            {isSubmitting ? t('common.loading') : t('form.submit')}
                         </button>
                     </form>
                 </div>
             </div>
 
-            {/* Success Modal with Matches */}
+            {/* Success Modal */}
             {showSuccessModal && (
                 <div className="modal-overlay">
                     <div className="success-modal">
                         <div className="modal-header">
-                            <h2>Success! Report Created.</h2>
+                            <h2>{t('form.success_title')}</h2>
                             <button className="close-modal" onClick={() => navigate('/announcements')}>×</button>
                         </div>
                         
                         <div className="modal-body">
-                            {matches.length > 0 ? (
-                                <>
-                                    <div className="ai-match-notice">
-                                        <span className="ai-sparkle">✨</span>
-                                        <p>Our AI found <strong>{matches.length} potential matches</strong> for your pet!</p>
-                                    </div>
-                                    
-                                    <div className="matches-grid">
-                                        {matches.map((match, idx) => (
-                                            <div key={idx} className="match-card-wrapper">
-                                                <PetCard pet={match.report} />
-                                                <div className="match-score-badge">
-                                                    {(match.score * 100).toFixed(0)}% Match
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </>
-                            ) : (
-                                <p>No immediate matches found. We will notify you if a match is discovered!</p>
+                            <p>{t('form.success_text')}</p>
+                            {matches.length > 0 && (
+                                <div className="matches-grid" style={{ marginTop: '20px' }}>
+                                    {matches.map((match, idx) => (
+                                        <PetCard key={idx} pet={match.report} />
+                                    ))}
+                                </div>
                             )}
                         </div>
                         
                         <div className="modal-footer">
-                            <button className="btn-secondary" onClick={() => navigate('/announcements')}>View All Announcements</button>
+                            <button className="btn-secondary" onClick={() => navigate('/announcements')}>{t('header.announcements')}</button>
                         </div>
                     </div>
                 </div>

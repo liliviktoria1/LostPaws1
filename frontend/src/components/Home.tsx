@@ -7,21 +7,24 @@ import Mission from './Home/Sections/Mission';
 import HowItWorks from './Home/Sections/HowItWorks';
 import CTA from './Home/Sections/CTA';
 import './Home.css';
+import { useTranslation } from 'react-i18next';
 
 const Home: React.FC = () => {
+    const { t } = useTranslation();
     const [missingPets, setMissingPets] = useState<PetReport[]>([]);
     const [foundPets, setFoundPets] = useState<PetReport[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
     useEffect(() => {
         const fetchPets = async () => {
+            setIsLoading(true);
             try {
                 const [lostData, foundData] = await Promise.all([
                     reportService.getReports({ petStatus: 'lost' }),
                     reportService.getReports({ petStatus: 'found' })
                 ]);
-                setMissingPets(lostData.slice(0, 10));
-                setFoundPets(foundData.slice(0, 10));
+                setMissingPets(lostData.reports.slice(0, 10));
+                setFoundPets(foundData.reports.slice(0, 10));
             } catch (err) {
                 console.error('Error fetching pets:', err);
             } finally {
@@ -38,20 +41,20 @@ const Home: React.FC = () => {
             <HowItWorks />
 
             <PetSlider 
-                title="Missing Pets"
-                subtitle="Help get these paws home"
+                title={t('home.missing_pets')}
+                subtitle={t('home.missing_pets_sub')}
                 pets={missingPets}
                 isLoading={isLoading}
-                emptyMessage="No missing pets found."
+                emptyMessage={t('home.missing_pets_empty')}
                 sectionClass="missing-pets"
             />
 
             <PetSlider 
-                title="Found Pets"
-                subtitle="Read about recently reunited pets."
+                title={t('home.found_pets')}
+                subtitle={t('home.found_pets_sub')}
                 pets={foundPets}
                 isLoading={isLoading}
-                emptyMessage="No found pets reported."
+                emptyMessage={t('home.found_pets_empty')}
                 sectionClass="found-pets"
             />
 

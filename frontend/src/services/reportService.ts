@@ -5,8 +5,13 @@ const BASE_API_URL = (process.env.REACT_APP_API_URL || 'http://localhost:8080/ap
 
 export const reportService = {
     // Fetch all reports with optional filters
-    getReports: async (filters: PetFilters = {}): Promise<PetReport[]> => {
-        const queryParams = new URLSearchParams(filters as Record<string, string>).toString();
+    getReports: async (filters: PetFilters & { page?: number, limit?: number } = {}): Promise<{ reports: PetReport[], total: number, totalPages: number, currentPage: number }> => {
+        // Clean filters: remove empty strings, undefined, or null values
+        const cleanFilters = Object.fromEntries(
+            Object.entries(filters).filter(([_, v]) => v !== '' && v !== undefined && v !== null)
+        );
+        
+        const queryParams = new URLSearchParams(cleanFilters as Record<string, string>).toString();
         const response = await fetch(`${BASE_API_URL}/reports?${queryParams}`);
         if (!response.ok) throw new Error('Failed to fetch reports');
         return response.json();

@@ -22,7 +22,7 @@ function App() {
                         <Routes>
                             <Route path="/" element={<Home />} />
                             <Route path="/maps" element={<Maps />} />
-                            <Route path="/announcements" element={<Announcements announcements={mockAnnouncements} />} />
+                            <Route path="/announcements" element={<Announcements />} />
                             <Route path="/contact" element={<ContactUs />} />
                             <Route path="/report" element={<LostPawsForm />} />
                             <Route path="/pet/:id" element={<PetDetail />} />

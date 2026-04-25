@@ -5,8 +5,10 @@ import { PetReport } from '../types';
 import PetCard from './Common/PetCard';
 import { useAuth } from '../context/AuthContext';
 import './MyReports.css';
+import { useTranslation } from 'react-i18next';
 
 const MyReports: React.FC = () => {
+    const { t } = useTranslation();
     const [reports, setReports] = useState<PetReport[]>([]);
     const [isReportsLoading, setIsReportsLoading] = useState<boolean>(true);
     const { user, isLoading: isAuthLoading } = useAuth();
@@ -22,10 +24,8 @@ const MyReports: React.FC = () => {
         
         const fetchMyReports = async () => {
             try {
-                console.log(`[MyReports] Fetching for userId: ${user.id}`);
-                const data = await reportService.getReports({ userId: user.id });
-                console.log(`[MyReports] Found ${data.length} reports.`);
-                setReports(data);
+                const response = await reportService.getReports({ userId: user.id });
+                setReports(response.reports);
             } catch (err) {
                 console.error("Error fetching my reports:", err);
             } finally {
@@ -35,18 +35,18 @@ const MyReports: React.FC = () => {
         fetchMyReports();
     }, [user, isAuthLoading, navigate]);
 
-    if (isAuthLoading) return <div className="loading-state">Initializing session...</div>;
+    if (isAuthLoading) return <div className="loading-state">{t('common.loading')}</div>;
     if (!user) return null;
 
     return (
         <div className="my-reports-page">
             <header className="my-reports-header">
-                <h1>My Pet Reports</h1>
-                <p>Manage your reported lost and found pets here.</p>
+                <h1>{t('my_reports_page.title')}</h1>
+                <p>{t('my_reports_page.subtitle')}</p>
             </header>
 
             {isReportsLoading ? (
-                <div className="loading-state">Loading your reports...</div>
+                <div className="loading-state">{t('common.loading')}</div>
             ) : (
                 <div className="my-reports-grid">
                     {reports.length > 0 ? (
@@ -55,8 +55,8 @@ const MyReports: React.FC = () => {
                         ))
                     ) : (
                         <div className="no-reports">
-                            <p>You haven't submitted any reports yet.</p>
-                            <button className="btn-secondary" onClick={() => navigate('/report')}>Create a Pet Alert</button>
+                            <p>{t('my_reports_page.empty_text')}</p>
+                            <button className="btn-secondary" onClick={() => navigate('/report')}>{t('my_reports_page.cta_btn')}</button>
                         </div>
                     )}
                 </div>

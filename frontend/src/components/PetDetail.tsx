@@ -7,6 +7,7 @@ import { PetReport } from '../types';
 import PetSlider from './Common/PetSlider';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
+import { useTranslation } from 'react-i18next';
 import './PetDetail.css';
 
 // Fix for default Leaflet icon paths
@@ -19,6 +20,7 @@ L.Icon.Default.mergeOptions({
 });
 
 const PetDetail: React.FC = () => {
+    const { t } = useTranslation();
     const { id } = useParams<{ id: string }>();
     const [report, setReport] = useState<PetReport | null>(null);
     const [loading, setLoading] = useState(true);
@@ -49,9 +51,8 @@ const PetDetail: React.FC = () => {
                     }
                 }
                 
-                // Fetch other missing pets for the slider
-                const others = await reportService.getReports({ petStatus: 'lost' });
-                setOtherPets(others.filter(p => p.id !== id).slice(0, 10));
+                const othersResponse = await reportService.getReports({ petStatus: 'lost' });
+                setOtherPets(othersResponse.reports.filter((p: PetReport) => p.id !== id).slice(0, 10));
             } catch (error) {
                 console.error("Error fetching pet details:", error);
             } finally {
@@ -84,7 +85,7 @@ const PetDetail: React.FC = () => {
 
                 L.marker([report.locationLat, report.locationLng], { icon: customIcon })
                     .addTo(mapRef.current)
-                    .bindPopup(`${report.petName} was last seen here`)
+                    .bindPopup(`${report.petName} ${report.petStatus === 'lost' ? 'was last seen here' : 'was found here'}`)
                     .openPopup();
             }
         }
@@ -123,10 +124,8 @@ const PetDetail: React.FC = () => {
         if (report.photos && report.photos.length > 0) {
             const photo = report.photos[0];
             const url = typeof photo === 'string' ? photo : (photo as any).url;
-            
             if (!url) return '/assets/image/Sharik.jpeg';
-            if (url.startsWith('http')) return url;
-            if (url.startsWith('/assets')) return url;
+            if (url.startsWith('http') || url.startsWith('/assets')) return url;
             const baseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:8080/api').replace(/\/api$/, '');
             return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
         }
@@ -136,13 +135,12 @@ const PetDetail: React.FC = () => {
     const getThumbnailUrl = (photo: any) => {
         const url = typeof photo === 'string' ? photo : photo.url;
         if (!url) return '/assets/image/Sharik.jpeg';
-        if (url.startsWith('http')) return url;
-        if (url.startsWith('/assets')) return url;
+        if (url.startsWith('http') || url.startsWith('/assets')) return url;
         const baseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:8080/api').replace(/\/api$/, '');
         return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
     };
 
-    if (loading) return <div className="loading-state">Loading pet details...</div>;
+    if (loading) return <div className="loading-state">{t('common.loading')}</div>;
     if (!report) return <div className="error-state">Pet report not found.</div>;
 
     const isOwner = user && report.userId === user.id;
@@ -150,7 +148,7 @@ const PetDetail: React.FC = () => {
     return (
         <div className="pet-detail-container">
             <button className="back-button" onClick={() => navigate(-1)}>
-                &larr; Back to Results
+                &larr; {t('announcements.previous')}
             </button>
             
             <div className="pet-detail-card">
@@ -158,7 +156,7 @@ const PetDetail: React.FC = () => {
                     <div className="main-image-container">
                         <img src={getImageUrl(report)} alt={report.petName} className="main-pet-image" />
                         <span className={`detail-status-badge ${report.petStatus}`}>
-                            {report.petStatus.toUpperCase()}
+                            {t(`common.${report.petStatus}`).toUpperCase()}
                         </span>
                     </div>
                     {report.photos && report.photos.length > 1 && (
@@ -186,38 +184,38 @@ const PetDetail: React.FC = () => {
                                 onClick={handleDeepScan}
                                 disabled={isScanning}
                             >
-                                {isScanning ? 'Scanning...' : '✨ Scan for Matches'}
+                                {isScanning ? t('pet_detail.scanning') : '✨ ' + t('pet_detail.matches_found')}
                             </button>
                         )}
                     </div>
                     
                     <div className="detail-grid">
                         <div className="detail-item">
-                            <span className="detail-label">Species</span>
-                            <span className="detail-value">{report.petSpecies}</span>
+                            <span className="detail-label">{t('form.species')}</span>
+                            <span className="detail-value">{t(`common.${report.petSpecies}`)}</span>
                         </div>
                         <div className="detail-item">
-                            <span className="detail-label">Breed</span>
-                            <span className="detail-value">{report.petBreed || 'Unknown'}</span>
+                            <span className="detail-label">{t('form.breed')}</span>
+                            <span className="detail-value">{report.petBreed || t('common.unknown')}</span>
                         </div>
                         <div className="detail-item">
-                            <span className="detail-label">Color</span>
-                            <span className="detail-value">{report.petColor || 'Unknown'}</span>
+                            <span className="detail-label">{t('form.color')}</span>
+                            <span className="detail-value">{report.petColor || t('common.unknown')}</span>
                         </div>
                         <div className="detail-item">
-                            <span className="detail-label">Age</span>
-                            <span className="detail-value" style={{ textTransform: 'capitalize' }}>{report.petAge || 'Unknown'}</span>
+                            <span className="detail-label">{t('form.age')}</span>
+                            <span className="detail-value">{report.petAge ? t(`common.${report.petAge}`) : t('common.unknown')}</span>
                         </div>
                         <div className="detail-item">
-                            <span className="detail-label">Sex</span>
-                            <span className="detail-value">{report.petSex || 'Unknown'}</span>
+                            <span className="detail-label">{t('form.sex')}</span>
+                            <span className="detail-value">{report.petSex ? t(`common.${report.petSex}`) : t('common.unknown')}</span>
                         </div>
                         <div className="detail-item">
-                            <span className="detail-label">Location</span>
-                            <span className="detail-value">{report.locationAddress || 'No address provided'}</span>
+                            <span className="detail-label">{t('form.location')}</span>
+                            <span className="detail-value">{report.locationAddress || 'N/A'}</span>
                         </div>
                         <div className="detail-item">
-                            <span className="detail-label">Date {report.petStatus === 'lost' ? 'Lost' : 'Found'}</span>
+                            <span className="detail-label">Date {t(`common.${report.petStatus}`)}</span>
                             <span className="detail-value">
                                 {report.dateLastSeen ? new Date(report.dateLastSeen).toLocaleDateString() : 'N/A'}
                             </span>
@@ -225,12 +223,12 @@ const PetDetail: React.FC = () => {
                     </div>
 
                     <div className="description-section">
-                        <h3>Description</h3>
-                        <p>{report.description || "No description provided."}</p>
+                        <h3>{t('form.description')}</h3>
+                        <p>{report.description || "N/A"}</p>
                     </div>
 
                     <div className="contact-section">
-                        <h3>Contact Information</h3>
+                        <h3>{t('pet_detail.contact')}</h3>
                         <div className="contact-card">
                             <p><strong>Owner:</strong> {report.contactName || 'Anonymous'}</p>
                             <p><strong>Phone:</strong> {report.contactNumber || 'N/A'}</p>
@@ -243,7 +241,7 @@ const PetDetail: React.FC = () => {
             {/* Deep Scan Results Section */}
             {deepMatches !== null && (
                 <div className="deep-matches-section">
-                    <h3>✨ AI Verified Matches</h3>
+                    <h3>✨ {t('pet_detail.matches_found')}</h3>
                     {deepMatches.length > 0 ? (
                         <div className="matches-grid-detail">
                             {deepMatches.map((match, idx) => (
@@ -260,34 +258,28 @@ const PetDetail: React.FC = () => {
                             ))}
                         </div>
                     ) : (
-                        <p className="no-matches-msg">No verified visual matches found at this time. We'll keep looking!</p>
+                        <p className="no-matches-msg">{t('pet_detail.no_matches')}</p>
                     )}
                 </div>
             )}
 
-            <div className="detail-map-section">
-                <h3>Last Known Location</h3>
-                <div id="pet-detail-map"></div>
-            </div>
-
             <div className="other-pets-slider-section">
                 <PetSlider 
-                    title="Other Missing Pets"
-                    subtitle="Help get these paws home"
+                    title={t('pet_detail.other_missing')}
+                    subtitle={t('home.missing_pets_sub')}
                     pets={otherPets}
                     isLoading={loadingOthers}
-                    emptyMessage="No other missing pets found."
+                    emptyMessage={t('home.missing_pets_empty')}
                     sectionClass="other-pets-slider"
                 />
             </div>
             
-            {/* Full-screen loading overlay for scan */}
             {isScanning && (
                 <div className="scan-overlay">
                     <div className="scan-modal">
                         <div className="scan-spinner"></div>
-                        <h3>Deep Scanning...</h3>
-                        <p>Our AI is visually comparing photos across the database. This may take a moment.</p>
+                        <h3>{t('pet_detail.scanning')}</h3>
+                        <p>{t('pet_detail.scanning_desc', { defaultValue: 'Our AI is visually comparing photos across the database.' })}</p>
                     </div>
                 </div>
             )}

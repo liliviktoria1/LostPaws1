@@ -1,30 +1,33 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 const HowItWorks: React.FC = () => {
+    const { t } = useTranslation();
+
     return (
         <section className="how-it-works full-width-section">
-            <h2>How It Works?</h2>
+            <h2>{t('home.how_title')}</h2>
             <div className="steps">
                 <div className="step">
-                    <h3>Post a Listing</h3>
+                    <h3>{t('home.how_step1_title')}</h3>
                     <div className="step-content">
-                        <li> Describe your pet (species, breed, distinctive features).</li>
-                        <li>Add photos and the last known location.</li>
-                        <li>Provide contact details.</li>
+                        <li>{t('home.how_step1_l1')}</li>
+                        <li>{t('home.how_step1_l2')}</li>
+                        <li>{t('home.how_step1_l3')}</li>
                     </div>
                 </div>
                 <div className="step">
-                    <h3>Engage with the Community</h3>
+                    <h3>{t('home.how_step2_title')}</h3>
                     <div className="step-content">
-                        <li>Leave comments on listings ("I spotted this pet here!").</li>
-                        <li>Get real-time notifications about new listings nearby.</li>
+                        <li>{t('home.how_step2_l1')}</li>
+                        <li>{t('home.how_step2_l2')}</li>
                     </div>
                 </div>
                 <div className="step">
-                    <h3>Search on the Map</h3>
+                    <h3>{t('home.how_step3_title')}</h3>
                     <div className="step-content">
-                        <li>Browse listings in your area.</li>
-                        <li>Filter by pet type, date lost, or status ("lost"/"found").</li>
+                        <li>{t('home.how_step3_l1')}</li>
+                        <li>{t('home.how_step3_l2')}</li>
                     </div>
                 </div>
             </div>

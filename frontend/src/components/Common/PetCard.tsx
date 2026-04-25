@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PetReport } from '../../types';
+import { useTranslation } from 'react-i18next';
 import './PetCard.css';
 
 interface PetCardProps {
@@ -9,6 +10,7 @@ interface PetCardProps {
 
 const PetCard: React.FC<PetCardProps> = ({ pet }) => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const getImageUrl = (pet: PetReport): string => {
         if (pet.photos && pet.photos.length > 0) {
@@ -23,6 +25,7 @@ const PetCard: React.FC<PetCardProps> = ({ pet }) => {
         }
         return '/assets/image/Dog.png'; 
     };
+
     return (
         <div className="slider-item" onClick={() => navigate(`/pet/${pet.id}`)}>
             <div style={{ position: 'relative', width: '100%' }}>
@@ -35,10 +38,10 @@ const PetCard: React.FC<PetCardProps> = ({ pet }) => {
             </div>
             <div className="pet-info-container">
                 <p>
-                    <span className="pet-label">Name:</span> <span className="pet-value">{pet.petName}</span><br/>
-                    <span className="pet-label">Status:</span> <span className={`status-label ${pet.petStatus}`}>{pet.petStatus === 'lost' ? 'Lost' : 'Found'}</span><br/>
-                    <span className="pet-label">Addresses:</span> <span className="pet-value">{pet.locationAddress}</span>
-                    <button className="view-post-btn" onClick={(e) => { e.stopPropagation(); navigate(`/pet/${pet.id}`); }}>View Post</button>
+                    <span className="pet-label">{t('form.pet_name')}:</span> <span className="pet-value">{pet.petName}</span><br/>
+                    <span className="pet-label">{t('form.status')}:</span> <span className={`status-label ${pet.petStatus}`}>{t(`common.${pet.petStatus}`)}</span><br/>
+                    <span className="pet-label">{t('form.location')}:</span> <span className="pet-value">{pet.locationAddress}</span>
+                    <button className="view-post-btn" onClick={(e) => { e.stopPropagation(); navigate(`/pet/${pet.id}`); }}>{t('maps.view_details')}</button>
                 </p>
             </div>
         </div>

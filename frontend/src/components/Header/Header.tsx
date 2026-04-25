@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FiGlobe, FiBell } from "react-icons/fi";
+import { FiGlobe, FiBell, FiTrash2 } from "react-icons/fi";
 import { FaUserCircle } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import AuthModal from "../Auth/AuthModal";
 import { notificationService, AppNotification } from "../../services/notificationService";
+import { useTranslation } from "react-i18next";
 import "./Header.css";
 
 function Header() {
+  const { t, i18n } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -65,14 +67,38 @@ function Header() {
       }
   };
 
+  const handleMarkAllAsRead = async () => {
+      try {
+          await notificationService.markAllAsRead();
+          setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      } catch (error) {
+          console.error('Failed to mark all as read', error);
+      }
+  };
+
+  const handleDeleteNotification = async (e: React.MouseEvent, id: string) => {
+      e.stopPropagation();
+      try {
+          await notificationService.deleteNotification(id);
+          setNotifications(prev => prev.filter(n => n.id !== id));
+      } catch (error) {
+          console.error('Failed to delete notification', error);
+      }
+  };
+
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   const navLinks = [
-    { path: "/", label: "Home" },
-    { path: "/maps", label: "Maps" },
-    { path: "/announcements", label: "Announcements" },
-    { path: "/contact", label: "Contact Us" },
+    { path: "/", label: t('header.home') },
+    { path: "/maps", label: t('header.maps') },
+    { path: "/announcements", label: t('header.announcements') },
+    { path: "/contact", label: t('header.contact') },
   ];
+
+  const toggleLanguage = () => {
+    const nextLang = i18n.language === 'en' ? 'ua' : 'en';
+    i18n.changeLanguage(nextLang);
+  };
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const toggleProfile = () => {
@@ -125,11 +151,12 @@ function Header() {
 
       <div className="header-actions">
         <Link to="/report" className="report-button">
-          Report Pets
+          {t('header.report_btn')}
         </Link>
 
-        <button className="globe-button" aria-label="Language selection">
+        <button className="globe-button" onClick={toggleLanguage} aria-label="Language selection">
           <FiGlobe />
+          <span className="lang-code">{i18n.language.toUpperCase().substring(0, 2)}</span>
         </button>
 
         <div className="auth-buttons" ref={dropdownRef}>
@@ -143,16 +170,26 @@ function Header() {
                     </button>
                     {isNotificationsOpen && (
                         <div className="profile-dropdown notifications-dropdown">
-                            <div className="dropdown-user-info">
+                            <div className="dropdown-user-info notif-dropdown-header">
                                 <strong>Notifications</strong>
+                                {notifications.length > 0 && (
+                                    <button className="mark-read-btn" onClick={handleMarkAllAsRead}>
+                                        Mark all as read
+                                    </button>
+                                )}
                             </div>
                             <hr />
                             {notifications.length > 0 ? (
                                 <ul className="notif-list">
-                                    {notifications.slice(0, 5).map(n => (
+                                    {notifications.slice(0, 10).map(n => (
                                         <li key={n.id} className={`notif-item ${!n.isRead ? 'unread' : ''}`} onClick={() => handleNotificationClick(n)}>
-                                            <p>{n.message}</p>
-                                            <span className="notif-time">{new Date(n.createdAt).toLocaleDateString()}</span>
+                                            <div className="notif-content">
+                                                <p>{n.message}</p>
+                                                <span className="notif-time">{new Date(n.createdAt).toLocaleDateString()}</span>
+                                            </div>
+                                            <button className="delete-notif-btn" onClick={(e) => handleDeleteNotification(e, n.id)} title="Delete notification">
+                                                <FiTrash2 />
+                                            </button>
                                         </li>
                                     ))}
                                 </ul>
@@ -176,11 +213,11 @@ function Header() {
                       </div>
                       <hr />
                       <Link to="/my-reports" className="dropdown-item" onClick={() => setIsProfileOpen(false)} style={{ color: 'var(--brand-navy)', textDecoration: 'none' }}>
-                        My Reports
+                        {t('header.my_reports')}
                       </Link>
                       <hr />
                       <button className="dropdown-item" onClick={handleLogout}>
-                        Log out
+                        {t('header.logout')}
                       </button>                    </div>
                   )}
                 </div>
@@ -188,10 +225,10 @@ function Header() {
           ) : (
             <>
               <button className="login-button" onClick={openLogin}>
-                Log in
+                {t('header.login')}
               </button>
               <button className="signup-button" onClick={openSignup}>
-                Sign in
+                {t('header.signin')}
               </button>
             </>
           )}

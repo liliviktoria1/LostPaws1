@@ -2,7 +2,7 @@ import express, { Request, Response, Router } from 'express';
 import { PetReport } from '../models/PetReport.js';
 import multer from 'multer';
 import path from 'path';
-import { Op } from 'sequelize';
+import { Op, fn, col, where as sequelizeWhere } from 'sequelize';
 import { analyzePetImage, generatePetEmbedding } from '../config/ai.js';
 import { authMiddleware, AuthRequest } from '../middleware/auth.js';
 import { geocodeAddress } from '../services/geocoding.js';
@@ -178,31 +178,52 @@ router.get('/:id/deep-scan', authMiddleware, async (req: AuthRequest, res: Respo
     }
 });
 
-// GET /api/reports - Get all reports with optional filters
+// GET /api/reports - Get all reports with optional filters and pagination
 router.get('/', async (req: Request, res: Response) => {
     try {
-        const { petStatus, petSpecies, petSex, location, userId } = req.query;
+        const { petStatus, petSpecies, petSex, petBreed, petColor, petAge, location, city, userId, page, limit } = req.query;
         let where: any = {};
 
+        // ... filters ...
         if (petStatus) where.petStatus = petStatus;
         if (petSpecies) where.petSpecies = petSpecies;
         if (petSex) where.petSex = petSex;
+        if (petAge) where.petAge = petAge;
+
+        if (petBreed) {
+            where.petBreed = sequelizeWhere(fn('LOWER', col('petBreed')), 'LIKE', `%${(petBreed as string).toLowerCase()}%`);
+        }
+        if (petColor) {
+            where.petColor = sequelizeWhere(fn('LOWER', col('petColor')), 'LIKE', `%${(petColor as string).toLowerCase()}%`);
+        }
         
-        // Ensure userId is handled correctly as a string for the query
         if (userId && userId !== 'undefined') {
             where.userId = userId;
         }
 
-        if (location) {
-            where.locationAddress = { [Op.iLike]: `%${location}%` };
+        const locationQuery = (city || location) as string;
+        if (locationQuery) {
+            where.locationAddress = sequelizeWhere(fn('LOWER', col('locationAddress')), 'LIKE', `%${locationQuery.toLowerCase()}%`);
         }
 
-        const reports = await PetReport.findAll({
+        // Pagination Logic
+        const pageNum = parseInt(page as string) || 1;
+        const limitNum = parseInt(limit as string) || 50; // Default to all if not provided, or a high number
+        const offset = (pageNum - 1) * limitNum;
+
+        const { count, rows: reports } = await PetReport.findAndCountAll({
             where,
-            order: [['createdAt', 'DESC']]
+            order: [['createdAt', 'DESC']],
+            limit: limitNum,
+            offset: offset
         });
         
-        res.json(reports);
+        res.json({
+            total: count,
+            totalPages: Math.ceil(count / limitNum),
+            currentPage: pageNum,
+            reports
+        });
     } catch (err: any) {
         res.status(500).json({ message: err.message });
     }

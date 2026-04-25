@@ -1,46 +1,135 @@
 .map-page {
-    padding: 2rem 5%;
-    background-color: #FEF9EF;
-    min-height: 100vh;
+    padding: 20px;
+    background-color: #F9FAFB;
+    min-height: calc(100vh - 53px);
 }
 
-.map-header {
-    margin-bottom: 2rem;
-    text-align: center;
+.map-container-main {
+    display: flex;
+    gap: 20px;
+    max-width: 1440px;
+    margin: 0 auto;
+    height: calc(100vh - 120px);
 }
 
-.map-header h1 {
+/* Sidebar Styling */
+.map-sidebar {
+    flex: 0 0 280px;
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-title {
     font-family: 'Rubik One', serif;
-    font-size: 2.5rem;
+    font-size: 1.5rem;
     color: #181A32;
-    margin-bottom: 0.5rem;
+    margin-bottom: 25px;
 }
 
-.map-header p {
-    font-size: 1.1rem;
+.filter-group {
+    margin-bottom: 20px;
+}
+
+.filter-group label {
+    display: block;
+    font-weight: 700;
+    font-size: 14px;
+    color: #181A32;
+    margin-bottom: 8px;
+}
+
+.filter-group select,
+.filter-group input {
+    width: 100%;
+    height: 45px;
+    padding: 0 12px;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 14px;
     color: #4B5563;
+    background: #FEFEFE;
+    box-sizing: border-box;
+}
+
+.filter-group select:focus,
+.filter-group input:focus {
+    outline: none;
+    border-color: #FAC655;
+}
+
+.clear-filters-btn {
+    width: 100%;
+    padding: 12px;
+    background: #F3F4F6;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    color: #4B5563;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.2s;
+}
+
+.clear-filters-btn:hover {
+    background: #E5E7EB;
+}
+
+.map-stats {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid #F3F4F6;
+    font-size: 14px;
+    color: #6B7280;
+}
+
+.map-stats strong {
+    color: #181A32;
+}
+
+/* Map Wrapper */
+.map-wrapper {
+    flex: 1;
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 #map {
-    border: 4px solid #fff;
+    width: 100%;
+    height: 100%;
 }
 
+/* Popup Styling */
 .map-popup {
-    text-align: center;
-    font-family: 'Poppins', sans-serif;
-    min-width: 150px;
+    min-width: 120px;
+    padding: 5px;
 }
 
-.map-popup h3 {
-    font-size: 16px;
-    color: #181A32;
+.leaflet-popup-content-wrapper {
+    border-radius: 15px !important;
+    padding: 5px !important;
 }
 
-.map-popup p {
-    margin: 4px 0;
-}
+/* Responsive */
+@media (max-width: 1024px) {
+    .map-container-main {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .map-sidebar {
+        flex: 0 0 auto;
+        width: 100%;
+        box-sizing: border-box;
+    }
 
-/* Fix for Leaflet controls being too low */
-.leaflet-control-container .leaflet-top {
-    top: 10px;
+    .map-wrapper {
+        height: 500px;
+    }
 }

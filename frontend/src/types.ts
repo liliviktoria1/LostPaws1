@@ -50,6 +50,7 @@ export interface PetFilters {
     petAge?: PetAge;
     petSex?: PetSex;
     userId?: string;
+    city?: string;
 }
 
 export interface Announcement {

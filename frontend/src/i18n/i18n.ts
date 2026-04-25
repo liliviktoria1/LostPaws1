@@ -1,0 +1,276 @@
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import LanguageDetector from 'i18next-browser-languagedetector';
+
+const resources = {
+  en: {
+    translation: {
+      "header": {
+        "home": "Home",
+        "maps": "Maps",
+        "announcements": "Announcements",
+        "contact": "Contact Us",
+        "report_btn": "Report Pets",
+        "my_reports": "My Reports",
+        "logout": "Log out",
+        "login": "Log in",
+        "signin": "Sign in",
+        "notifications": "Notifications",
+        "mark_all_read": "Mark all as read"
+      },
+      "home": {
+        "hero_title": "Finding a friend together",
+        "hero_subtitle": "Helping every pet find their home",
+        "hero_h1_main": "Lost your pet? Don’t worry",
+        "hero_h1_sub": "This site will help you find your lost family member.",
+        "hero_p": "We search. We find. We reunite.",
+        "missing_pets": "Missing Pets",
+        "missing_pets_sub": "Help get these paws home",
+        "found_pets": "Found Pets",
+        "found_pets_sub": "Read about recently reunited pets.",
+        "browse_all": "Browse All",
+        "mission_title": "Our Mission",
+        "mission_text": "is an online platform for finding lost pets. We connect people who have lost their four-legged friends with those willing to help. Our goal is to make the search process fast, convenient, and effective using modern technology.",
+        "how_title": "How It Works?",
+        "how_step1_title": "Post a Listing",
+        "how_step1_l1": "Describe your pet (species, breed, distinctive features).",
+        "how_step1_l2": "Add photos and the last known location.",
+        "how_step1_l3": "Provide contact details.",
+        "how_step2_title": "Engage with the Community",
+        "how_step2_l1": "Leave comments on listings (\"I spotted this pet here!\").",
+        "how_step2_l2": "Get real-time notifications about new listings nearby.",
+        "how_step3_title": "Search on the Map",
+        "how_step3_l1": "Browse listings in your area.",
+        "how_step3_l2": "Filter by pet type, date lost, or status (\"lost\"/\"found\").",
+        "cta_title": "Find and Report Lost & Found Pets",
+        "cta_text": "Fill out the advert form for search/find animals",
+        "cta_btn": "Submit a Pet Alert",
+        "missing_pets_empty": "No missing pets reported.",
+
+      },
+      "maps": {
+        "sidebar_title": "Find Pets",
+        "species_label": "Species",
+        "status_label": "Status",
+        "city_label": "City / Area",
+        "all_animals": "All Animals",
+        "all_statuses": "All Statuses",
+        "found_reports": "Found {{count}} reports",
+        "reset_filters": "Reset Filters",
+        "view_details": "VIEW DETAILS"
+      },
+      "announcements": {
+        "title": "Pet Announcements",
+        "subtitle": "Browse current lost and found reports",
+        "filter_title": "Filter Pets",
+        "any_sex": "Any Sex",
+        "any_age": "Any Age",
+        "clear_filters": "Clear all filters",
+        "no_results": "No announcements found matching your filters.",
+        "loading": "Loading announcements...",
+        "previous": "Previous",
+        "next": "Next"
+      },
+      "form": {
+        "title": "Report a Pet",
+        "pet_name": "Pet Name",
+        "species": "Species",
+        "breed": "Breed",
+        "color": "Color",
+        "age": "Age",
+        "sex": "Sex",
+        "status": "Status",
+        "description": "Description",
+        "photos": "Photos",
+        "upload_text": "Click or drag photos here to upload",
+        "location": "Last Seen Location",
+        "detect_loc": "Detect My Location",
+        "contact_info": "Contact Information",
+        "your_name": "Your Name",
+        "phone": "Phone Number",
+        "email": "Email",
+        "submit": "Send Alert",
+        "success_title": "Report Submitted!",
+        "success_text": "Our AI is currently scanning the database for potential matches."
+      },
+      "pet_detail": {
+        "title": "Pet Details",
+        "reasoning": "AI Match Reasoning",
+        "contact": "Contact Information",
+        "matches_found": "AI Matches Found",
+        "no_matches": "No visual matches found yet.",
+        "scanning": "AI scanning in progress...",
+        "other_missing": "Other Missing Pets"
+      },
+      "my_reports_page": {
+        "title": "My Pet Reports",
+        "subtitle": "Manage your reported lost and found pets here.",
+        "empty_text": "You haven't submitted any reports yet.",
+        "cta_btn": "Create a Pet Alert"
+      },
+      "footer": {
+        "support_title": "Technical support",
+        "nav_home": "Home",
+        "nav_maps": "Maps",
+        "nav_contact": "Contact Us",
+        "nav_announcements": "Announcements"
+      },
+      "common": {
+        "dog": "Dog",
+        "cat": "Cat",
+        "other": "Other",
+        "lost": "Lost",
+        "found": "Found",
+        "male": "Male",
+        "female": "Female",
+        "unknown": "Unknown",
+        "baby": "Baby",
+        "young": "Young",
+        "adult": "Adult",
+        "senior": "Senior"
+      }
+    }
+  },
+  ua: {
+    translation: {
+      "header": {
+        "home": "Головна",
+        "maps": "Мапа",
+        "announcements": "Оголошення",
+        "contact": "Контакти",
+        "report_btn": "Подати оголошення",
+        "my_reports": "Мої звіти",
+        "logout": "Вийти",
+        "login": "Увійти",
+        "signin": "Реєстрація",
+        "notifications": "Сповіщення",
+        "mark_all_read": "Прочитати всі"
+      },
+      "home": {
+        "hero_title": "Знайдемо друга разом",
+        "hero_subtitle": "Допомагаємо кожній тварині повернутися додому",
+        "hero_h1_main": "Загубили улюбленця? Не хвилюйтеся",
+        "hero_h1_sub": "Цей сайт допоможе вам знайти вашого загубленого члена сім'ї.",
+        "hero_p": "Ми шукаємо. Ми знаходимо. Ми об'єднуємо.",
+        "missing_pets": "Загублені",
+        "missing_pets_sub": "Допоможіть цим лапкам повернутися додому",
+        "found_pets": "Знайдені",
+        "found_pets_sub": "Перегляньте звіти про нещодавно знайдених тварин.",
+        "browse_all": "Переглянути всі",
+        "mission_title": "Наша місія",
+        "mission_text": "— це онлайн-платформа для пошуку загублених тварин. Ми об'єднуємо людей, які втратили своїх чотирилапих друзів, з тими, хто готовий допомогти. Наша мета — зробити процес пошуку швидким, зручним та ефективним за допомогою сучасних технологій.",
+        "how_title": "Як це працює?",
+        "how_step1_title": "Подати оголошення",
+        "how_step1_l1": "Опишіть свого улюбленця (вид, порода, особливі прикмети).",
+        "how_step1_l2": "Додайте фотографії та останнє відоме місцезнаходження.",
+        "how_step1_l3": "Вкажіть контактні дані.",
+        "how_step2_title": "Взаємодія з громадою",
+        "how_step2_l1": "Залишайте коментарі під оголошеннями (\"Я бачив цю тварину тут!\").",
+        "how_step2_l2": "Отримуйте сповіщення в реальному часі про нові оголошення поблизу.",
+        "how_step3_title": "Пошук на мапі",
+        "how_step3_l1": "Переглядайте оголошення у вашому районі.",
+        "how_step3_l2": "Фільтруйте за типом тварини, датою зникнення або статусом (\"загублено\"/\"знайдено\").",
+        "cta_title": "Знайдіть та повідомте про загублених та знайдених тварин",
+        "cta_text": "Заповніть форму оголошення для пошуку тварин",
+        "cta_btn": "Подати оголошення",
+        "missing_pets_empty": "Загублених тварин не знайдено.",
+        "found_pets_empty": "Знайдених тварин не знайдено."
+
+      },
+      "maps": {
+        "sidebar_title": "Пошук",
+        "species_label": "Вид",
+        "status_label": "Статус",
+        "city_label": "Місто / Район",
+        "all_animals": "Всі тварини",
+        "all_statuses": "Будь-який статус",
+        "found_reports": "Знайдено: {{count}}",
+        "reset_filters": "Скинути фільтри",
+        "view_details": "ДЕТАЛЬНІШЕ"
+      },
+      "announcements": {
+        "title": "Оголошення про тварин",
+        "subtitle": "Перегляньте актуальні повідомлення про знайдених та загублених улюбленців",
+        "filter_title": "Фільтр",
+        "any_sex": "Будь-яка стать",
+        "any_age": "Будь-який вік",
+        "clear_filters": "Скинути всі фільтри",
+        "no_results": "Нічого не знайдено за вашим запитом.",
+        "loading": "Завантаження оголошень...",
+        "previous": "Попередня",
+        "next": "Наступна"
+      },
+      "form": {
+        "title": "Подати оголошення",
+        "pet_name": "Кличка тварини",
+        "species": "Вид",
+        "breed": "Порода",
+        "color": "Забарвлення",
+        "age": "Вік",
+        "sex": "Стать",
+        "status": "Статус",
+        "description": "Опис",
+        "photos": "Фотографії",
+        "upload_text": "Натисніть або перетягніть фото сюди",
+        "location": "Місце знаходження",
+        "detect_loc": "Визначити мою локацію",
+        "contact_info": "Контактна інформація",
+        "your_name": "Ваше ім'я",
+        "phone": "Номер телефону",
+        "email": "Електронна пошта",
+        "submit": "Надіслати",
+        "success_title": "Оголошення подано!",
+        "success_text": "Наш ШІ вже перевіряє базу даних на наявність збігів."
+      },
+      "pet_detail": {
+        "title": "Деталі тварини",
+        "reasoning": "Обґрунтування ШІ",
+        "contact": "Контакти власника",
+        "matches_found": "Знайдені збіги (ШІ)",
+        "no_matches": "Візуальних збігів поки не знайдено.",
+        "scanning": "Триває сканування ШІ...",
+        "other_missing": "Інші загублені тварини"
+      },
+      "my_reports_page": {
+        "title": "Мої звіти",
+        "subtitle": "Керуйте своїми повідомленнями про загублених та знайдених тварин тут.",
+        "empty_text": "Ви ще не подали жодного оголошення.",
+        "cta_btn": "Подати оголошення"
+      },
+      "footer": {
+        "support_title": "Технічна підтримка",
+        "nav_home": "Головна",
+        "nav_maps": "Мапа",
+        "nav_contact": "Контакти",
+        "nav_announcements": "Оголошення"
+      },
+      "common": {
+        "dog": "Пес",
+        "cat": "Кіт",
+        "other": "Інше",
+        "lost": "Загублено",
+        "found": "Знайдено",
+        "male": "Самець",
+        "female": "Самка",
+        "unknown": "Невідомо",
+        "baby": "Маля",
+        "young": "Молодий",
+        "adult": "Дорослий",
+        "senior": "Старий"
+      }
+    }
+  }
+};
+
+i18n
+  .use(LanguageDetector)
+  .use(initReactI18next)
+  .init({
+    resources,
+    fallbackLng: 'en',
+    interpolation: {
+      escapeValue: false
+    }
+  });
+
+export default i18n;
