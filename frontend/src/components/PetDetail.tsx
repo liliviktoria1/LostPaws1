@@ -7,7 +7,9 @@ import { PetReport } from '../types';
 import PetSlider from './Common/PetSlider';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
+import { chatService } from '../services/chatService';
 import { useTranslation } from 'react-i18next';
+import { FiMessageSquare } from 'react-icons/fi';
 import './PetDetail.css';
 
 // Fix for default Leaflet icon paths
@@ -228,7 +230,24 @@ const PetDetail: React.FC = () => {
                     </div>
 
                     <div className="contact-section">
-                        <h3>{t('pet_detail.contact')}</h3>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                            <h3>{t('pet_detail.contact')}</h3>
+                            {!isOwner && user && (
+                                <button 
+                                    className="message-owner-btn"
+                                    onClick={async () => {
+                                        try {
+                                            const conv = await chatService.startConversation(report.userId!, report.id);
+                                            navigate('/chat', { state: { conversationId: conv.id } });
+                                        } catch (err) {
+                                            console.error("Failed to start chat", err);
+                                        }
+                                    }}
+                                >
+                                    <FiMessageSquare /> {t('pet_detail.message_owner')}
+                                </button>
+                            )}
+                        </div>
                         <div className="contact-card">
                             <p><strong>Owner:</strong> {report.contactName || 'Anonymous'}</p>
                             <p><strong>Phone:</strong> {report.contactNumber || 'N/A'}</p>

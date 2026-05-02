@@ -2,6 +2,7 @@ import express, { Request, Response, Router } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
+import { authMiddleware, AuthRequest } from '../middleware/auth.js';
 
 const router: Router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'your_fallback_secret_key';
@@ -67,6 +68,19 @@ router.post('/login', async (req: Request, res: Response) => {
     } catch (err: any) {
         console.error('Login Error:', err);
         res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// Verify Token
+router.get('/verify', authMiddleware, async (req: AuthRequest, res: Response) => {
+    try {
+        const user = await User.findByPk(req.userId, {
+            attributes: ['id', 'name', 'email']
+        });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        res.json(user);
+    } catch (err: any) {
+        res.status(500).json({ message: 'Server Error' });
     }
 });
 

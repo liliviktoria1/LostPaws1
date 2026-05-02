@@ -9,7 +9,7 @@ import ContactUs from './components/ContactUs';
 import LostPawsForm from './components/LostPawsForm';
 import PetDetail from './components/PetDetail';
 import MyReports from './components/MyReports';
-import { mockAnnouncements } from './data/mockData';
+import Chat from './components/Chat';
 import { AuthProvider } from './context/AuthContext';
 
 function App() {
@@ -27,6 +27,7 @@ function App() {
                             <Route path="/report" element={<LostPawsForm />} />
                             <Route path="/pet/:id" element={<PetDetail />} />
                             <Route path="/my-reports" element={<MyReports />} />
+                            <Route path="/chat" element={<Chat />} />
                         </Routes>
                     </main>
                     <Footer />

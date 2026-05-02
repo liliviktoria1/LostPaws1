@@ -1,112 +1,186 @@
-# Lost Paws 🐾
+# Lost Paws 🐾 — Інтелектуальна Платформа Розшуку Тварин (Full-Stack & AI)
 
-A full-stack application dedicated to reuniting lost pets with their owners using advanced AI-powered matching, automated geocoding, and real-time notifications.
+## 📖 Вступ та Філософія проєкту
 
-## 🚀 Features
+**Lost Paws** — це не просто чергова дошка оголошень. Це спеціалізована екосистема, створена для того, щоб перетворити пасивне очікування на активний, технологічний розшук. Статистика каже, що перші 48 годин після зникнення тварини є критичними. Наша платформа автоматизує процес пошуку, використовуючи сучасні методи обробки зображень та реальний час.
 
-- **AI-Powered Pet Matching:** Utilizes Google Gemini 1.5 Flash to visually compare pet photos (analyzing fur patterns, snout shape, and markings) and generate a strict confidence score.
-- **Automated Form Auto-fill:** Upload a pet photo, and the AI automatically extracts the species, breed, colors, and distinctive features to pre-fill the report form.
-- **Two-Step Deep Scan Architecture:** 
-  - **Fast Vector Search:** Uses Gemini's `text-embedding-004` to find potential candidates based on text descriptions and extracted features.
-  - **Deep Visual Verification:** Compares images of the top candidates using vision models to eliminate false positives and provide high-accuracy matching.
-- **Passive Background Watcher:** Automatically and asynchronously scans new "Found" reports against existing "Lost" reports in the background without slowing down the user experience.
-- **Smart Notifications & Alerts:** Features a real-time in-app notification bell and sends automated email alerts (via Nodemailer) when a high-confidence visual match is found.
-- **Interactive Maps & Geocoding:** Integration with Leaflet for map-based reporting and OpenStreetMap (Nominatim) for automatic address-to-coordinate geocoding.
-- **Secure Authentication:** User registration and login using JWT and bcrypt.
+### Проблема, яку ми вирішуємо
+Зазвичай люди публікують оголошення в десятках груп Facebook, де вони швидко губляться у стрічці. Власники змушені вручну переглядати тисячі фото. **Lost Paws** робить це за них за допомогою ШІ.
 
-## 🛠 Technologies Used
+---
 
-### Frontend
-- **React 18** (Create React App)
-- **TypeScript** for robust type safety
-- **React Router DOM v7** for navigation
-- **Leaflet** for interactive maps
-- **React Dropzone** for drag-and-drop file uploads
-- **Custom CSS3** for responsive, modern styling
+## 🌟 Користувацький шлях (User Journey) — Для нетехнічних людей
+
+Ми розробили інтерфейс так, щоб він був інтуїтивним навіть у стресовій ситуації:
+
+1.  **Подання оголошення:** Ви завантажуєте фото улюбленця, вказуєте його ім'я, особливі прикмети та місце, де його бачили востаннє.
+2.  **Робота ШІ:** Як тільки ви натискаєте "Надіслати", система не просто зберігає дані. Вона створює "цифровий відбиток" вашої тварини.
+3.  **Автоматичний пошук:** Наш "Пасивний спостерігач" (ШІ-алгоритм) починає порівнювати ваш звіт з усіма звітами "Знайдено" в базі даних.
+4.  **Миттєве сповіщення:** Якщо ШІ бачить схожу тварину, ви отримуєте звук дзвіночка на сайті та лист на пошту з посиланням на потенційного улюбленця.
+5.  **Безпечне спілкування:** Ви переходите у внутрішній чат, щоб уточнити деталі з людиною, яка знайшла тварину, не відкриваючи свій номер телефону всьому інтернету.
+
+---
+
+## 🧠 Глибокий технічний розбір: Штучний Інтелект
+
+Ядро системи базується на двох моделях від Google: `gemini-1.5-flash` та `text-embedding-004`.
+
+### 1. Векторна векторизація (Embeddings)
+Коли опис тварини потрапляє в базу, ми перетворюємо його на масив з 768 чисел (вектор).
+- **Навіщо:** Це дозволяє шукати "схожі" описи математично. Наприклад, опис "Рудий великий кіт" буде математично близьким до "Великий котяра рудого кольору", хоча слова різні.
+- **Технологія:** Косинусна схожість (Cosine Similarity).
+
+### 2. Візуальна верифікація (Vision AI)
+Це найскладніша частина. Ми використовуємо **Gemini 1.5 Flash** для порівняння зображень.
+- **Процес:** ШІ отримує два фото одночасно і відповідає на запитання: "Чи є на цих фото одна і та сама тварина?".
+- **Аналіз:** Модель аналізує:
+    *   Пропорції морди (відстань між очима, форма носа).
+    *   Візерунки шерсті (унікальні плями, смужки).
+    *   Аксесуари (нашийники, медальйони).
+- **Результат:** Система видає бал від 0 до 1. Ми вважаємо збігом усе, що вище 0.7.
+
+```typescript
+// Приклад логіки верифікації на бекенді (src/config/ai.ts)
+export async function verifyPetMatch(imagePath1: string, imagePath2: string) {
+    // Стиснення зображень через Sharp до 800px для швидкості
+    // Відправка в Gemini Vision з промптом на порівняння
+    // Отримання структурованої відповіді з reasoning (обґрунтуванням)
+}
+```
+
+---
+
+## ⚡ Реальний час та комунікація (Socket.io)
+
+Для того, щоб користувачі не оновлювали сторінку щосекунди, ми інтегрували **WebSockets**.
+
+- **Архітектура:** Кожен користувач при логіні підключається до сокет-сервера.
+- **Кімнати (Rooms):** Кожна розмова (Conversation) — це окрема "кімната" в Socket.io. Повідомлення бачать лише учасники цієї кімнати.
+- **Логіка:** Коли ви надсилаєте повідомлення:
+    1. воно зберігається в PostgreSQL.
+    2. Сокет-сервер миттєво "кидає" його іншому учаснику.
+    3. Якщо отримувач онлайн, він бачить повідомлення в реальному часі.
+
+---
+
+## 🛠 Технічний стек та Архітектура (Full-Stack)
+
+### Frontend (React + TypeScript)
+- **i18next:** Система локалізації. Весь текст винесено в JSON-файли (`src/i18n/i18n.ts`), що дозволяє миттєво додавати нові мови.
+- **Leaflet & OpenStreetMap:** Мапа не використовує платний Google Maps API. Вона базується на OpenSource рішенні, що робить проєкт автономним.
+- **Context API:** Глобальне керування станом авторизації (`AuthContext`).
+
+### Backend (Node.js + Express)
+- **ESM (ECMAScript Modules):** Використання сучасного стандарту `import/export` замість старого `require`.
+- **Sequelize ORM:** Потужний інструмент для роботи з базою даних. Він автоматично створює таблиці та зв'язки.
+- **JWT (JSON Web Tokens):** Безпечна авторизація. Паролі хешуються через `bcryptjs`.
+- **Sharp:** Бібліотека для обробки зображень. Вона зменшує розмір фото, щоб ШІ працював швидше, а сервер не перевантажувався.
+
+---
+
+## 📂 Структура папок
 
 ### Backend
-- **Node.js & Express 5**
-- **TypeScript**
-- **Sequelize ORM** for database management
-- **PostgreSQL** as the primary relational database
-- **Google Generative AI SDK** (Gemini 1.5 Flash & Text Embeddings)
-- **Multer** for handling multipart/form-data image uploads
-- **Nodemailer** for dispatching email notifications
-- **JSON Web Tokens (JWT) & bcryptjs** for secure authentication
+- `/src/models`: Опис структури даних (User, PetReport, Message, Conversation).
+- `/src/routes`: API-ендпоінти (логіка реєстрації, створення звітів, чати).
+- `/src/config`: Налаштування бази даних та ШІ.
+- `/src/services`: Допоміжні сервіси (Геокодування, Matching-алгоритм).
 
-## ⚙️ Setup Instructions
+### Frontend
+- `/src/components/Common`: Базові елементи (PetCard, PetSlider).
+- `/src/components/Home`: Секції головної сторінки.
+- `/src/services`: Клієнти для запитів до API.
+- `/src/i18n`: Файли перекладів.
 
-### Prerequisites
-- Node.js (v18 or higher)
-- PostgreSQL installed and running
-- A Google Gemini API Key
+---
 
-### 1. Database Setup
-1. Ensure your local PostgreSQL server is running.
-2. Create a new database named `lost_paws_db` (or your preferred name).
+## 🔍 Деталі бази даних (Database Schema)
 
-### 2. Backend Setup
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-2. Install dependencies:
+Ми використовуємо реляційну структуру в **PostgreSQL**:
+- **Users:** ID, Name, Email (Unique), Password (Hash).
+- **PetReports:** ID, Status (Lost/Found), Species, Breed, Color, Age, Sex, Coordinates (Lat/Lng), Address, Embedding (Вектор).
+- **Conversations:** Зв'язок між двома користувачами.
+- **Messages:** Текст повідомлення, ID відправника, ID розмови, статус прочитання.
+- **Notifications:** Сповіщення про ШІ-збіги.
+
+---
+
+## 🎨 Дизайн та UX
+
+Ми дотримуємося сучасної естетики:
+- **Кольори:** Глибокий синій (`#181A32`) — стабільність; Золотий (`#FAC655`) — надія та акцент.
+- **Тіні та Радіуси:** М'які тіні (Soft Shadows) та великі закруглення кутів (20px-30px) для створення дружнього вигляду.
+- **Анімації:** Використання CSS-анімацій для випадаючих фільтрів та плавного завантаження карток.
+- **Адаптивність:** На мобільних пристроях фільтри ховаються в бокове меню, а картки стають у одну колонку для зручності великого пальця.
+
+---
+
+## ⚙️ Покрокова інструкція із запуску (Local Setup)
+
+Щоб запустити цей проєкт на іншому комп'ютері, виконайте ці 5 простих кроків:
+
+### 1. Підготовка (Prerequisites)
+Переконайтеся, що на комп'ютері встановлені:
+- **Node.js** (версія 18 або новіша).
+- **PostgreSQL** (запущений локально).
+
+### 2. База даних
+1. Відкрийте ваш інструмент для роботи з БД (наприклад, **pgAdmin 4** або **DBeaver**).
+2. Створіть нову порожню базу даних з назвою `lost_paws_db`.
+   *(Таблиці створювати не потрібно — програма зробить це автоматично!)*
+
+### 3. Налаштування Сервера (Backend)
+1. Відкрийте термінал у папці `backend`.
+2. Встановіть залежності:
    ```bash
    npm install
    ```
-3. Create a `.env` file in the `backend` directory with the following variables:
-   ```env
-   PORT=8080
-   NODE_ENV=development
-
-   # Database Configuration
-   DB_NAME=lost_paws_db
-   DB_USER=postgres
-   DB_PASSWORD=your_postgres_password
-   DB_HOST=localhost
-   DB_PORT=5432
-
-   # AI & Secrets
-   GEMINI_API_KEY=your_gemini_api_key_here
-   JWT_SECRET=your_jwt_secret_key_here
-   
-   # Email Configuration (for Nodemailer match alerts)
-   SMTP_HOST=smtp.ethereal.email
-   SMTP_PORT=587
-   SMTP_USER=your_smtp_user
-   SMTP_PASS=your_smtp_password
-   ```
-4. Build and start the backend server:
+3. Створіть файл `.env` (просто скопіюйте вміст `.env.example` у новий файл `.env`).
+4. Обов'язково заповніть у `.env` такі поля:
+   - `DB_PASSWORD`: ваш пароль до PostgreSQL.
+   - `GEMINI_API_KEY`: ваш ключ від [Google AI Studio](https://aistudio.google.com/app/apikey).
+5. Запустіть сервер:
    ```bash
-   npm run build
    npm start
    ```
-   *Note: On the first run, Sequelize will automatically sync and create the necessary database tables.*
+   *Ви маєте побачити повідомлення: `Database synced` та `Server is running on port 8080`.*
 
-### 3. Frontend Setup
-1. Navigate to the frontend directory:
+### 4. Налаштування Клієнта (Frontend)
+1. Відкрийте новий термінал у папці `frontend`.
+2. Встановіть залежності:
    ```bash
-   cd frontend
+   npm install --legacy-peer-deps
    ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Create a `.env` file in the `frontend` directory to link to the backend:
+3. Перевірте файл `.env`. Він має містити:
    ```env
-   PORT=3005
    REACT_APP_API_URL=http://localhost:8080/api
    ```
-4. Start the frontend development server:
+4. Запустіть додаток:
    ```bash
    npm start
    ```
 
-## 🧠 How the AI Matching Works
+### 5. Перевірка
+Відкрийте у браузері `http://localhost:3005`. 
+- **Логін/Реєстрація:** Створіть новий акаунт.
+- **Чат:** Спробуйте зайти під двома різними акаунтами у різних браузерах (або в режимі інкогніто), щоб протестувати реальний час.
 
-1. **Report Creation & Auto-fill:** When a user uploads a pet photo during report creation, the image is passed to Gemini 1.5 Flash to extract physical traits, instantly auto-filling the form.
-2. **Embedding Generation:** Upon form submission, a text-based vector embedding (`text-embedding-004`) is generated, mathematically describing the pet's characteristics.
-3. **Passive Watching:** The system fires off an asynchronous background job comparing the new report against the database using cosine similarity on the embeddings to find the top candidates.
-4. **Visual Verification:** The photos of the top candidates from the vector search are sent to Gemini 1.5 Flash for a strict, side-by-side visual comparison.
-5. **Notification:** If the AI's visual confidence score exceeds the threshold (e.g., 75%), the system generates an in-app alert and sends an email to the pet owner containing a link to the match.
-6. **On-Demand Scanning:** Report owners can also manually trigger this deep visual scan at any time from their pet's detail page using the "✨ Scan for Matches" button.
+---
+
+## 🛠 Усунення несправностей (Troubleshooting)
+- **Помилка БД:** Перевірте, чи правильно вказані `DB_USER` та `DB_PASSWORD` у файлі `.env`.
+- **ШІ не відповідає:** Переконайтеся, що ваш API ключ активний і ви не перевищили ліміти запитів.
+- **Порти зайняті:** Якщо порти 8080 або 3005 вже використовуються, змініть їх у відповідних `.env` файлах.
+
+---
+
+## 📈 Майбутні вдосконалення
+
+Хоча прототип повністю функціональний, ми плануємо:
+1. **Marker Clustering:** Групування маркерів на мапі для великих міст.
+2. **Cloudinary Integration:** Перенесення фото в хмару для кращої масштабованості.
+3. **Password Recovery:** Система відновлення пароля через Email.
+4. **Breed Auto-Detection:** Автоматичне визначення породи ШІ при завантаженні фото.
+
+---
+**Lost Paws** — Технології на службі любові до тварин. 🐾

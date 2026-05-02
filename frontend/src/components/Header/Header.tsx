@@ -215,6 +215,9 @@ function Header() {
                       <Link to="/my-reports" className="dropdown-item" onClick={() => setIsProfileOpen(false)} style={{ color: 'var(--brand-navy)', textDecoration: 'none' }}>
                         {t('header.my_reports')}
                       </Link>
+                      <Link to="/chat" className="dropdown-item" onClick={() => setIsProfileOpen(false)} style={{ color: 'var(--brand-navy)', textDecoration: 'none' }}>
+                        {t('header.messages')}
+                      </Link>
                       <hr />
                       <button className="dropdown-item" onClick={handleLogout}>
                         {t('header.logout')}

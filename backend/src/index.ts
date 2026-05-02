@@ -1,73 +1,75 @@
 import dotenv from 'dotenv';
+dotenv.config();
+
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 import sequelize from './config/database.js';
+
+// Models (Importing FIRST to ensure registration)
+import './models/User.js';
+import './models/PetReport.js';
+import './models/Notification.js';
+import './models/Conversation.js';
+import './models/Message.js';
+
+// Routes
 import reportRoutes from './routes/reports.js';
 import authRoutes from './routes/auth.js';
 import notificationRoutes from './routes/notifications.js';
-
-console.log('---------------------------------------');
-console.log('BACKEND SERVER INITIALIZING...');
-console.log('---------------------------------------');
-
-dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import chatRoutes from './routes/chats.js';
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+    cors: {
+        origin: process.env.FRONTEND_URL || "http://localhost:3005",
+        methods: ["GET", "POST"]
+    }
+});
+
+const PORT = process.env.PORT || 8080;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use((req, res, next) => {
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-    if (Object.keys(req.query).length > 0) {
-        console.log('Query Params:', JSON.stringify(req.query));
-    }
-    next();
-});
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // Routes
 app.use('/api/reports', reportRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/chats', chatRoutes);
 
-app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', message: 'Backend is reachable' });
+// Socket.io Real-time Logic
+io.on('connection', (socket) => {
+    console.log('User connected:', socket.id);
+
+    socket.on('join_conversation', (conversationId) => {
+        socket.join(conversationId);
+        console.log(`User ${socket.id} joined room: ${conversationId}`);
+    });
+
+    socket.on('send_message', (data) => {
+        socket.to(data.conversationId).emit('receive_message', data);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('User disconnected:', socket.id);
+    });
 });
 
-app.get('/', (req: Request, res: Response) => {
-    res.json({ message: 'Lost Paws API is running', version: '1.1' });
-});
-
-// 404 Handler (JSON)
-app.use((req: Request, res: Response) => {
-    console.log(`404 - Not Found: ${req.method} ${req.url}`);
-    res.status(404).json({ message: `Route ${req.method} ${req.url} not found` });
-});
-
-// Error Handler
-app.use((err: any, req: Request, res: Response, next: express.NextFunction) => {
-    console.error('Unhandled Error:', err);
-    res.status(500).json({ message: 'Internal Server Error', error: err.message });
-});
-
-// Start Server First
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-    
-    // Then Sync Database
-    sequelize.sync({ alter: true })
-        .then(() => {
-            console.log('PostgreSQL Database connected and synced (Schema updated)');
-        })
-        .catch((err: any) => {
-            console.error('DATABASE CONNECTION ERROR:', err.message);
-            console.log('Note: The server is running, but database features will fail until DB is fixed.');
+// Database Sync & Server Start
+sequelize.sync({ alter: true })
+    .then(() => {
+        console.log('Database synced');
+        httpServer.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
         });
-});
+    })
+    .catch((err: any) => {
+        console.error('DATABASE ERROR:', err.message);
+    });

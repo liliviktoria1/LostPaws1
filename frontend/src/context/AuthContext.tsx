@@ -17,9 +17,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const currentUser = authService.getCurrentUser();
-        setUser(currentUser);
-        setIsLoading(false);
+        const initAuth = async () => {
+            const token = authService.getToken();
+            if (!token) {
+                setIsLoading(false);
+                return;
+            }
+
+            try {
+                const verifiedUser = await authService.verify();
+                setUser(verifiedUser);
+            } catch (err) {
+                console.warn("Session expired or invalid token. Logging out.");
+                authService.logout();
+                setUser(null);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        initAuth();
     }, []);
 
     const login = async (credentials: any) => {
