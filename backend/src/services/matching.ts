@@ -25,16 +25,14 @@ const cosineSimilarity = (vecA: number[], vecB: number[]): number => {
     return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
 };
 
-export const findMatchesForReport = async (reportId: string, limit = 5, useDeepScan = false) => {
+export const findMatchesForReport = async (reportId: string, limit = 5, useDeepScan = false, lang: string = 'en') => {
     try {
         const sourceReport = await PetReport.findByPk(reportId);
         if (!sourceReport || !sourceReport.embedding) return [];
 
         const targetStatus = sourceReport.petStatus === 'lost' ? 'found' : 'lost';
-        const allReports = await PetReport.findAll({ attributes: ['id', 'petName', 'petStatus', 'petSpecies'] });
-        console.log(`[Matching] DB DUMP: ${JSON.stringify(allReports.map(r => ({ name: r.petName, status: r.petStatus, species: r.petSpecies })))}`);
         
-        console.log(`[Matching] Running scan for ${sourceReport.petName}. Target Status: ${targetStatus}, Species: ${sourceReport.petSpecies}`);
+        console.log(`[Matching] Running scan for ${sourceReport.petName}. Target Status: ${targetStatus}, Species: ${sourceReport.petSpecies}, Lang: ${lang}`);
 
         // Step 1: Fast Vector Search (Candidate filtering)
         const where: any = {
@@ -43,10 +41,7 @@ export const findMatchesForReport = async (reportId: string, limit = 5, useDeepS
             id: { [Op.ne]: reportId }
         };
         
-        console.log(`[Matching] Where clause: ${JSON.stringify(where)}`);
-
         const candidates = await PetReport.findAll({ where });
-        console.log(`[Matching] Query found ${candidates.length} candidates for ${sourceReport.petName}`);
 
         // Calculate text/embedding similarity
         let textMatches = candidates.map(candidate => {
@@ -55,22 +50,23 @@ export const findMatchesForReport = async (reportId: string, limit = 5, useDeepS
             return {
                 report: candidate,
                 score,
-                reasoning: 'Matches by description and parameters.'
+                reasoning: lang === 'ua' ? 'Збіг за описом та параметрами.' : 'Matches by description and parameters.'
             };
         }).filter(m => m !== null) as any[];
 
-        // Sort by text similarity
-        let topCandidates = textMatches.sort((a, b) => b.score - a.score).slice(0, limit);
+        // Sort by text similarity - only take top 2 for deep scan to respect rate limits
+        let topCandidates = textMatches.sort((a, b) => b.score - a.score).slice(0, 2);
             
-        console.log(`[Matching] Step 1 finished. ${topCandidates.length} candidates found.`);
-
         // Step 2: Deep Visual Scan
         if (useDeepScan && sourceReport.photos && sourceReport.photos.length > 0) {
-            console.log(`[Matching] Starting Deep Visual Scan...`);
+            console.log(`[Matching] Starting Deep Visual Scan (Top 2 Candidates)...`);
             const sourcePhotoUrl = (sourceReport.photos[0] as any).url;
             const sourcePhotoPath = path.resolve(process.cwd(), sourcePhotoUrl.replace(/^\//, ''));
             
             const verificationResults = [];
+            
+            // Utility for rate limiting
+            const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));
 
             for (const candidate of topCandidates) {
                 if (candidate.report.photos && candidate.report.photos.length > 0) {
@@ -78,14 +74,11 @@ export const findMatchesForReport = async (reportId: string, limit = 5, useDeepS
                         const targetPhotoUrl = (candidate.report.photos[0] as any).url;
                         const targetPhotoPath = path.resolve(process.cwd(), targetPhotoUrl.replace(/^\//, ''));
                         
-                        console.log(`[Matching] Calling Gemini for visual check...`);
-                        const verification = await verifyPetMatch(sourcePhotoPath, targetPhotoPath);
+                        const verification = await verifyPetMatch(sourcePhotoPath, targetPhotoPath, lang);
                         
-                        // Handle both 0-1 and 0-100 scales from AI
                         const rawScore = verification.score;
                         const normalizedScore = rawScore <= 1 ? rawScore : rawScore / 100;
                         
-                        // Show all results that AI at least looked at
                         verificationResults.push({
                             report: candidate.report,
                             score: normalizedScore,
@@ -97,13 +90,9 @@ export const findMatchesForReport = async (reportId: string, limit = 5, useDeepS
                 }
             }
             
-            // If we found verified matches, return them. 
             if (verificationResults.length > 0) {
-                console.log(`[Matching] Returning ${verificationResults.length} AI-verified matches.`);
                 return verificationResults.sort((a, b) => b.score - a.score);
             }
-            
-            console.log(`[Matching] AI Scan found no verified matches. Falling back to text similarity.`);
         }
 
         return topCandidates;

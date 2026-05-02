@@ -10,6 +10,7 @@ import LostPawsForm from './components/LostPawsForm';
 import PetDetail from './components/PetDetail';
 import MyReports from './components/MyReports';
 import Chat from './components/Chat';
+import SuccessStories from './components/SuccessStories';
 import { AuthProvider } from './context/AuthContext';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
                             <Route path="/pet/:id" element={<PetDetail />} />
                             <Route path="/my-reports" element={<MyReports />} />
                             <Route path="/chat" element={<Chat />} />
+                            <Route path="/success-stories" element={<SuccessStories />} />
                         </Routes>
                     </main>
                     <Footer />

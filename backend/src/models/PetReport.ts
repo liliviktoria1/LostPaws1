@@ -21,19 +21,23 @@ export interface PetReportAttributes {
     photos?: { url: string }[];
     embedding?: number[];
     userId?: string;
+    isReunited: boolean;
     createdAt?: Date;
     updatedAt?: Date;
 }
 
-export interface PetReportCreationAttributes extends Optional<PetReportAttributes, 'id'> {}
+export interface PetReportCreationAttributes extends Optional<PetReportAttributes, 'id' | 'isReunited'> {}
 
-class PetReport extends Model<PetReportAttributes, PetReportCreationAttributes> implements PetReportAttributes {
+export class PetReport extends Model<PetReportAttributes, PetReportCreationAttributes> implements PetReportAttributes {
     public id!: string;
     public petStatus!: 'lost' | 'found';
     public petName!: string;
     public petSpecies!: 'cat' | 'dog' | 'other';
-    public petSex!: 'female' | 'male' | 'unknown';
-    public description!: string;
+    public petBreed?: string;
+    public petColor?: string;
+    public petAge?: 'baby' | 'young' | 'adult' | 'senior';
+    public petSex?: 'female' | 'male' | 'unknown';
+    public description?: string;
     public locationAddress!: string;
     public locationLat!: number;
     public locationLng!: number;
@@ -44,6 +48,7 @@ class PetReport extends Model<PetReportAttributes, PetReportCreationAttributes> 
     public photos!: { url: string }[];
     public embedding!: number[];
     public userId!: string;
+    public isReunited!: boolean;
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
@@ -120,6 +125,10 @@ PetReport.init({
         type: DataTypes.UUID,
         allowNull: true,
     },
+    isReunited: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
     embedding: {
         type: DataTypes.ARRAY(DataTypes.FLOAT),
         allowNull: true
@@ -129,5 +138,3 @@ PetReport.init({
     modelName: 'PetReport',
     timestamps: true
 });
-
-export { PetReport };

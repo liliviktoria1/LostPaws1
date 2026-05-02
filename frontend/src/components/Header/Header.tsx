@@ -92,6 +92,7 @@ function Header() {
     { path: "/", label: t('header.home') },
     { path: "/maps", label: t('header.maps') },
     { path: "/announcements", label: t('header.announcements') },
+    { path: "/success-stories", label: t('header.success_stories') },
     { path: "/contact", label: t('header.contact') },
   ];
 

@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/MarkerCluster.Default.css";
+import "leaflet.markercluster";
 import { reportService } from "../services/reportService";
 import { PetReport, PetFilters, PetSpecies, PetStatus } from "../types";
 import { useTranslation } from "react-i18next";
@@ -24,7 +27,7 @@ interface MapFilters {
 const Maps: React.FC = () => {
     const { t } = useTranslation();
     const mapRef = useRef<L.Map | null>(null);
-    const markersGroupRef = useRef<L.LayerGroup>(L.layerGroup());
+    const markersGroupRef = useRef<any>(null);
     const [reports, setReports] = useState<PetReport[]>([]);
     
     // Filter State
@@ -43,7 +46,14 @@ const Maps: React.FC = () => {
                 attribution: '&copy; OpenStreetMap contributors',
             }).addTo(mapRef.current);
 
-            markersGroupRef.current.addTo(mapRef.current);
+            // Initialize Marker Cluster Group
+            markersGroupRef.current = (L as any).markerClusterGroup({
+                showCoverageOnHover: false,
+                spiderfyOnMaxZoom: true,
+                zoomToBoundsOnClick: true,
+                maxClusterRadius: 50
+            });
+            mapRef.current.addLayer(markersGroupRef.current);
         }
     }, []);
 

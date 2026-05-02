@@ -32,13 +32,13 @@ const seedData = async () => {
                 petStatus: 'lost', petName: 'Ben', petSpecies: 'dog', petBreed: 'Golden Retriever',
                 petColor: 'Golden', petAge: 'adult', petSex: 'male', description: 'He has a red collar and a small scar on his left paw.',
                 locationAddress: 'Kiev, Yurivka', locationLat: 50.34, locationLng: 30.36,
-                contactEmail: 'john@example.com', photos: [{ url: '/uploads/Ben.jpeg' }], userId: johnId
+                contactEmail: 'john@example.com', photos: [{ url: '/uploads/Ben.jpeg' }], userId: johnId, isReunited: false
             },
             {
                 petStatus: 'found', petName: 'Found Retriever', petSpecies: 'dog', petBreed: 'Golden Retriever',
                 petColor: 'Golden/Yellow', petAge: 'adult', petSex: 'male', description: 'Found a very friendly retriever with a red collar near the park.',
                 locationAddress: 'Kiev, Podil', locationLat: 50.46, locationLng: 30.51,
-                contactEmail: 'sarah@example.com', photos: [{ url: '/uploads/Ben.jpeg' }], userId: users[1].id
+                contactEmail: 'sarah@example.com', photos: [{ url: '/uploads/Ben.jpeg' }], userId: users[1].id, isReunited: false
             },
 
             // SCENARIO: MURKA (CAT)
@@ -46,13 +46,21 @@ const seedData = async () => {
                 petStatus: 'lost', petName: 'Murka', petSpecies: 'cat', petBreed: 'Siamese',
                 petColor: 'Cream', petAge: 'young', petSex: 'female', description: 'Blue eyes, very vocal Siamese cat.',
                 locationAddress: 'Lviv, Rynok Square', locationLat: 49.841, locationLng: 24.031,
-                contactEmail: 'mike@example.com', photos: [{ url: '/uploads/Murka.jpeg' }], userId: users[2].id
+                contactEmail: 'mike@example.com', photos: [{ url: '/uploads/Murka.jpeg' }], userId: users[2].id, isReunited: false
+            },
+
+            // SUCCESS STORIES (Reunited)
+            {
+                petStatus: 'lost', petName: 'Luna', petSpecies: 'cat', petBreed: 'British Shorthair',
+                petColor: 'Grey', petAge: 'adult', petSex: 'female', description: 'Found after 3 days! Thanks everyone.',
+                locationAddress: 'Kyiv, Obolon', locationLat: 50.51, locationLng: 30.50,
+                contactEmail: 'user@example.com', photos: [{ url: '/uploads/Murka.jpeg' }], userId: users[3].id, isReunited: true
             },
             {
-                petStatus: 'found', petName: 'Beautiful Siamese', petSpecies: 'cat', petBreed: 'Siamese',
-                petColor: 'Cream/Grey', petAge: 'young', petSex: 'female', description: 'Siamese cat found near the city center. Very friendly.',
-                locationAddress: 'Lviv, Center', locationLat: 49.840, locationLng: 24.029,
-                contactEmail: 'anna@example.com', photos: [{ url: '/uploads/Murka.jpeg' }], userId: users[3].id
+                petStatus: 'found', petName: 'Rex', petSpecies: 'dog', petBreed: 'German Shepherd',
+                petColor: 'Black/Tan', petAge: 'adult', petSex: 'male', description: 'Reunited with owner in Odesa.',
+                locationAddress: 'Odesa, Deribasivska', locationLat: 46.48, locationLng: 30.73,
+                contactEmail: 'user2@example.com', photos: [{ url: '/uploads/Sharik.jpeg' }], userId: users[4].id, isReunited: true
             },
 
             // OTHER INDEPENDENT REPORTS
@@ -60,13 +68,13 @@ const seedData = async () => {
                 petStatus: 'found', petName: 'Sharik', petSpecies: 'dog', petBreed: 'Mixed',
                 petColor: 'Black', petAge: 'young', petSex: 'male', description: 'Small black dog found on the beach.',
                 locationAddress: 'Odesa, Arcadia', locationLat: 46.42, locationLng: 30.76,
-                contactEmail: 'dmitro@example.com', photos: [{ url: '/uploads/Sharik.jpeg' }], userId: users[4].id
+                contactEmail: 'dmitro@example.com', photos: [{ url: '/uploads/Sharik.jpeg' }], userId: users[4].id, isReunited: false
             },
             {
                 petStatus: 'lost', petName: 'Lisa', petSpecies: 'dog', petBreed: 'Husky',
                 petColor: 'Grey/White', petAge: 'adult', petSex: 'female', description: 'Grey husky with blue eyes. Ran away near the station.',
                 locationAddress: 'Lviv, Station', locationLat: 49.83, locationLng: 23.99,
-                contactEmail: 'elena@example.com', photos: [{ url: '/uploads/Lisa.jpeg' }], userId: users[5].id
+                contactEmail: 'elena@example.com', photos: [{ url: '/uploads/Lisa.jpeg' }], userId: users[5].id, isReunited: false
             }
         ];
 
@@ -88,8 +96,6 @@ const seedData = async () => {
 
         console.log('\nDone.');
         console.log(`--- SEEDING COMPLETED ---`);
-        console.log(`John (You) only has 1 lost pet: Ben.`);
-        console.log(`Sarah has found a dog that matches Ben.`);
         process.exit(0);
     } catch (error: any) {
         console.error('SEEDING FAILED:', error.message);

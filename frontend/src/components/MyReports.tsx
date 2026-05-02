@@ -4,8 +4,9 @@ import { reportService } from '../services/reportService';
 import { PetReport } from '../types';
 import PetCard from './Common/PetCard';
 import { useAuth } from '../context/AuthContext';
-import './MyReports.css';
 import { useTranslation } from 'react-i18next';
+import { FiEdit2 } from 'react-icons/fi';
+import './MyReports.css';
 
 const MyReports: React.FC = () => {
     const { t } = useTranslation();
@@ -51,7 +52,37 @@ const MyReports: React.FC = () => {
                 <div className="my-reports-grid">
                     {reports.length > 0 ? (
                         reports.map((report) => (
-                            <PetCard key={report.id} pet={report} />
+                            <div key={report.id} className="my-report-card-container">
+                                <PetCard pet={report} />
+                                <div className="report-actions-grid">
+                                    <button 
+                                        className="edit-action-btn"
+                                        onClick={() => navigate(`/report?edit=${report.id}`)}
+                                    >
+                                        <FiEdit2 /> {t('my_reports_page.edit_btn')}
+                                    </button>
+                                    
+                                    {!report.isReunited && (
+                                        <button 
+                                            className="reunited-action-btn"
+                                            onClick={async () => {
+                                                if (window.confirm(t('my_reports_page.confirm_msg'))) {
+                                                    try {
+                                                        await reportService.markAsReunited(report.id);
+                                                        // Refresh list
+                                                        const response = await reportService.getReports({ userId: user.id });
+                                                        setReports(response.reports);
+                                                    } catch (err) {
+                                                        console.error(err);
+                                                    }
+                                                }
+                                            }}
+                                        >
+                                            {t('my_reports_page.mark_reunited_btn')}
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
                         ))
                     ) : (
                         <div className="no-reports">

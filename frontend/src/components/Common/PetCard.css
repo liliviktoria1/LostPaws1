@@ -111,7 +111,36 @@
   color: #181a32;
 }
 
-/* RESPONSIVE CARD STYLES */
+.slider-item.reunited-card {
+    border: 2px solid #6EE7B7;
+    background: linear-gradient(to bottom, #ffffff, #f0fdf4);
+    box-shadow: 0 10px 25px rgba(110, 231, 183, 0.2);
+}
+
+.reunited-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: #059669;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    z-index: 5;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.slider-item.reunited-card .view-post-btn {
+    color: #059669;
+}
+
+.reunited-card .status-label.reunited {
+    color: #059669;
+    font-weight: 800;
+}
 @media (max-width: 768px) {
   .slider-item {
     width: 280px;

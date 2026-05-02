@@ -4,11 +4,13 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { reportService } from '../services/reportService';
 import { PetReport } from '../types';
+import PetCard from './Common/PetCard';
 import PetSlider from './Common/PetSlider';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
 import { chatService } from '../services/chatService';
 import { useTranslation } from 'react-i18next';
+import i18n from '../i18n/i18n';
 import { FiMessageSquare } from 'react-icons/fi';
 import './PetDetail.css';
 
@@ -107,7 +109,10 @@ const PetDetail: React.FC = () => {
             const token = authService.getToken();
             const baseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:8080/api').replace(/\/$/, '');
             const response = await fetch(`${baseUrl}/reports/${id}/deep-scan`, {
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'x-lang': i18n.language.substring(0, 2)
+                }
             });
             
             if (!response.ok) throw new Error('Scan failed');
@@ -262,16 +267,13 @@ const PetDetail: React.FC = () => {
                 <div className="deep-matches-section">
                     <h3>✨ {t('pet_detail.matches_found')}</h3>
                     {deepMatches.length > 0 ? (
-                        <div className="matches-grid-detail">
+                        <div className="announcements-grid" style={{ padding: 0 }}>
                             {deepMatches.map((match, idx) => (
-                                <div key={idx} className="match-card-detail" onClick={() => navigate(`/pet/${match.report.id}`)}>
-                                    <div className="match-image-detail">
-                                        <img src={getThumbnailUrl(match.report.photos?.[0])} alt={match.report.petName} />
-                                        <div className="match-score-badge-detail">{(match.score * 100).toFixed(0)}% Visual Match</div>
-                                    </div>
-                                    <div className="match-info-detail">
-                                        <h4>{match.report.petName}</h4>
-                                        <p className="match-reasoning"><strong>AI Reasoning:</strong> {match.reasoning}</p>
+                                <div key={idx} className="match-result-wrapper">
+                                    <PetCard pet={match.report} />
+                                    <div className="ai-reasoning-bubble">
+                                        <p><strong>💡 AI:</strong> {match.reasoning}</p>
+                                        <span className="match-score-pill">{(match.score * 100).toFixed(0)}% Match</span>
                                     </div>
                                 </div>
                             ))}

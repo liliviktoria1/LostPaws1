@@ -9,6 +9,7 @@ const resources = {
         "home": "Home",
         "maps": "Maps",
         "announcements": "Announcements",
+        "success_stories": "Success Stories",
         "contact": "Contact Us",
         "report_btn": "Report Pets",
         "my_reports": "My Reports",
@@ -47,7 +48,6 @@ const resources = {
         "cta_text": "Fill out the advert form for search/find animals",
         "cta_btn": "Submit a Pet Alert",
         "missing_pets_empty": "No missing pets reported.",
-
       },
       "maps": {
         "sidebar_title": "Find Pets",
@@ -104,11 +104,19 @@ const resources = {
         "scanning": "AI scanning in progress...",
         "other_missing": "Other Missing Pets"
       },
+      "success_stories_page": {
+        "title": "Success Stories",
+        "subtitle": "These paws have found their way back home thanks to our community and AI.",
+        "empty_text": "No success stories yet. Help us create one!"
+      },
       "my_reports_page": {
         "title": "My Pet Reports",
         "subtitle": "Manage your reported lost and found pets here.",
         "empty_text": "You haven't submitted any reports yet.",
-        "cta_btn": "Create a Pet Alert"
+        "cta_btn": "Create a Pet Alert",
+        "mark_reunited_btn": "🎉 Mark as Reunited",
+        "edit_btn": "Edit Report",
+        "confirm_msg": "Is your pet reunited? This will move it to Success Stories!"
       },
       "contact_page": {
         "title": "Get in Touch",
@@ -144,7 +152,9 @@ const resources = {
         "baby": "Baby",
         "young": "Young",
         "adult": "Adult",
-        "senior": "Senior"
+        "senior": "Senior",
+        "loading": "Loading...",
+        "reunited_tag": "🏠 REUNITED"
       }
     }
   },
@@ -154,6 +164,7 @@ const resources = {
         "home": "Головна",
         "maps": "Мапа",
         "announcements": "Оголошення",
+        "success_stories": "Щасливі історії",
         "contact": "Контакти",
         "report_btn": "Подати оголошення",
         "my_reports": "Мої звіти",
@@ -183,7 +194,7 @@ const resources = {
         "how_step1_l2": "Додайте фотографії та останнє відоме місцезнаходження.",
         "how_step1_l3": "Вкажіть контактні дані.",
         "how_step2_title": "Взаємодія з громадою",
-        "how_step2_l1": "Залишайте коментарі під оголошеннями (\"Я бачив цю тварину тут!\").",
+        "how_step2_l1": "Залишайте коментарі под оголошеннями (\"Я бачив цю тварину тут!\").",
         "how_step2_l2": "Отримуйте сповіщення в реальному часі про нові оголошення поблизу.",
         "how_step3_title": "Пошук на мапі",
         "how_step3_l1": "Переглядайте оголошення у вашому районі.",
@@ -193,7 +204,6 @@ const resources = {
         "cta_btn": "Подати оголошення",
         "missing_pets_empty": "Загублених тварин не знайдено.",
         "found_pets_empty": "Знайдених тварин не знайдено."
-
       },
       "maps": {
         "sidebar_title": "Пошук",
@@ -250,11 +260,18 @@ const resources = {
         "scanning": "Триває сканування ШІ...",
         "other_missing": "Інші загублені тварини"
       },
+      "success_stories_page": {
+        "title": "Щасливі історії",
+        "subtitle": "Ці лапки повернулися додому завдяки нашій громаді та ШІ.",
+        "empty_text": "Поки що немає щасливих історій. Допоможіть нам створити першу!"
+      },
       "my_reports_page": {
         "title": "Мої звіти",
         "subtitle": "Керуйте своїми повідомленнями про загублених та знайдених тварин тут.",
         "empty_text": "Ви ще не подали жодного оголошення.",
-        "cta_btn": "Подати оголошення"
+        "cta_btn": "Подати оголошення",
+        "mark_reunited_btn": "🎉 Повернувся додому",
+        "confirm_msg": "Ваш улюбленець повернувся? Це перенесе оголошення в Щасливі історії!"
       },
       "contact_page": {
         "title": "Зв'яжіться з нами",
@@ -290,7 +307,9 @@ const resources = {
         "baby": "Маля",
         "young": "Молодий",
         "adult": "Дорослий",
-        "senior": "Старий"
+        "senior": "Старий",
+        "loading": "Завантаження...",
+        "reunited_tag": "🏠 ВЕРНУВСЯ ДОДОМУ"
       }
     }
   }

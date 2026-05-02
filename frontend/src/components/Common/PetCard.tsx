@@ -27,8 +27,9 @@ const PetCard: React.FC<PetCardProps> = ({ pet }) => {
     };
 
     return (
-        <div className="slider-item" onClick={() => navigate(`/pet/${pet.id}`)}>
+        <div className={`slider-item ${pet.isReunited ? 'reunited-card' : ''}`} onClick={() => navigate(`/pet/${pet.id}`)}>
             <div style={{ position: 'relative', width: '100%' }}>
+                {pet.isReunited && <div className="reunited-badge">{t('common.reunited_tag')}</div>}
                 <img src={getImageUrl(pet)} alt={pet.petName}/>
                 {pet.photos && pet.photos.length > 1 && (
                     <div className="photo-count-badge">

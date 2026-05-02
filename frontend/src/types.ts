@@ -28,6 +28,7 @@ export interface PetReport {
     photos: { url: string }[];
     embedding?: number[];
     userId?: string;
+    isReunited: boolean;
     createdAt?: string;
 }
 
@@ -51,6 +52,7 @@ export interface PetFilters {
     petSex?: PetSex;
     userId?: string;
     city?: string;
+    isReunited?: boolean;
 }
 
 export interface Announcement {

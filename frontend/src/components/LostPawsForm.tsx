@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, ChangeEvent, FormEvent } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { reportService } from '../services/reportService';
 import { PetStatus, PetSpecies, PetSex, PetAge } from '../types';
 import PetCard from './Common/PetCard';
@@ -18,7 +18,7 @@ L.Icon.Default.mergeOptions({
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-interface FormData {
+interface LocalFormData {
     petStatus: PetStatus | '';
     petName: string;
     petSpecies: PetSpecies | '';
@@ -34,17 +34,19 @@ interface FormData {
     contactName: string;
     contactNumber: string;
     contactEmail: string;
-    photos: File[];
 }
 
 const LostPawsForm: React.FC = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const editId = searchParams.get('edit');
+    
     const mapRef = useRef<L.Map | null>(null);
     const markerRef = useRef<L.Marker | null>(null);
     
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-    const [formData, setFormData] = useState<FormData>({
+    const [formData, setFormData] = useState<LocalFormData>({
         petStatus: '',
         petName: '',
         petSpecies: '',
@@ -59,27 +61,64 @@ const LostPawsForm: React.FC = () => {
         dateLastSeen: '',
         contactName: '',
         contactNumber: '',
-        contactEmail: '',
-        photos: []
+        contactEmail: ''
     });
 
-    // Initialize Map
+    const [photos, setPhotos] = useState<File[]>([]);
+    const [previews, setPreviews] = useState<string[]>([]);
+    const [existingPhotos, setExistingPhotos] = useState<any[]>([]);
+
+    // Initialize Map and Load Data if Editing
     useEffect(() => {
-        if (!mapRef.current) {
-            const initialCoords: [number, number] = [50.4501, 30.5234]; // Kyiv default
-            const map = L.map('form-map').setView(initialCoords, 13);
-            
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors'
-            }).addTo(map);
+        const init = async () => {
+            // 1. Initialize Map
+            if (!mapRef.current) {
+                const initialCoords: [number, number] = [50.4501, 30.5234];
+                const map = L.map('form-map').setView(initialCoords, 13);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+                map.on('click', (e: L.LeafletMouseEvent) => {
+                    const { lat, lng } = e.latlng;
+                    updateLocation(lat, lng);
+                });
+                mapRef.current = map;
+            }
 
-            map.on('click', (e: L.LeafletMouseEvent) => {
-                const { lat, lng } = e.latlng;
-                updateLocation(lat, lng);
-            });
+            // 2. Fetch data if edit mode
+            if (editId) {
+                try {
+                    const report = await reportService.getReportById(editId);
+                    setFormData({
+                        petStatus: report.petStatus,
+                        petName: report.petName,
+                        petSpecies: report.petSpecies,
+                        petBreed: report.petBreed || '',
+                        petColor: report.petColor || '',
+                        petAge: report.petAge || '',
+                        petSex: report.petSex || '',
+                        description: report.description,
+                        locationAddress: report.locationAddress,
+                        locationLat: report.locationLat || null,
+                        locationLng: report.locationLng || null,
+                        dateLastSeen: report.dateLastSeen ? new Date(report.dateLastSeen).toISOString().split('T')[0] : '',
+                        contactName: report.contactName || '',
+                        contactNumber: report.contactNumber || '',
+                        contactEmail: report.contactEmail
+                    });
+                    
+                    if (report.locationLat && report.locationLng) {
+                        updateLocation(report.locationLat, report.locationLng);
+                        mapRef.current?.setView([report.locationLat, report.locationLng], 15);
+                    }
 
-            mapRef.current = map;
-        }
+                    if (report.photos) {
+                        setExistingPhotos(report.photos);
+                    }
+                } catch (err) {
+                    console.error("Edit load failed:", err);
+                }
+            }
+        };
+        init();
 
         return () => {
             if (mapRef.current) {
@@ -87,11 +126,10 @@ const LostPawsForm: React.FC = () => {
                 mapRef.current = null;
             }
         };
-    }, []);
+    }, [editId]);
 
     const updateLocation = (lat: number, lng: number) => {
         setFormData(prev => ({ ...prev, locationLat: lat, locationLng: lng }));
-        
         if (markerRef.current) {
             markerRef.current.setLatLng([lat, lng]);
         } else if (mapRef.current) {
@@ -118,42 +156,40 @@ const LostPawsForm: React.FC = () => {
 
     const [matches, setMatches] = useState<any[]>([]);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
-    const [previews, setPreviews] = useState<string[]>([]);
 
     const handleDrop = (acceptedFiles: File[]) => {
-        setFormData(prev => ({
-            ...prev,
-            photos: [...prev.photos, ...acceptedFiles]
-        }));
-
+        setPhotos(prev => [...prev, ...acceptedFiles]);
         const newPreviews = acceptedFiles.map(file => URL.createObjectURL(file));
         setPreviews(prev => [...prev, ...newPreviews]);
     };
 
     const handleRemovePhoto = (index: number) => {
         URL.revokeObjectURL(previews[index]);
-        setFormData((prev) => ({
-            ...prev,
-            photos: prev.photos.filter((_, i) => i !== index)
-        }));
+        setPhotos(prev => prev.filter((_, i) => i !== index));
         setPreviews(prev => prev.filter((_, i) => i !== index));
     };
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        if (!formData.petName || !formData.contactEmail || !formData.petStatus) {
-            alert("Please fill in all required fields (Name, Email, Status)");
-            return;
-        }
-
         setIsSubmitting(true);
         try {
-            const response = await reportService.createReport(formData as any);
-            setMatches(response.potentialMatches || []);
-            setShowSuccessModal(true);
+            const data = new FormData();
+            Object.entries(formData).forEach(([key, value]) => {
+                if (value !== null) data.append(key, value.toString());
+            });
+            photos.forEach(file => data.append('photos', file));
+
+            if (editId) {
+                await reportService.updateReport(editId, data);
+                navigate('/my-reports');
+            } else {
+                const response = await reportService.createReport(data);
+                setMatches(response.potentialMatches || []);
+                setShowSuccessModal(true);
+            }
         } catch (err: any) {
-            console.error('Error submitting form:', err);
-            alert("Failed to create report: " + err.message);
+            console.error('Submit Error:', err);
+            alert("Error: " + err.message);
         } finally {
             setIsSubmitting(false);
         }
@@ -164,150 +200,44 @@ const LostPawsForm: React.FC = () => {
      return (
         <div className="lostpaws-form">
             <div className="form-container">
-                <img
-                    src="/assets/image/Dog2.png"
-                    alt="Decorative Dog"
-                    className="form-decorative-image"
-                />
-                <h2 className="form-title">{t('form.title')}</h2>
+                <img src="/assets/image/Dog2.png" alt="Decorative" className="form-decorative-image" />
+                <h2 className="form-title">{editId ? t('my_reports_page.edit_btn') : t('form.title')}</h2>
 
                 <div className="form-card">
                     <form onSubmit={handleSubmit}>
                         <div className="form-header">
                             <div className="form-group">
-                            <label>{t('form.status')}:</label>
-                            <div className="radio-group">
-                                {[
-                                    { value: 'lost', label: t('common.lost') },
-                                    { value: 'found', label: t('common.found') }
-                                ].map(option => (
-                                    <label key={option.value}>
-                                        <input
-                                            type="radio"
-                                            name="petStatus"
-                                            value={option.value}
-                                            checked={formData.petStatus === option.value}
-                                            onChange={handleChange}
-                                            required
-                                        />
-                                        {option.label}
-                                    </label>
-                                ))}
+                                <label>{t('form.status')}:</label>
+                                <div className="radio-group">
+                                    {['lost', 'found'].map(v => (
+                                        <label key={v}><input type="radio" name="petStatus" value={v} checked={formData.petStatus === v} onChange={handleChange} required /> {t(`common.${v}`)}</label>
+                                    ))}
+                                </div>
                             </div>
-                          </div>
                         </div>
 
                         <div className="form-group">
                             <label>{t('form.pet_name')}:</label>
-                            <input
-                                type="text"
-                                name="petName"
-                                value={formData.petName}
-                                onChange={handleChange}
-                                placeholder={t('form.pet_name')}
-                                required
-                            />
+                            <input type="text" name="petName" value={formData.petName} onChange={handleChange} required />
                         </div>
 
-                        <div className="form-group">
-                            <label>{t('form.breed')}:</label>
-                            <input
-                                type="text"
-                                name="petBreed"
-                                value={formData.petBreed}
-                                onChange={handleChange}
-                                placeholder={t('form.breed')}
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label>{t('form.color')}:</label>
-                            <input
-                                type="text"
-                                name="petColor"
-                                value={formData.petColor}
-                                onChange={handleChange}
-                                placeholder={t('form.color')}
-                            />
+                        <div className="form-row-multi">
+                            <div className="form-group"><label>{t('form.breed')}:</label><input type="text" name="petBreed" value={formData.petBreed} onChange={handleChange} /></div>
+                            <div className="form-group"><label>{t('form.color')}:</label><input type="text" name="petColor" value={formData.petColor} onChange={handleChange} /></div>
                         </div>
 
                         <div className="form-group">
                             <label>{t('form.species')}:</label>
                             <div className="radio-group">
-                                {[
-                                    { value: 'cat', label: t('common.cat') },
-                                    { value: 'dog', label: t('common.dog') },
-                                    { value: 'other', label: t('common.other') }
-                                ].map(option => (
-                                    <label key={option.value}>
-                                        <input
-                                            type="radio"
-                                            name="petSpecies"
-                                            value={option.value}
-                                            checked={formData.petSpecies === option.value}
-                                            onChange={handleChange}
-                                            required
-                                        />
-                                        {option.label}
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="form-group">
-                            <label>{t('form.age')}:</label>
-                            <div className="radio-group">
-                                {[
-                                    { value: 'baby', label: t('common.baby') },
-                                    { value: 'young', label: t('common.young') },
-                                    { value: 'adult', label: t('common.adult') },
-                                    { value: 'senior', label: t('common.senior') }
-                                ].map(option => (
-                                    <label key={option.value}>
-                                        <input
-                                            type="radio"
-                                            name="petAge"
-                                            value={option.value}
-                                            checked={formData.petAge === option.value}
-                                            onChange={handleChange}
-                                        />
-                                        {option.label}
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="form-group">
-                            <label>{t('form.sex')}:</label>
-                            <div className="radio-group">
-                                {[
-                                    { value: 'female', label: t('common.female') },
-                                    { value: 'male', label: t('common.male') },
-                                    { value: 'unknown', label: t('common.unknown') }
-                                ].map(option => (
-                                    <label key={option.value}>
-                                        <input
-                                            type="radio"
-                                            name="petSex"
-                                            value={option.value}
-                                            checked={formData.petSex === option.value}
-                                            onChange={handleChange}
-                                        />
-                                        {option.label}
-                                    </label>
+                                {['cat', 'dog', 'other'].map(v => (
+                                    <label key={v}><input type="radio" name="petSpecies" value={v} checked={formData.petSpecies === v} onChange={handleChange} required /> {t(`common.${v}`)}</label>
                                 ))}
                             </div>
                         </div>
 
                         <div className="form-group">
                             <label>{t('form.description')}:</label>
-                            <input
-                                type="text"
-                                name="description"
-                                value={formData.description}
-                                onChange={handleChange}
-                                placeholder={t('form.description')}
-                            />
+                            <textarea name="description" value={formData.description} onChange={handleChange} rows={3} style={{ width: '100%', borderRadius: '10px', padding: '10px' }}></textarea>
                         </div>
 
                         <div className="form-group">
@@ -315,121 +245,79 @@ const LostPawsForm: React.FC = () => {
                             <div {...getRootProps()} className={`upload-area ${isDragActive ? 'active' : ''}`}>
                                 <input {...getInputProps()} />
                                 <div className="upload-icon">📷</div>
-                                <p>{isDragActive ? "Drop here..." : t('form.upload_text')}</p>
+                                <p>{t('form.upload_text')}</p>
                             </div>
                             
-                            {previews.length > 0 && (
-                                <div className="image-previews-container">
-                                    <div className="previews-grid">
-                                        {previews.map((url, index) => (
-                                            <div key={index} className="preview-card">
-                                                <img src={url} alt="Preview" />
-                                                <button
-                                                    type="button"
-                                                    className="remove-preview-btn"
-                                                    onClick={() => handleRemovePhoto(index)}
-                                                >
-                                                    ×
-                                                </button>
+                            <div className="image-previews-container">
+                                <div className="previews-grid">
+                                    {previews.map((url, idx) => (
+                                        <div key={idx} className="preview-card">
+                                            <img src={url} alt="Preview" />
+                                            <button type="button" className="remove-preview-btn" onClick={() => handleRemovePhoto(idx)}>×</button>
+                                        </div>
+                                    ))}
+                                    {/* Existing photos preview if editing */}
+                                    {editId && existingPhotos.map((p, idx) => (
+                                        <div key={`ex-${idx}`} className="preview-card existing">
+                                            <img src={(p.url.startsWith('/') ? (process.env.REACT_APP_API_URL || 'http://localhost:8080/api').replace(/\/api$/, '') + p.url : p.url)} alt="Existing" />
+                                            <span className="existing-tag">Keep</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="form-group">
+                            <label>{t('form.location')}:</label>
+                            <input type="text" name="locationAddress" value={formData.locationAddress} onChange={handleChange} required placeholder="Kyiv, Ukraine..." />
+                            <div className="map-selection-container">
+                                <button type="button" className="detect-location-btn" onClick={handleGetCurrentLocation}>📍 {t('form.detect_loc')}</button>
+                                <div id="form-map" style={{ height: '250px', width: '100%', marginTop: '10px', borderRadius: '15px', border: '1.5px solid #eee' }}></div>
+                            </div>
+                        </div>
+
+                        <div className="form-group contact">
+                            <label>{t('form.contact_info')}:</label>
+                            <input type="email" name="contactEmail" value={formData.contactEmail} onChange={handleChange} placeholder={t('form.email')} required />
+                            <input type="text" name="contactNumber" value={formData.contactNumber} onChange={handleChange} placeholder={t('form.phone')} />
+                        </div>
+
+                        <button type="submit" className="submit-button" disabled={isSubmitting}>
+                            {isSubmitting ? t('common.loading') : (editId ? t('my_reports_page.edit_btn') : t('form.submit'))}
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            {showSuccessModal && (
+                <div className="modal-overlay">
+                    <div className="success-modal wide">
+                        <div className="modal-header">
+                            <h2>{t('form.success_title')}</h2>
+                            <button className="close-modal" onClick={() => navigate('/announcements')}>×</button>
+                        </div>
+                        <div className="modal-body">
+                            <p className="success-desc">{t('form.success_text')}</p>
+                            
+                            {matches.length > 0 && (
+                                <div className="potential-matches-section">
+                                    <h3 className="matches-subtitle">✨ {t('pet_detail.matches_found')}</h3>
+                                    <div className="matches-scroll-container">
+                                        {matches.map((match, idx) => (
+                                            <div key={idx} className="match-result-wrapper">
+                                                <PetCard pet={match.report} />
+                                                <div className="ai-reasoning-bubble">
+                                                    <p><strong>💡 AI:</strong> {match.reasoning}</p>
+                                                    <span className="match-score-pill">{(match.score * 100).toFixed(0)}% Match</span>
+                                                </div>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
                             )}
                         </div>
-
-                        <div className="form-group">
-                            <label>{t('form.location')}:</label>
-                            <input
-                                type="text"
-                                name="locationAddress"
-                                value={formData.locationAddress}
-                                onChange={handleChange}
-                                required
-                                placeholder="Kyiv, Ukraine..."
-                            />
-                            
-                            <div className="map-selection-container">
-                                <button 
-                                    type="button" 
-                                    className="detect-location-btn"
-                                    onClick={handleGetCurrentLocation}
-                                >
-                                    📍 {t('form.detect_loc')}
-                                </button>
-                                <div id="form-map" style={{ height: '300px', width: '100%', marginTop: '10px', borderRadius: '10px', border: '1px solid #ccc' }}></div>
-                            </div>
-                        </div>
-
-                        <div className="form-group">
-                            <label>Date:</label>
-                            <input
-                                type="date"
-                                name="dateLastSeen"
-                                value={formData.dateLastSeen}
-                                onChange={handleChange}
-                            />
-                        </div>
-
-                        <div className="form-group contact">
-                            <label>{t('form.contact_info')}:</label>
-                            <input
-                                type="text"
-                                name="contactName"
-                                value={formData.contactName}
-                                onChange={handleChange}
-                                placeholder={t('form.your_name')}
-                            />
-                            <input
-                                type="text"
-                                name="contactNumber"
-                                value={formData.contactNumber}
-                                onChange={handleChange}
-                                placeholder={t('form.phone')}
-                            />
-                            <input
-                                type="email"
-                                name="contactEmail"
-                                value={formData.contactEmail}
-                                onChange={handleChange}
-                                placeholder={t('form.email')}
-                                required
-                            />
-                        </div>
-
-                        <button 
-                            type="submit" 
-                            className="submit-button" 
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? t('common.loading') : t('form.submit')}
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-            {/* Success Modal */}
-            {showSuccessModal && (
-                <div className="modal-overlay">
-                    <div className="success-modal">
-                        <div className="modal-header">
-                            <h2>{t('form.success_title')}</h2>
-                            <button className="close-modal" onClick={() => navigate('/announcements')}>×</button>
-                        </div>
-                        
-                        <div className="modal-body">
-                            <p>{t('form.success_text')}</p>
-                            {matches.length > 0 && (
-                                <div className="matches-grid" style={{ marginTop: '20px' }}>
-                                    {matches.map((match, idx) => (
-                                        <PetCard key={idx} pet={match.report} />
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                        
                         <div className="modal-footer">
-                            <button className="btn-secondary" onClick={() => navigate('/announcements')}>{t('header.announcements')}</button>
+                            <button className="btn-primary-large" onClick={() => navigate('/announcements')}>{t('header.announcements')}</button>
                         </div>
                     </div>
                 </div>

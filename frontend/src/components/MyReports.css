@@ -1,48 +1,117 @@
 .my-reports-page {
-    padding: 4rem 8%;
-    background-color: #FEF9EF;
-    min-height: 100vh;
-    font-family: 'Poppins', sans-serif;
+    padding: 40px 20px;
+    background-color: #F9FAFB;
+    min-height: calc(100vh - 53px);
 }
 
 .my-reports-header {
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 40px;
 }
 
 .my-reports-header h1 {
     font-family: 'Rubik One', serif;
-    font-size: 3rem;
+    font-size: 2.5rem;
     color: #181A32;
-    margin-bottom: 0.5rem;
-}
-
-.my-reports-header p {
-    color: #6B7280;
-    font-size: 1.1rem;
+    margin-bottom: 10px;
 }
 
 .my-reports-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(339px, 1fr));
-    gap: 2.5rem;
-    justify-items: center;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 30px;
+    max-width: 1440px;
+    margin: 0 auto;
+}
+
+.my-report-card-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: white;
+    padding: 20px;
+    border-radius: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    width: fit-content;
+    height: fit-content;
+    box-sizing: border-box;
+    margin: 0 auto;
+    transition: transform 0.3s ease;
+}
+
+.my-report-card-container:hover {
+    transform: translateY(-5px);
+}
+
+/* Adjust PetCard inside My Reports to remove its own shadow to avoid double shadow */
+.my-report-card-container .slider-item {
+    box-shadow: none;
+    margin: 0;
+}
+
+.report-actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+}
+
+.edit-action-btn {
+    padding: 12px;
+    background: #f3f4f6;
+    color: #181A32;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.edit-action-btn:hover {
+    background: #e5e7eb;
+}
+
+.reunited-action-btn {
+    grid-column: 1 / -1;
+    width: 100%;
+    padding: 12px 15px;
+    background: linear-gradient(135deg, #6EE7B7 0%, #3B82F6 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.reunited-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(59, 130, 246, 0.4);
+    filter: brightness(1.1);
 }
 
 .no-reports {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
     grid-column: 1 / -1;
     text-align: center;
-    padding: 3rem;
+    padding: 60px;
     background: white;
-    border-radius: 20px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    border-radius: 30px;
+    border: 2px dashed #E5E7EB;
 }
 
-.no-reports p {
+.loading-state {
+    text-align: center;
+    padding: 100px;
     font-size: 1.2rem;
     color: #6B7280;
 }

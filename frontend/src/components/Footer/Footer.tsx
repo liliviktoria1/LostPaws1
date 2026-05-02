@@ -92,6 +92,7 @@ function Footer() {
                         <div className="nav-column">
                             <Link to="/contact" className="footer-link">{t('footer.nav_contact')}</Link>
                             <Link to="/announcements" className="footer-link">{t('footer.nav_announcements')}</Link>
+                            <Link to="/success-stories" className="footer-link">{t('header.success_stories')}</Link>
                         </div>
                     </nav>
                 </div>

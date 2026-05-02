@@ -1,18 +1,30 @@
 import { PetReport, PetFilters, CreateReportResponse } from '../types';
 import { authService } from './authService';
+import i18n from '../i18n/i18n';
 
 const BASE_API_URL = (process.env.REACT_APP_API_URL || 'http://localhost:8080/api').replace(/\/$/, '');
 
+const getHeaders = (token?: string | null) => {
+    const headers: any = {
+        'x-lang': i18n.language.substring(0, 2)
+    };
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    return headers;
+};
+
 export const reportService = {
-    // Fetch all reports with optional filters
-    getReports: async (filters: PetFilters & { page?: number, limit?: number } = {}): Promise<{ reports: PetReport[], total: number, totalPages: number, currentPage: number }> => {
-        // Clean filters: remove empty strings, undefined, or null values
-        const cleanFilters = Object.fromEntries(
-            Object.entries(filters).filter(([_, v]) => v !== '' && v !== undefined && v !== null)
-        );
-        
-        const queryParams = new URLSearchParams(cleanFilters as Record<string, string>).toString();
-        const response = await fetch(`${BASE_API_URL}/reports?${queryParams}`);
+    // Get all reports with optional filters
+    getReports: async (filters: PetFilters & { page?: number; limit?: number } = {}): Promise<{ reports: PetReport[], total: number, totalPages: number, currentPage: number }> => {
+        const queryParams = new URLSearchParams();
+        Object.entries(filters).forEach(([key, value]) => {
+            if (value !== undefined && value !== '') {
+                queryParams.append(key, value.toString());
+            }
+        });
+
+        const response = await fetch(`${BASE_API_URL}/reports?${queryParams.toString()}`);
         if (!response.ok) throw new Error('Failed to fetch reports');
         return response.json();
     },
@@ -24,57 +36,71 @@ export const reportService = {
         return response.json();
     },
 
-    // Create a new report (handles multipart/form-data for photos)
-    createReport: async (reportData: Partial<PetReport> & { photos?: File[] }): Promise<CreateReportResponse> => {
-        const formData = new FormData();
+    // Mark a report as reunited
+    markAsReunited: async (id: string): Promise<void> => {
         const token = authService.getToken();
-
-        // Append all text fields
-        Object.keys(reportData).forEach(key => {        
-            const value = (reportData as any)[key];
-            if (key === 'photos' && Array.isArray(value)) {
-                value.forEach((file: File) => {     
-                    formData.append('photos', file);    
-                });
-            } else if (key === 'location' && typeof value === 'object') {
-                formData.append(key, JSON.stringify(value));
-            } else if (value !== undefined && value !== null && value !== '') {
-                formData.append(key, value as string);  
-            }
+        const response = await fetch(`${BASE_API_URL}/reports/${id}/reunited`, {
+            method: 'PATCH',
+            headers: getHeaders(token)
         });
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to mark as reunited');
+        }
+    },
 
-        const response = await fetch(`${BASE_API_URL}/reports`, {
-            method: 'POST',
-            headers: token ? { 'Authorization': `Bearer ${token}` } : {},
-            body: formData, // Browser automatically sets Content-Type to multipart/form-data
+    // Update an existing report
+    updateReport: async (id: string, formData: FormData): Promise<PetReport> => {
+        const token = authService.getToken();
+        const response = await fetch(`${BASE_API_URL}/reports/${id}`, {
+            method: 'PATCH',
+            headers: getHeaders(token),
+            body: formData,
         });
 
         if (!response.ok) {
-            const errorData = await response.json();    
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Update failed');
+        }
+
+        return response.json();
+    },
+
+    // Create a new report (handles multipart/form-data for photos)
+    createReport: async (formData: FormData): Promise<CreateReportResponse> => {
+        const token = authService.getToken();
+        const response = await fetch(`${BASE_API_URL}/reports`, {
+            method: 'POST',
+            headers: getHeaders(token),
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
             throw new Error(errorData.message || 'Failed to create report');
         }
 
         return response.json();
     },
 
-    // Delete a report
-    deleteReport: async (id: string): Promise<void> => {
+    // Trigger visual deep scan manually
+    triggerDeepScan: async (id: string): Promise<any> => {
         const token = authService.getToken();
-        const response = await fetch(`${BASE_API_URL}/reports/${id}`, {
-            method: 'DELETE',
-            headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+        const response = await fetch(`${BASE_API_URL}/reports/${id}/deep-scan`, {
+            headers: getHeaders(token),
         });
-        if (!response.ok) throw new Error('Failed to delete report');
+        if (!response.ok) throw new Error('AI Scan failed');
         return response.json();
     },
 
-    // Analyze pet photo with AI
-    analyzePetImage: async (photoFile: File): Promise<any> => {
+    // For debugging/preview during form creation
+    analyzePhoto: async (file: File): Promise<any> => {
         const formData = new FormData();
-        formData.append('photo', photoFile);
+        formData.append('photo', file);
 
         const response = await fetch(`${BASE_API_URL}/reports/analyze`, {
             method: 'POST',
+            headers: getHeaders(),
             body: formData,
         });
 
@@ -86,4 +112,3 @@ export const reportService = {
         return response.json();
     }
 };
-
