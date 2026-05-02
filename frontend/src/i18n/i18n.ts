@@ -110,6 +110,21 @@ const resources = {
         "empty_text": "You haven't submitted any reports yet.",
         "cta_btn": "Create a Pet Alert"
       },
+      "contact_page": {
+        "title": "Get in Touch",
+        "subtitle": "Have questions or need help? Our team is here for you and your paws.",
+        "info_title": "Contact Information",
+        "email_label": "Email Us",
+        "phone_label": "Call Us",
+        "office_label": "Our Office",
+        "form_title": "Send us a Message",
+        "name_placeholder": "Your Full Name",
+        "email_placeholder": "Your Email Address",
+        "subject_label": "Subject",
+        "message_label": "How can we help?",
+        "send_btn": "Send Message",
+        "success_msg": "Thank you! Your message has been sent successfully."
+      },
       "footer": {
         "support_title": "Technical support",
         "nav_home": "Home",
@@ -240,6 +255,21 @@ const resources = {
         "subtitle": "Керуйте своїми повідомленнями про загублених та знайдених тварин тут.",
         "empty_text": "Ви ще не подали жодного оголошення.",
         "cta_btn": "Подати оголошення"
+      },
+      "contact_page": {
+        "title": "Зв'яжіться з нами",
+        "subtitle": "Маєте запитання чи потребуєте допомоги? Наша команда завжди поруч.",
+        "info_title": "Контактна інформація",
+        "email_label": "Напишіть нам",
+        "phone_label": "Зателефонуйте",
+        "office_label": "Наш офіс",
+        "form_title": "Надішліть нам повідомлення",
+        "name_placeholder": "Ваше повне ім'я",
+        "email_placeholder": "Електронна адреса",
+        "subject_label": "Тема",
+        "message_label": "Як ми можемо допомогти?",
+        "send_btn": "Надіслати повідомлення",
+        "success_msg": "Дякуємо! Ваше повідомлення було успішно надіслано."
       },
       "footer": {
         "support_title": "Технічна підтримка",
