@@ -113,11 +113,11 @@ const Chat: React.FC = () => {
                 {/* Sidebar */}
                 <div className="chat-sidebar">
                     <div className="sidebar-header">
-                        <h2><FiMessageSquare /> Messages</h2>
+                        <h2><FiMessageSquare /> {t('header.messages')}</h2>
                     </div>
                     <div className="conversations-list">
                         {isLoading ? (
-                            <p className="chat-loading">Loading...</p>
+                            <p className="chat-loading">{t('common.loading')}</p>
                         ) : conversations.length > 0 ? (
                             conversations.map(conv => (
                                 <div 
@@ -130,9 +130,9 @@ const Chat: React.FC = () => {
                                     </div>
                                     <div className="conv-info">
                                         <div className="conv-header">
-                                            <strong>{conv.otherUser.name}</strong>
+                                            <strong>{conv.otherUser?.name || "User"}</strong>
                                             <span className="conv-time">
-                                                {new Date(conv.lastMessageAt).toLocaleDateString()}
+                                                {conv.lastMessageAt ? new Date(conv.lastMessageAt).toLocaleDateString() : ''}
                                             </span>
                                         </div>
                                         <p className="conv-last-msg">{conv.lastMessage || "No messages yet"}</p>
@@ -152,7 +152,7 @@ const Chat: React.FC = () => {
                             <div className="chat-header">
                                 <div className="user-info">
                                     <FiUser />
-                                    <h3>{activeConversation.otherUser.name}</h3>
+                                    <h3>{activeConversation.otherUser?.name || "User"}</h3>
                                 </div>
                             </div>
                             <div className="messages-container">

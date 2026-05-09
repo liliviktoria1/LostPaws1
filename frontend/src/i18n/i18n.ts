@@ -13,6 +13,7 @@ const resources = {
         "contact": "Contact Us",
         "report_btn": "Report Pets",
         "my_reports": "My Reports",
+        "my_profile": "My Profile",
         "messages": "Messages",
         "logout": "Log out",
         "login": "Log in",
@@ -102,12 +103,28 @@ const resources = {
         "matches_found": "AI Matches Found",
         "no_matches": "No visual matches found yet.",
         "scanning": "AI scanning in progress...",
-        "other_missing": "Other Missing Pets"
+        "other_missing": "Other Missing Pets",
+        "share_title": "Share this report",
+        "share_desc": "Help this pet get home by sharing with your community."
       },
       "success_stories_page": {
         "title": "Success Stories",
         "subtitle": "These paws have found their way back home thanks to our community and AI.",
         "empty_text": "No success stories yet. Help us create one!"
+      },
+      "profile_page": {
+        "title": "My Profile",
+        "subtitle": "Manage your account settings and contact details.",
+        "personal_info": "Personal Information",
+        "full_name": "Full Name",
+        "phone_number": "Phone Number",
+        "email_address": "Email Address",
+        "security": "Security",
+        "new_password": "New Password",
+        "password_hint": "Leave blank to keep current password",
+        "save_btn": "Save Changes",
+        "success_msg": "Profile updated successfully!",
+        "member_since": "Member since"
       },
       "my_reports_page": {
         "title": "My Pet Reports",
@@ -168,6 +185,7 @@ const resources = {
         "contact": "Контакти",
         "report_btn": "Подати оголошення",
         "my_reports": "Мої звіти",
+        "my_profile": "Мій профіль",
         "messages": "Повідомлення",
         "logout": "Вийти",
         "login": "Увійти",
@@ -258,12 +276,28 @@ const resources = {
         "matches_found": "Знайдені збіги (ШІ)",
         "no_matches": "Візуальних збігів поки не знайдено.",
         "scanning": "Триває сканування ШІ...",
-        "other_missing": "Інші загублені тварини"
+        "other_missing": "Інші загублені тварини",
+        "share_title": "Поділитися оголошенням",
+        "share_desc": "Допоможіть тварині повернутися додому, поширивши інформацію."
       },
       "success_stories_page": {
         "title": "Щасливі історії",
         "subtitle": "Ці лапки повернулися додому завдяки нашій громаді та ШІ.",
         "empty_text": "Поки що немає щасливих історій. Допоможіть нам створити першу!"
+      },
+      "profile_page": {
+        "title": "Мій профіль",
+        "subtitle": "Керуйте налаштуваннями акаунта та контактними даними.",
+        "personal_info": "Особиста інформація",
+        "full_name": "Повне ім'я",
+        "phone_number": "Номер телефону",
+        "email_address": "Електронна пошта",
+        "security": "Безпека",
+        "new_password": "Новий пароль",
+        "password_hint": "Залиште порожнім, щоб не змінювати",
+        "save_btn": "Зберегти зміни",
+        "success_msg": "Профіль успішно оновлено!",
+        "member_since": "З нами з"
       },
       "my_reports_page": {
         "title": "Мої звіти",
@@ -271,6 +305,7 @@ const resources = {
         "empty_text": "Ви ще не подали жодного оголошення.",
         "cta_btn": "Подати оголошення",
         "mark_reunited_btn": "🎉 Повернувся додому",
+        "edit_btn": "Редагувати",
         "confirm_msg": "Ваш улюбленець повернувся? Це перенесе оголошення в Щасливі історії!"
       },
       "contact_page": {

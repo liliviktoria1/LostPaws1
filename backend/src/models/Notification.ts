@@ -8,7 +8,7 @@ export interface NotificationAttributes {
     message: string;
     reportId?: string;
     isRead: boolean;
-    type: 'match_alert' | 'system';
+    type: 'match_alert' | 'chat_message' | 'system';
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -21,7 +21,7 @@ class Notification extends Model<NotificationAttributes, NotificationCreationAtt
     public message!: string;
     public reportId!: string;
     public isRead!: boolean;
-    public type!: 'match_alert' | 'system';
+    public type!: 'match_alert' | 'chat_message' | 'system';
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
@@ -54,7 +54,7 @@ Notification.init({
         defaultValue: false
     },
     type: {
-        type: DataTypes.ENUM('match_alert', 'system'),
+        type: DataTypes.ENUM('match_alert', 'chat_message', 'system'),
         defaultValue: 'system'
     }
 }, {

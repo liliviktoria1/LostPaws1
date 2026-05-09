@@ -320,3 +320,54 @@
     font-weight: 800;
     display: inline-block;
 }
+
+.share-section {
+    margin-top: 35px;
+    padding-top: 25px;
+    border-top: 1.5px dashed #e2e8f0;
+}
+
+.share-section h3 {
+    font-size: 1.1rem !ve !important;
+    color: #181A32;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.share-desc-text {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 20px;
+}
+
+.share-buttons-grid {
+    display: flex;
+    gap: 15px;
+}
+
+.share-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: var(--brand-color);
+    background: #fff;
+    border: 1.5px solid #f1f5f9;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+}
+
+.share-btn:hover {
+    transform: translateY(-5px);
+    background: var(--brand-color);
+    color: #fff;
+    border-color: var(--brand-color);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}

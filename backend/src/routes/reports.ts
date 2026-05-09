@@ -101,7 +101,13 @@ router.post('/', [authMiddleware, upload.array('photos', 5)], async (req: AuthRe
         const embedding = await generatePetEmbedding({ petSpecies, description });
 
         const newReport = await PetReport.create({
-            petStatus, petName, petSpecies, petBreed, petColor, petAge, petSex,
+            petStatus, 
+            petName: petName || 'Unknown', 
+            petSpecies, 
+            petBreed, 
+            petColor, 
+            petAge, 
+            petSex,
             description, locationAddress, locationLat: finalLat, locationLng: finalLng,
             dateLastSeen, contactName, contactNumber, contactEmail,
             photos: photoPaths,
@@ -110,11 +116,9 @@ router.post('/', [authMiddleware, upload.array('photos', 5)], async (req: AuthRe
             isReunited: false
         });
 
-        // runPassiveWatcher(newReport.id, lang).catch(console.error);
-
         res.status(201).json({
             report: newReport,
-            message: "Report created. AI is scanning for matches in the background."
+            message: "Report created successfully."
         });
     } catch (err: any) {
         res.status(400).json({ message: err.message });

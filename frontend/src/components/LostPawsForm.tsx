@@ -3,7 +3,6 @@ import { useDropzone } from 'react-dropzone';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { reportService } from '../services/reportService';
 import { PetStatus, PetSpecies, PetSex, PetAge } from '../types';
-import PetCard from './Common/PetCard';
 import { useTranslation } from 'react-i18next';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -106,7 +105,8 @@ const LostPawsForm: React.FC = () => {
                     });
                     
                     if (report.locationLat && report.locationLng) {
-                        updateLocation(report.locationLat, report.locationLng);
+                        setFormData(prev => ({ ...prev, locationLat: report.locationLat!, locationLng: report.locationLng! }));
+                        markerRef.current = L.marker([report.locationLat, report.locationLng]).addTo(mapRef.current!);
                         mapRef.current?.setView([report.locationLat, report.locationLng], 15);
                     }
 
@@ -128,12 +128,36 @@ const LostPawsForm: React.FC = () => {
         };
     }, [editId]);
 
-    const updateLocation = (lat: number, lng: number) => {
+    const updateLocation = async (lat: number, lng: number) => {
         setFormData(prev => ({ ...prev, locationLat: lat, locationLng: lng }));
+        
+        // Update Marker
         if (markerRef.current) {
             markerRef.current.setLatLng([lat, lng]);
         } else if (mapRef.current) {
             markerRef.current = L.marker([lat, lng]).addTo(mapRef.current);
+        }
+
+        // Reverse Geocoding (Lat/Lng -> Address)
+        try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+            const data = await response.json();
+            
+            if (data && data.address) {
+                const addr = data.address;
+                const city = addr.city || addr.town || addr.village || addr.hamlet || "";
+                const street = addr.road || addr.street || "";
+                const house = addr.house_number || "";
+                
+                let formatted = "";
+                if (city) formatted += city;
+                if (street) formatted += (formatted ? ", " : "") + street;
+                if (house) formatted += " " + house;
+
+                setFormData(prev => ({ ...prev, locationAddress: formatted || data.display_name.split(',').slice(0, 2).join(', ') }));
+            }
+        } catch (err) {
+            console.error("Geocoding failed", err);
         }
     };
 
@@ -154,9 +178,6 @@ const LostPawsForm: React.FC = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const [matches, setMatches] = useState<any[]>([]);
-    const [showSuccessModal, setShowSuccessModal] = useState(false);
-
     const handleDrop = (acceptedFiles: File[]) => {
         setPhotos(prev => [...prev, ...acceptedFiles]);
         const newPreviews = acceptedFiles.map(file => URL.createObjectURL(file));
@@ -175,7 +196,7 @@ const LostPawsForm: React.FC = () => {
         try {
             const data = new FormData();
             Object.entries(formData).forEach(([key, value]) => {
-                if (value !== null) data.append(key, value.toString());
+                if (value !== null && value !== undefined) data.append(key, value.toString());
             });
             photos.forEach(file => data.append('photos', file));
 
@@ -183,9 +204,9 @@ const LostPawsForm: React.FC = () => {
                 await reportService.updateReport(editId, data);
                 navigate('/my-reports');
             } else {
-                const response = await reportService.createReport(data);
-                setMatches(response.potentialMatches || []);
-                setShowSuccessModal(true);
+                await reportService.createReport(data);
+                // REDIRECT IMMEDIATELY
+                navigate('/announcements');
             }
         } catch (err: any) {
             console.error('Submit Error:', err);
@@ -216,14 +237,37 @@ const LostPawsForm: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="form-group">
-                            <label>{t('form.pet_name')}:</label>
-                            <input type="text" name="petName" value={formData.petName} onChange={handleChange} required />
-                        </div>
+                        {formData.petStatus === 'lost' && (
+                            <div className="form-group">
+                                <label>{t('form.pet_name')}:</label>
+                                <input type="text" name="petName" value={formData.petName} onChange={handleChange} required />
+                            </div>
+                        )}
 
                         <div className="form-row-multi">
                             <div className="form-group"><label>{t('form.breed')}:</label><input type="text" name="petBreed" value={formData.petBreed} onChange={handleChange} /></div>
                             <div className="form-group"><label>{t('form.color')}:</label><input type="text" name="petColor" value={formData.petColor} onChange={handleChange} /></div>
+                        </div>
+
+                        <div className="form-row-multi">
+                            <div className="form-group">
+                                <label>{t('form.age')}:</label>
+                                <select name="petAge" value={formData.petAge} onChange={handleChange} required>
+                                    <option value="">-- {t('announcements.any_age')} --</option>
+                                    {['baby', 'young', 'adult', 'senior'].map(v => (
+                                        <option key={v} value={v}>{t(`common.${v}`)}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label>{t('form.sex')}:</label>
+                                <select name="petSex" value={formData.petSex} onChange={handleChange} required>
+                                    <option value="">-- {t('announcements.any_sex')} --</option>
+                                    {['male', 'female', 'unknown'].map(v => (
+                                        <option key={v} value={v}>{t(`common.${v}`)}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
 
                         <div className="form-group">
@@ -256,7 +300,6 @@ const LostPawsForm: React.FC = () => {
                                             <button type="button" className="remove-preview-btn" onClick={() => handleRemovePhoto(idx)}>×</button>
                                         </div>
                                     ))}
-                                    {/* Existing photos preview if editing */}
                                     {editId && existingPhotos.map((p, idx) => (
                                         <div key={`ex-${idx}`} className="preview-card existing">
                                             <img src={(p.url.startsWith('/') ? (process.env.REACT_APP_API_URL || 'http://localhost:8080/api').replace(/\/api$/, '') + p.url : p.url)} alt="Existing" />
@@ -276,6 +319,11 @@ const LostPawsForm: React.FC = () => {
                             </div>
                         </div>
 
+                        <div className="form-group">
+                            <label>Date Last Seen:</label>
+                            <input type="date" name="dateLastSeen" value={formData.dateLastSeen} onChange={handleChange} required />
+                        </div>
+
                         <div className="form-group contact">
                             <label>{t('form.contact_info')}:</label>
                             <input type="email" name="contactEmail" value={formData.contactEmail} onChange={handleChange} placeholder={t('form.email')} required />
@@ -288,40 +336,6 @@ const LostPawsForm: React.FC = () => {
                     </form>
                 </div>
             </div>
-
-            {showSuccessModal && (
-                <div className="modal-overlay">
-                    <div className="success-modal wide">
-                        <div className="modal-header">
-                            <h2>{t('form.success_title')}</h2>
-                            <button className="close-modal" onClick={() => navigate('/announcements')}>×</button>
-                        </div>
-                        <div className="modal-body">
-                            <p className="success-desc">{t('form.success_text')}</p>
-                            
-                            {matches.length > 0 && (
-                                <div className="potential-matches-section">
-                                    <h3 className="matches-subtitle">✨ {t('pet_detail.matches_found')}</h3>
-                                    <div className="matches-scroll-container">
-                                        {matches.map((match, idx) => (
-                                            <div key={idx} className="match-result-wrapper">
-                                                <PetCard pet={match.report} />
-                                                <div className="ai-reasoning-bubble">
-                                                    <p><strong>💡 AI:</strong> {match.reasoning}</p>
-                                                    <span className="match-score-pill">{(match.score * 100).toFixed(0)}% Match</span>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                        <div className="modal-footer">
-                            <button className="btn-primary-large" onClick={() => navigate('/announcements')}>{t('header.announcements')}</button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

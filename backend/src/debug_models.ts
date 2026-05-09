@@ -8,8 +8,11 @@ async function testImports() {
     console.log('Testing PetReport...');
     try { await import('./models/PetReport.js'); console.log('PetReport OK'); } catch (e) { console.error('PetReport FAIL:', e); }
 
-    console.log('Testing reports route...');
-    try { await import('./routes/reports.js'); console.log('Reports route OK'); } catch (e) { console.error('Reports route FAIL:', e); }
+    console.log('Testing Notification...');
+    try { await import('./models/Notification.js'); console.log('Notification OK'); } catch (e) { console.error('Notification FAIL:', e); }
+
+    console.log('Testing chats route...');
+    try { await import('./routes/chats.js'); console.log('Chats route OK'); } catch (e) { console.error('Chats route FAIL:', e); }
 }
 
 testImports();

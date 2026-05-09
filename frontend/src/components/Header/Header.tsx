@@ -22,14 +22,35 @@ function Header() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<"login" | "signup">("login");
 
+  const [prevUnreadCount, setPrevUnreadCount] = useState<number>(0);
+
   useEffect(() => {
       let interval: any;
       if (user) {
           fetchNotifications();
-          interval = setInterval(fetchNotifications, 30000); // Check every 30s
+          interval = setInterval(fetchNotifications, 10000); // Check every 10s for better responsiveness
       }
       return () => clearInterval(interval);
   }, [user]);
+
+  const fetchNotifications = async () => {
+      try {
+          const data = await notificationService.getNotifications();
+          const currentUnread = data.filter(n => !n.isRead).length;
+
+          // Sound alert if new notification arrived
+          if (currentUnread > prevUnreadCount) {
+              const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+              audio.volume = 0.4;
+              audio.play().catch(() => {}); // Browsers might block autoplay
+          }
+          
+          setPrevUnreadCount(currentUnread);
+          setNotifications(data);
+      } catch (error) {
+          console.error('Failed to fetch notifications', error);
+      }
+  };
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -43,20 +64,12 @@ function Header() {
       return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const fetchNotifications = async () => {
-      try {
-          const data = await notificationService.getNotifications();
-          setNotifications(data);
-      } catch (error) {
-          console.error('Failed to fetch notifications', error);
-      }
-  };
-
   const handleNotificationClick = async (notif: AppNotification) => {
       try {
           if (!notif.isRead) {
               await notificationService.markAsRead(notif.id);
               setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, isRead: true } : n));
+              setPrevUnreadCount(prev => Math.max(0, prev - 1));
           }
           if (notif.reportId) {
               navigate(`/pet/${notif.reportId}`);
@@ -71,6 +84,7 @@ function Header() {
       try {
           await notificationService.markAllAsRead();
           setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+          setPrevUnreadCount(0);
       } catch (error) {
           console.error('Failed to mark all as read', error);
       }
@@ -80,7 +94,9 @@ function Header() {
       e.stopPropagation();
       try {
           await notificationService.deleteNotification(id);
+          const deletedWasUnread = !notifications.find(n => n.id === id)?.isRead;
           setNotifications(prev => prev.filter(n => n.id !== id));
+          if (deletedWasUnread) setPrevUnreadCount(prev => Math.max(0, prev - 1));
       } catch (error) {
           console.error('Failed to delete notification', error);
       }
@@ -172,10 +188,10 @@ function Header() {
                     {isNotificationsOpen && (
                         <div className="profile-dropdown notifications-dropdown">
                             <div className="dropdown-user-info notif-dropdown-header">
-                                <strong>Notifications</strong>
+                                <strong>{t('header.notifications')}</strong>
                                 {notifications.length > 0 && (
                                     <button className="mark-read-btn" onClick={handleMarkAllAsRead}>
-                                        Mark all as read
+                                        {t('header.mark_all_read')}
                                     </button>
                                 )}
                             </div>
@@ -213,6 +229,9 @@ function Header() {
                         <span>{user.email}</span>
                       </div>
                       <hr />
+                      <Link to="/profile" className="dropdown-item" onClick={() => setIsProfileOpen(false)} style={{ color: 'var(--brand-navy)', textDecoration: 'none' }}>
+                        {t('header.my_profile')}
+                      </Link>
                       <Link to="/my-reports" className="dropdown-item" onClick={() => setIsProfileOpen(false)} style={{ color: 'var(--brand-navy)', textDecoration: 'none' }}>
                         {t('header.my_reports')}
                       </Link>

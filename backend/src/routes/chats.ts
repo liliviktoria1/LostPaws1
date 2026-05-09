@@ -2,6 +2,7 @@ import express, { Response, Router } from 'express';
 import { Conversation } from '../models/Conversation.js';
 import { Message } from '../models/Message.js';
 import { User } from '../models/User.js';
+import { Notification } from '../models/Notification.js';
 import { authMiddleware, AuthRequest } from '../middleware/auth.js';
 import { Op } from 'sequelize';
 
@@ -10,11 +11,12 @@ const router: Router = express.Router();
 // GET /api/chats - Get user's conversations
 router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
     try {
+        const userId = req.userId as string;
         const conversations = await Conversation.findAll({
             where: {
                 [Op.or]: [
-                    { user1Id: req.userId },
-                    { user2Id: req.userId }
+                    { user1Id: userId },
+                    { user2Id: userId }
                 ]
             },
             order: [['lastMessageAt', 'DESC']]
@@ -22,7 +24,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 
         // Enrich with participant info
         const enriched = await Promise.all(conversations.map(async (conv) => {
-            const otherUserId = conv.user1Id === req.userId ? conv.user2Id : conv.user1Id;
+            const otherUserId = conv.user1Id === userId ? conv.user2Id : conv.user1Id;
             const otherUser = await User.findByPk(otherUserId, {
                 attributes: ['id', 'name', 'email']
             });
@@ -41,9 +43,10 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 // POST /api/chats - Start or get a conversation
 router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
     try {
+        const userId = req.userId as string;
         const { recipientId, reportId } = req.body;
 
-        if (recipientId === req.userId) {
+        if (recipientId === userId) {
             return res.status(400).json({ message: "Cannot chat with yourself" });
         }
 
@@ -51,15 +54,15 @@ router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
         let conversation = await Conversation.findOne({
             where: {
                 [Op.or]: [
-                    { user1Id: req.userId, user2Id: recipientId },
-                    { user1Id: recipientId, user2Id: req.userId }
+                    { user1Id: userId, user2Id: recipientId },
+                    { user1Id: recipientId, user2Id: userId }
                 ]
             }
         });
 
         if (!conversation) {
             conversation = await Conversation.create({
-                user1Id: req.userId!,
+                user1Id: userId,
                 user2Id: recipientId,
                 reportId
             });
@@ -89,11 +92,12 @@ router.get('/:id/messages', authMiddleware, async (req: AuthRequest, res: Respon
 router.post('/:id/messages', authMiddleware, async (req: AuthRequest, res: Response) => {
     try {
         const conversationId = req.params.id as string;
+        const userId = req.userId as string;
         const { content } = req.body;
         
         const message = await Message.create({
             conversationId,
-            senderId: req.userId!,
+            senderId: userId,
             content
         });
 
@@ -104,6 +108,20 @@ router.post('/:id/messages', authMiddleware, async (req: AuthRequest, res: Respo
         }, {
             where: { id: conversationId }
         });
+
+        // NOTIFICATION LOGIC: Notify recipient
+        const conversation = await Conversation.findByPk(conversationId);
+        if (conversation) {
+            const recipientId = conversation.user1Id === userId ? conversation.user2Id : conversation.user1Id;
+            const sender = await User.findByPk(userId, { attributes: ['name'] });
+
+            await Notification.create({
+                userId: recipientId,
+                message: `New message from ${sender?.name || 'User'}`,
+                type: 'chat_message',
+                reportId: conversation.reportId
+            });
+        }
 
         res.status(201).json(message);
     } catch (err: any) {

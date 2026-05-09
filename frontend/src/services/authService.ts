@@ -48,6 +48,31 @@ export const authService = {
         return handleResponse(response);
     },
 
+    getProfile: async (): Promise<User> => {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${BASE_API_URL}/auth/profile`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        return handleResponse(response);
+    },
+
+    updateProfile: async (data: { name?: string, phoneNumber?: string, password?: string }): Promise<User> => {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${BASE_API_URL}/auth/profile`, {
+            method: 'PATCH',
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        const result = await handleResponse(response);
+        if (result.user) {
+            localStorage.setItem('user', JSON.stringify(result.user));
+        }
+        return result.user || result;
+    },
+
     getCurrentUser: (): User | null => {
         const user = localStorage.getItem('user');
         return user ? JSON.parse(user) : null;

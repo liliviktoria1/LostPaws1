@@ -75,12 +75,50 @@ router.post('/login', async (req: Request, res: Response) => {
 router.get('/verify', authMiddleware, async (req: AuthRequest, res: Response) => {
     try {
         const user = await User.findByPk(req.userId, {
-            attributes: ['id', 'name', 'email']
+            attributes: ['id', 'name', 'email', 'phoneNumber']
         });
         if (!user) return res.status(404).json({ message: 'User not found' });
         res.json(user);
     } catch (err: any) {
         res.status(500).json({ message: 'Server Error' });
+    }
+});
+
+// Get Profile
+router.get('/profile', authMiddleware, async (req: AuthRequest, res: Response) => {
+    try {
+        const user = await User.findByPk(req.userId, {
+            attributes: ['id', 'name', 'email', 'phoneNumber', 'createdAt']
+        });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Update Profile
+router.patch('/profile', authMiddleware, async (req: AuthRequest, res: Response) => {
+    try {
+        const { name, phoneNumber, password } = req.body;
+        const user = await User.findByPk(req.userId);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        if (name) user.name = name;
+        if (phoneNumber) user.phoneNumber = phoneNumber;
+        
+        if (password) {
+            user.password = await bcrypt.hash(password, 10);
+        }
+
+        await user.save();
+        
+        res.json({
+            message: 'Profile updated successfully',
+            user: { id: user.id, name: user.name, email: user.email, phoneNumber: user.phoneNumber }
+        });
+    } catch (err) {
+        res.status(500).json({ message: 'Update failed' });
     }
 });
 

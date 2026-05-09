@@ -11,7 +11,8 @@ import { authService } from '../services/authService';
 import { chatService } from '../services/chatService';
 import { useTranslation } from 'react-i18next';
 import i18n from '../i18n/i18n';
-import { FiMessageSquare } from 'react-icons/fi';
+import { FiMessageSquare, FiFacebook, FiTwitter, FiShare2 } from 'react-icons/fi';
+import { FaTelegramPlane, FaViber } from 'react-icons/fa';
 import './PetDetail.css';
 
 // Fix for default Leaflet icon paths
@@ -147,6 +148,36 @@ const PetDetail: React.FC = () => {
         return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
     };
 
+    const shareUrl = window.location.href;
+    const shareText = report ? `${t(`common.${report.petStatus}`).toUpperCase()}: ${report.petName} (${report.petBreed}). ${t('pet_detail.share_desc')}` : "";
+
+    const shareLinks = [
+        { 
+            name: 'Facebook', 
+            icon: <FiFacebook />, 
+            url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
+            color: '#1877F2'
+        },
+        { 
+            name: 'Telegram', 
+            icon: <FaTelegramPlane />, 
+            url: `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`,
+            color: '#0088cc'
+        },
+        { 
+            name: 'Viber', 
+            icon: <FaViber />, 
+            url: `viber://forward?text=${encodeURIComponent(shareText + " " + shareUrl)}`,
+            color: '#7360f2'
+        },
+        { 
+            name: 'Twitter', 
+            icon: <FiTwitter />, 
+            url: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`,
+            color: '#1DA1F2'
+        }
+    ];
+
     if (loading) return <div className="loading-state">{t('common.loading')}</div>;
     if (!report) return <div className="error-state">Pet report not found.</div>;
 
@@ -257,6 +288,27 @@ const PetDetail: React.FC = () => {
                             <p><strong>Owner:</strong> {report.contactName || 'Anonymous'}</p>
                             <p><strong>Phone:</strong> {report.contactNumber || 'N/A'}</p>
                             <p><strong>Email:</strong> {report.contactEmail}</p>
+                        </div>
+                    </div>
+
+                    {/* Social Share Section */}
+                    <div className="share-section">
+                        <h3><FiShare2 /> {t('pet_detail.share_title')}</h3>
+                        <p className="share-desc-text">{t('pet_detail.share_desc')}</p>
+                        <div className="share-buttons-grid">
+                            {shareLinks.map(link => (
+                                <a 
+                                    key={link.name} 
+                                    href={link.url} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="share-btn"
+                                    style={{ '--brand-color': link.color } as any}
+                                    title={link.name}
+                                >
+                                    {link.icon}
+                                </a>
+                            ))}
                         </div>
                     </div>
                 </div>
