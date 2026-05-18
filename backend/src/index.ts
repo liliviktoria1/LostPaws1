@@ -72,13 +72,28 @@ io.on('connection', (socket) => {
 });
 
 // Database Sync & Server Start
-sequelize.sync({ alter: true })
-    .then(() => {
-        console.log('Database synced');
+const startServer = async () => {
+    try {
+        // Start listening immediately so Render/cloud health checks pass
         httpServer.listen(PORT, () => {
-            console.log(`Server is running on port ${PORT}`);
+            console.log(`🚀 Server is listening on port ${PORT}`);
+            console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
         });
-    })
-    .catch((err: any) => {
-        console.error('DATABASE ERROR:', err.message);
-    });
+
+        // Then sync database
+        console.log('⏳ Syncing database...');
+        await sequelize.sync({ alter: true });
+        console.log('✅ Database synced successfully');
+        
+    } catch (err: any) {
+        console.error('❌ FATAL ERROR DURING STARTUP:');
+        console.error(err.message);
+        // If it's a database error, we log it but keep the server running 
+        // so you can still see the logs and the service doesn't just "disappear"
+        if (err.name === 'SequelizeConnectionError' || err.name === 'SequelizeConnectionRefusedError') {
+            console.error('👉 Tip: Check your DATABASE_URL and ensure SSL is enabled if required.');
+        }
+    }
+};
+
+startServer();
