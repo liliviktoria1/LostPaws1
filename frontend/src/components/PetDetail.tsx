@@ -57,7 +57,7 @@ const PetDetail: React.FC = () => {
                 }
                 
                 const othersResponse = await reportService.getReports({ petStatus: 'lost' });
-                setOtherPets(othersResponse.reports.filter((p: PetReport) => p.id !== id).slice(0, 10));
+                setOtherPets((othersResponse.reports || []).filter((p: PetReport) => p.id !== id).slice(0, 10));
             } catch (error) {
                 console.error("Error fetching pet details:", error);
             } finally {

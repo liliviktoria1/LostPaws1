@@ -26,7 +26,7 @@ const MyReports: React.FC = () => {
         const fetchMyReports = async () => {
             try {
                 const response = await reportService.getReports({ userId: user.id });
-                setReports(response.reports);
+                setReports(response.reports || []);
             } catch (err) {
                 console.error("Error fetching my reports:", err);
             } finally {

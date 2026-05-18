@@ -46,9 +46,9 @@ const Announcements: React.FC = () => {
                 if (filters.city) activeFilters.city = filters.city;
 
                 const response = await reportService.getReports(activeFilters);
-                setReports(response.reports);
-                setTotalPages(response.totalPages);
-                setTotalReports(response.total);
+                setReports(response.reports || []);
+                setTotalPages(response.totalPages || 1);
+                setTotalReports(response.total || 0);
             } catch (err) {
                 console.error("Error fetching announcements:", err);
             } finally {

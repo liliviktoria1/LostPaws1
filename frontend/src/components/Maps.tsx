@@ -69,7 +69,7 @@ const Maps: React.FC = () => {
                 );
 
                 const response = await reportService.getReports(activeFilters);
-                const data = response.reports;
+                const data = response.reports || [];
                 setReports(data);
                 
                 // Clear existing markers
@@ -92,9 +92,17 @@ const Maps: React.FC = () => {
                         const photo = report.photos && report.photos.length > 0 ? report.photos[0] : null;
                         const photoUrl = typeof photo === 'string' ? photo : (photo as any)?.url;
                         const baseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:8080/api').replace(/\/api$/, '');
-                        const imageUrl = photoUrl
-                            ? (photoUrl.startsWith('/assets') ? photoUrl : `${baseUrl}${photoUrl.startsWith('/') ? '' : '/'}${photoUrl}`)
-                            : '/assets/image/Dog.png';
+                        
+                        let imageUrl = '/assets/image/Dog.png';
+                        if (photoUrl) {
+                            if (photoUrl.startsWith('http')) {
+                                imageUrl = photoUrl;
+                            } else if (photoUrl.startsWith('/assets')) {
+                                imageUrl = photoUrl;
+                            } else {
+                                imageUrl = `${baseUrl}${photoUrl.startsWith('/') ? '' : '/'}${photoUrl}`;
+                            }
+                        }
 
                         const statusText = t(`common.${report.petStatus}`).toUpperCase();
 
