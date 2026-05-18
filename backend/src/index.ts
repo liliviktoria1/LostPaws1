@@ -47,6 +47,11 @@ app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
+// Health Check for Render/Cloud
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok', uptime: process.uptime() });
+});
+
 // Routes
 app.use('/api/reports', reportRoutes);
 app.use('/api/auth', authRoutes);
