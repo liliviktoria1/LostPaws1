@@ -11,18 +11,40 @@ import { Notification } from '../models/Notification.js';
 import { User } from '../models/User.js';
 import { sendMatchAlertEmail } from '../services/email.js';
 
+import cloudinary from '../config/cloudinary.js';
+import fs from 'fs';
+
 const router: Router = express.Router();
 
-// Configure Multer for photo uploads
+// Configure Multer for photo uploads (Temporary local storage)
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/');
+        const dir = 'uploads/';
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+        cb(null, dir);
     },
     filename: (req, file, cb) => {
         cb(null, Date.now() + path.extname(file.originalname));
     }
 });
 const upload = multer({ storage: storage });
+
+// Helper to upload to Cloudinary and delete local file
+const uploadToCloudinary = async (filePath: string) => {
+    try {
+        const result = await cloudinary.uploader.upload(filePath, {
+            folder: 'lost_paws_reports',
+        });
+        // Delete local file after upload
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
+        return result.secure_url;
+    } catch (error) {
+        console.error('Cloudinary Upload Error:', error);
+        throw error;
+    }
+};
 
 // POST /api/reports/analyze - Analyze pet image with AI
 router.post('/analyze', upload.single('photo'), async (req: Request, res: Response) => {
@@ -33,6 +55,13 @@ router.post('/analyze', upload.single('photo'), async (req: Request, res: Respon
 
         const lang = (req.headers['x-lang'] as string) || 'en';
         const analysis = await analyzePetImage(req.file.path, lang);
+        
+        // We don't save to Cloudinary here as it's just for analysis during report creation
+        // But we should delete the temp file
+        if (fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+        }
+
         res.json(analysis);
     } catch (err) {
         console.error('AI Analysis Route Error:', err);
@@ -61,7 +90,8 @@ const runPassiveWatcher = async (newReportId: string, lang: string = 'en') => {
 
                     const owner = await User.findByPk(match.report.userId);
                     if (owner) {
-                        const matchUrl = `http://localhost:3005/pet/${newReport.id}`;
+                        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3005';
+                        const matchUrl = `${frontendUrl.replace(/\/$/, '')}/pet/${newReport.id}`;
                         await sendMatchAlertEmail(owner.email, match.report.petName, matchUrl);
                     }
                 }
@@ -83,7 +113,15 @@ router.post('/', [authMiddleware, upload.array('photos', 5)], async (req: AuthRe
 
         const lang = (req.headers['x-lang'] as string) || 'en';
         const files = req.files as Express.Multer.File[];
-        const photoPaths = files ? files.map(file => ({ url: `/uploads/${file.filename}` })) : [];
+        
+        // Upload each file to Cloudinary
+        const photoPaths = [];
+        if (files) {
+            for (const file of files) {
+                const url = await uploadToCloudinary(file.path);
+                photoPaths.push({ url });
+            }
+        }
 
         let finalLat = locationLat ? parseFloat(locationLat) : undefined;
         let finalLng = locationLng ? parseFloat(locationLng) : undefined;
@@ -116,11 +154,21 @@ router.post('/', [authMiddleware, upload.array('photos', 5)], async (req: AuthRe
             isReunited: false
         });
 
+        // Trigger passive watcher (AI matching)
+        runPassiveWatcher(newReport.id, lang);
+
         res.status(201).json({
             report: newReport,
             message: "Report created successfully."
         });
     } catch (err: any) {
+        // Cleanup files if error occurred
+        const files = req.files as Express.Multer.File[];
+        if (files) {
+            files.forEach(f => {
+                if (fs.existsSync(f.path)) fs.unlinkSync(f.path);
+            });
+        }
         res.status(400).json({ message: err.message });
     }
 });
@@ -241,13 +289,24 @@ router.patch('/:id', [authMiddleware, upload.array('photos', 5)], async (req: Au
         
         const files = req.files as Express.Multer.File[];
         if (files && files.length > 0) {
-            const newPhotos = files.map(file => ({ url: `/uploads/${file.filename}` }));
+            const newPhotos = [];
+            for (const file of files) {
+                const url = await uploadToCloudinary(file.path);
+                newPhotos.push({ url });
+            }
             updateData.photos = [...(report.photos || []), ...newPhotos];
         }
 
         await report.update(updateData);
         res.json(report);
     } catch (err: any) {
+        // Cleanup files if error occurred
+        const files = req.files as Express.Multer.File[];
+        if (files) {
+            files.forEach(f => {
+                if (fs.existsSync(f.path)) fs.unlinkSync(f.path);
+            });
+        }
         res.status(400).json({ message: err.message });
     }
 });

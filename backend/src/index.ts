@@ -22,8 +22,17 @@ import authRoutes from './routes/auth.js';
 import notificationRoutes from './routes/notifications.js';
 import chatRoutes from './routes/chats.js';
 
+import fs from 'fs';
+
 const app = express();
 const httpServer = createServer(app);
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(process.cwd(), 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir);
+}
+
 const io = new Server(httpServer, {
     cors: {
         origin: process.env.FRONTEND_URL || "http://localhost:3005",

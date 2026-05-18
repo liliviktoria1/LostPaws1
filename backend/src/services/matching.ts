@@ -61,7 +61,9 @@ export const findMatchesForReport = async (reportId: string, limit = 5, useDeepS
         if (useDeepScan && sourceReport.photos && sourceReport.photos.length > 0) {
             console.log(`[Matching] Starting Deep Visual Scan (Top 2 Candidates)...`);
             const sourcePhotoUrl = (sourceReport.photos[0] as any).url;
-            const sourcePhotoPath = path.resolve(process.cwd(), sourcePhotoUrl.replace(/^\//, ''));
+            const sourcePhotoPath = sourcePhotoUrl.startsWith('http') 
+                ? sourcePhotoUrl 
+                : path.resolve(process.cwd(), sourcePhotoUrl.replace(/^\//, ''));
             
             const verificationResults = [];
             
@@ -72,7 +74,9 @@ export const findMatchesForReport = async (reportId: string, limit = 5, useDeepS
                 if (candidate.report.photos && candidate.report.photos.length > 0) {
                     try {
                         const targetPhotoUrl = (candidate.report.photos[0] as any).url;
-                        const targetPhotoPath = path.resolve(process.cwd(), targetPhotoUrl.replace(/^\//, ''));
+                        const targetPhotoPath = targetPhotoUrl.startsWith('http') 
+                            ? targetPhotoUrl 
+                            : path.resolve(process.cwd(), targetPhotoUrl.replace(/^\//, ''));
                         
                         const verification = await verifyPetMatch(sourcePhotoPath, targetPhotoPath, lang);
                         

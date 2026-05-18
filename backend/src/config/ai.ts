@@ -29,8 +29,19 @@ const safetySettings = [
   { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
 ];
 
-async function fileToGenerativePart(filePath: string) {
-  const resizedBuffer = await sharp(filePath)
+import axios from 'axios';
+
+async function fileToGenerativePart(input: string) {
+  let buffer: Buffer;
+
+  if (input.startsWith('http')) {
+    const response = await axios.get(input, { responseType: 'arraybuffer' });
+    buffer = Buffer.from(response.data);
+  } else {
+    buffer = fs.readFileSync(input);
+  }
+
+  const resizedBuffer = await sharp(buffer)
     .resize(400, 400, { fit: 'inside', withoutEnlargement: true })
     .toBuffer();
     
