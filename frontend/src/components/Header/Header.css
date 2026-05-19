@@ -85,6 +85,10 @@
     background-color: var(--brand-yellow);
 }
 
+.mobile-nav-only {
+    display: none;
+}
+
 .header-actions {
     display: flex;
     align-items: center;
@@ -415,6 +419,10 @@
 
     .nav-links.open {
         display: flex;
+    }
+
+    .mobile-nav-only {
+        display: block;
     }
 
     .mobile-menu-icon {

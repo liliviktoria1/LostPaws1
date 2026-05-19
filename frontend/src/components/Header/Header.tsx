@@ -108,6 +108,7 @@ function Header() {
     { path: "/", label: t('header.home') },
     { path: "/maps", label: t('header.maps') },
     { path: "/announcements", label: t('header.announcements') },
+    { path: "/report", label: t('header.report_btn'), className: "mobile-nav-only" },
     { path: "/success-stories", label: t('header.success_stories') },
     { path: "/contact", label: t('header.contact') },
   ];
@@ -130,22 +131,25 @@ function Header() {
   const openLogin = () => {
     setAuthModalMode("login");
     setIsAuthModalOpen(true);
+    setIsMenuOpen(false);
   };
 
   const openSignup = () => {
     setAuthModalMode("signup");
     setIsAuthModalOpen(true);
+    setIsMenuOpen(false);
   };
 
   const handleLogout = () => {
     logout();
     setIsProfileOpen(false);
+    setIsMenuOpen(false);
   };
 
   return (
     <header className="header">
       <div className="header-left">
-        <Link to="/" className="logo-container">
+        <Link to="/" className="logo-container" onClick={() => setIsMenuOpen(false)}>
           <img src="/assets/logo.svg" alt="Logo" className="logo" />
           <h1 className="site-title">
             <span className="header-lost">Lost</span>
@@ -159,7 +163,8 @@ function Header() {
           <Link
             key={link.path}
             to={link.path}
-            className={`nav-link ${location.pathname === link.path ? "active" : ""}`}
+            className={`nav-link ${location.pathname === link.path ? "active" : ""} ${link.className || ""}`}
+            onClick={() => setIsMenuOpen(false)}
           >
             {link.label}
           </Link>
