@@ -441,7 +441,7 @@
 }
 
 @media (max-width: 768px) {
-    .report-button, .auth-buttons, .globe-button {
+    .report-button, .auth-buttons {
         display: none;
     }
 }
