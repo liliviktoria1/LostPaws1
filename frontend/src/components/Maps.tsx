@@ -7,6 +7,7 @@ import "leaflet.markercluster";
 import { reportService } from "../services/reportService";
 import { PetReport, PetFilters, PetSpecies, PetStatus } from "../types";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import "./Maps.css";
 
 // Fix for default Leaflet icon paths
@@ -26,6 +27,7 @@ interface MapFilters {
 
 const Maps: React.FC = () => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const mapRef = useRef<L.Map | null>(null);
     const markersGroupRef = useRef<any>(null);
     const [reports, setReports] = useState<PetReport[]>([]);
@@ -36,6 +38,21 @@ const Maps: React.FC = () => {
         petStatus: '',
         city: ''
     });
+
+    // Intercept clicks in popups to use internal navigation (Prevents 404 on refresh in production)
+    useEffect(() => {
+        const handleInternalNavigation = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            if (target.classList.contains('view-details-link')) {
+                e.preventDefault();
+                const path = target.getAttribute('data-path');
+                if (path) navigate(path);
+            }
+        };
+        
+        document.addEventListener('click', handleInternalNavigation);
+        return () => document.removeEventListener('click', handleInternalNavigation);
+    }, [navigate]);
 
     // Initialize Map only once
     useEffect(() => {
@@ -118,7 +135,7 @@ const Maps: React.FC = () => {
                                     ${statusText} ${colorSwatchHtml}
                                 </p>
                                 <p style="margin:0; font-size:11px; color:#666;">${report.locationAddress}</p>
-                                <a href="/pet/${report.id}" style="display:inline-block; margin-top:5px; font-size:11px; color:#181A32; font-weight:700; text-decoration:none;">${t('maps.view_details')} →</a>
+                                <a href="/pet/${report.id}" data-path="/pet/${report.id}" class="view-details-link" style="display:inline-block; margin-top:5px; font-size:11px; color:#181A32; font-weight:700; text-decoration:none;">${t('maps.view_details')} →</a>
                             </div>
                         `;
 
