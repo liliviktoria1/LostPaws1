@@ -15,22 +15,51 @@ const handleResponse = async (response: Response) => {
 };
 
 export const authService = {
-    register: async (userData: any): Promise<{ token: string; user: User }> => {
+    register: async (userData: any) => {
         const response = await fetch(`${BASE_API_URL}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userData),
         });
-        return handleResponse(response);
+        const data = await response.json();
+        if (!response.ok) throw new Error(data?.message || 'Registration failed');
+        return data;
     },
 
-    login: async (credentials: any): Promise<{ token: string; user: User }> => {
+    login: async (credentials: any) => {
         const response = await fetch(`${BASE_API_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(credentials),
         });
-        return handleResponse(response);
+        const data = await response.json();
+        if (response.status === 403 && data.isVerified === false) {
+            return { requiresVerification: true, email: data.email };
+        }
+        if (!response.ok) throw new Error(data?.message || 'Login failed');
+        return data;
+    },
+
+    verifyEmail: async (email: string, code: string) => {
+        const response = await fetch(`${BASE_API_URL}/auth/verify-email`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, code }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data?.message || 'Verification failed');
+        return data;
+    },
+
+    resendVerification: async (email: string) => {
+        const response = await fetch(`${BASE_API_URL}/auth/resend-verification`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data?.message || 'Failed to resend code');
+        return data;
     },
 
     logout: () => {

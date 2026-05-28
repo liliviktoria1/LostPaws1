@@ -4,10 +4,11 @@ import { authService } from '../services/authService';
 
 interface AuthContextType {
     user: User | null;
-    login: (credentials: any) => Promise<void>;
-    register: (userData: any) => Promise<void>;
+    login: (credentials: any) => Promise<any>;
+    register: (userData: any) => Promise<any>;
     logout: () => void;
     isLoading: boolean;
+    handleVerificationSuccess: (data: any) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -40,13 +41,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const login = async (credentials: any) => {
         const data = await authService.login(credentials);
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        setUser(data.user);
+        if (!data.requiresVerification) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            setUser(data.user);
+        }
+        return data;
     };
 
     const register = async (userData: any) => {
-        const data = await authService.register(userData);
+        return await authService.register(userData);
+    };
+
+    const handleVerificationSuccess = (data: any) => {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         setUser(data.user);
@@ -58,7 +65,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, logout, isLoading }}>
+        <AuthContext.Provider value={{ user, login, register, logout, isLoading, handleVerificationSuccess }}>
             {children}
         </AuthContext.Provider>
     );

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import VerificationModal from './VerificationModal';
 import './AuthModal.css';
 
 interface AuthModalProps {
@@ -9,12 +10,15 @@ interface AuthModalProps {
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode }) => {
-    const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
+    const [mode, setMode] = useState<'login' | 'signup' | 'verify'>(initialMode as any);
+    const [verifyEmail, setVerifyEmail] = useState('');
     const { login, register } = useAuth();
     
     // Sync mode when initialMode changes or modal opens
     useEffect(() => {
-        setMode(initialMode);
+        if (isOpen && mode !== 'verify') {
+            setMode(initialMode);
+        }
     }, [initialMode, isOpen]);
 
     const [formData, setFormData] = useState({
@@ -43,24 +47,46 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode }) =
                 if (formData.password !== formData.confirmPassword) {
                     throw new Error("Passwords don't match");
                 }
-                await register({
+                const res = await register({
                     name: formData.name,
                     email: formData.email,
                     password: formData.password
                 });
-            } else {
-                await login({
+                setVerifyEmail(res.email || formData.email);
+                setMode('verify');
+            } else if (mode === 'login') {
+                const res = await login({
                     email: formData.email,
                     password: formData.password
                 });
+                if (res.requiresVerification) {
+                    setVerifyEmail(res.email || formData.email);
+                    setMode('verify');
+                } else {
+                    onClose();
+                }
             }
-            onClose();
         } catch (err: any) {
             setError(err.message || 'Authentication failed');
         } finally {
             setIsLoading(false);
         }
     };
+
+    if (mode === 'verify') {
+        return (
+            <VerificationModal 
+                email={verifyEmail} 
+                onVerified={() => {
+                    onClose();
+                    setMode('login'); // reset for next time
+                }}
+                onLogout={() => {
+                    setMode('login');
+                }}
+            />
+        );
+    }
 
     return (
         <div className="modal-overlay" onClick={onClose}>

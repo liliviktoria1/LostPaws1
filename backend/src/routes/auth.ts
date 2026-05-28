@@ -19,9 +19,11 @@ router.post('/register', async (req: Request, res: Response) => {
     try {
         const { name, password, phoneNumber } = req.body;
         const email = req.body.email.toLowerCase();
+        console.log(`[Register] Attempting registration for: ${email}`);
 
         const existingUser = await User.findOne({ where: { email } });
         if (existingUser) {
+            console.log(`[Register] User already exists: ${email}`);
             return res.status(400).json({ message: 'User already exists' });
         }
 
@@ -42,34 +44,38 @@ router.post('/register', async (req: Request, res: Response) => {
             verificationCode,
             verificationCodeExpires
         });
+        console.log(`[Register] User created in DB: ${newUser.id}`);
 
-        // Send verification email
-        await sendVerificationEmail(email, verificationCode);
+        // Send verification email (with a reasonable timeout internally)
+        console.log(`[Register] Attempting to send verification email to: ${email}`);
+        const emailSent = await sendVerificationEmail(email, verificationCode);
+        
+        if (!emailSent) {
+            console.warn(`[Register] Email failed to send, but user was created. User will need to resend code.`);
+        }
 
-        // Generate token
-        const token = jwt.sign({ userId: newUser.id }, JWT_SECRET, { expiresIn: '1d' });
-
+        console.log(`[Register] Registration successful for: ${email}`);
         res.status(201).json({
-            token,
-            user: { id: newUser.id, name: newUser.name, email: newUser.email, isVerified: newUser.isVerified },
-            message: 'Verification code sent to your email.'
+            email: newUser.email,
+            message: emailSent ? 'Verification code sent to your email.' : 'Registration successful, but verification email failed to send. Please try resending the code from the dashboard.'
         });
     } catch (err: any) {
-        console.error('Registration Error:', err);
-        res.status(500).json({ message: 'Internal Server Error' });
+        console.error('[Register] Critical Error:', err);
+        res.status(500).json({ message: 'Internal Server Error during registration' });
     }
 });
 
 // Verify Email
-router.post('/verify-email', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.post('/verify-email', async (req: Request, res: Response) => {
     try {
-        const { code } = req.body;
-        console.log(`[VerifyEmail] User ${req.userId} attempting verification with code: ${code}`);
+        let { email, code } = req.body;
+        if (email) email = email.toLowerCase();
+        console.log(`[VerifyEmail] Attempting verification for email: ${email} with code: ${code}`);
         
-        const user = await User.findByPk(req.userId);
+        const user = await User.findOne({ where: { email } });
 
         if (!user) {
-            console.log(`[VerifyEmail] User not found: ${req.userId}`);
+            console.log(`[VerifyEmail] User not found: ${email}`);
             return res.status(404).json({ message: 'User not found' });
         }
 
@@ -94,8 +100,10 @@ router.post('/verify-email', authMiddleware, async (req: AuthRequest, res: Respo
         user.verificationCodeExpires = null as any;
         await user.save();
 
+        const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1d' });
+
         console.log(`[VerifyEmail] Verification successful for user ${user.id}`);
-        res.json({ message: 'Email verified successfully', user: { id: user.id, name: user.name, email: user.email, isVerified: true } });
+        res.json({ message: 'Email verified successfully', token, user: { id: user.id, name: user.name, email: user.email, isVerified: true } });
     } catch (err) {
         console.error('[VerifyEmail] Error:', err);
         res.status(500).json({ message: 'Verification failed' });
@@ -103,9 +111,11 @@ router.post('/verify-email', authMiddleware, async (req: AuthRequest, res: Respo
 });
 
 // Resend Verification Code
-router.post('/resend-verification', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.post('/resend-verification', async (req: Request, res: Response) => {
     try {
-        const user = await User.findByPk(req.userId);
+        let { email } = req.body;
+        if (email) email = email.toLowerCase();
+        const user = await User.findOne({ where: { email } });
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
@@ -148,12 +158,10 @@ router.post('/login', async (req: Request, res: Response) => {
 
         // Check verification
         if (!user.isVerified) {
-            // Generate token even if not verified so they can use /verify-email
-            const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1d' });
             return res.status(403).json({ 
                 message: 'Please verify your email to continue', 
-                token, 
-                user: { id: user.id, name: user.name, email: user.email, isVerified: false } 
+                email: user.email, 
+                isVerified: false 
             });
         }
 

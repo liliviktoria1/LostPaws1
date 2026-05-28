@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import './VerificationModal.css';
 import { authService } from '../../services/authService';
 
+import { useAuth } from '../../context/AuthContext';
+
 interface VerificationModalProps {
     email: string;
     onVerified: () => void;
@@ -14,6 +16,7 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ email, onVerified
     const [isInvalid, setIsInvalid] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [resendStatus, setResendStatus] = useState('');
+    const { handleVerificationSuccess } = useAuth();
 
     const handleChange = (index: number, value: string) => {
         if (!/^\d*$/.test(value)) return;
@@ -52,14 +55,12 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ email, onVerified
         setError('');
         setIsInvalid(false);
         try {
-            const token = localStorage.getItem('token');
             const response = await fetch(`${(process.env.REACT_APP_API_URL || 'http://localhost:8080/api').replace(/\/$/, '')}/auth/verify-email`, {
                 method: 'POST',
                 headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ code: verificationCode }),
+                body: JSON.stringify({ email, code: verificationCode }),
             });
 
             const data = await response.json();
@@ -69,7 +70,7 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ email, onVerified
                 throw new Error(data.message || 'Verification failed');
             }
 
-            localStorage.setItem('user', JSON.stringify(data.user));
+            handleVerificationSuccess(data);
             onVerified();
         } catch (err: any) {
             setError(err.message);
@@ -81,12 +82,12 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ email, onVerified
     const handleResend = async () => {
         setResendStatus('Sending...');
         try {
-            const token = localStorage.getItem('token');
             const response = await fetch(`${(process.env.REACT_APP_API_URL || 'http://localhost:8080/api').replace(/\/$/, '')}/auth/resend-verification`, {
                 method: 'POST',
                 headers: { 
-                    'Authorization': `Bearer ${token}`
-                }
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email }),
             });
             
             if (!response.ok) throw new Error('Failed to resend code');
