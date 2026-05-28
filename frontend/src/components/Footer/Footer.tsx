@@ -51,7 +51,7 @@ function Footer() {
                         </a>
 
                         {/* Instagram */}
-                        <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
+                        <a href="https://www.instagram.com/lost.pawss?igsh=MTZjc2t3eGhwcnpvZw%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer">
                             <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="social-icon-svg">
                                 <defs>
                                     <linearGradient id="ig-sunset-gradient" x1="0" y1="40" x2="40" y2="0" gradientUnits="userSpaceOnUse">
