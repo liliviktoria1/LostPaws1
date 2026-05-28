@@ -32,6 +32,16 @@ function Header() {
     }
   }, [user]);
 
+  // Check if we were redirected here because we need to login
+  useEffect(() => {
+    if (location.state && (location.state as any).openLogin && !user) {
+      setAuthModalMode("login");
+      setIsAuthModalOpen(true);
+      // Clear the state so it doesn't keep opening on every re-render
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, user, navigate]);
+
   const [prevUnreadCount, setPrevUnreadCount] = useState<number>(0);
 
   useEffect(() => {
@@ -175,7 +185,13 @@ function Header() {
             key={link.path}
             to={link.path}
             className={`nav-link ${location.pathname === link.path ? "active" : ""} ${link.className || ""}`}
-            onClick={() => setIsMenuOpen(false)}
+            onClick={(e) => {
+              setIsMenuOpen(false);
+              if (link.path === "/report" && !user) {
+                e.preventDefault();
+                openLogin();
+              }
+            }}
           >
             {link.label}
           </Link>
@@ -183,7 +199,16 @@ function Header() {
       </nav>
 
       <div className="header-actions">
-        <Link to="/report" className="report-button">
+        <Link 
+          to="/report" 
+          className="report-button"
+          onClick={(e) => {
+            if (!user) {
+              e.preventDefault();
+              openLogin();
+            }
+          }}
+        >
           {t('header.report_btn')}
         </Link>
 

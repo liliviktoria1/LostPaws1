@@ -13,6 +13,7 @@ import Chat from './components/Chat';
 import SuccessStories from './components/SuccessStories';
 import Profile from './components/Auth/Profile';
 import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
     return (
@@ -26,12 +27,14 @@ function App() {
                             <Route path="/maps" element={<Maps />} />
                             <Route path="/announcements" element={<Announcements />} />
                             <Route path="/contact" element={<ContactUs />} />
-                            <Route path="/report" element={<LostPawsForm />} />
                             <Route path="/pet/:id" element={<PetDetail />} />
-                            <Route path="/my-reports" element={<MyReports />} />
-                            <Route path="/chat" element={<Chat />} />
                             <Route path="/success-stories" element={<SuccessStories />} />
-                            <Route path="/profile" element={<Profile />} />
+                            
+                            {/* Protected Routes */}
+                            <Route path="/report" element={<ProtectedRoute><LostPawsForm /></ProtectedRoute>} />
+                            <Route path="/my-reports" element={<ProtectedRoute><MyReports /></ProtectedRoute>} />
+                            <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+                            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                         </Routes>
                     </main>
                     <Footer />
