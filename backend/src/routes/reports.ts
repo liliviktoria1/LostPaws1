@@ -4,7 +4,7 @@ import multer from 'multer';
 import path from 'path';
 import { Op, fn, col, where as sequelizeWhere } from 'sequelize';
 import { analyzePetImage, generatePetEmbedding } from '../config/ai.js';
-import { authMiddleware, AuthRequest } from '../middleware/auth.js';
+import { authMiddleware, verifiedMiddleware, AuthRequest } from '../middleware/auth.js';
 import { geocodeAddress } from '../services/geocoding.js';
 import { findMatchesForReport } from '../services/matching.js';
 import { Notification } from '../models/Notification.js';
@@ -103,7 +103,7 @@ const runPassiveWatcher = async (newReportId: string, lang: string = 'en') => {
 };
 
 // POST /api/reports - Create a new report
-router.post('/', [authMiddleware, upload.array('photos', 20)], async (req: AuthRequest, res: Response) => {
+router.post('/', [authMiddleware, verifiedMiddleware, upload.array('photos', 20)], async (req: AuthRequest, res: Response) => {
     try {
         const {
             petStatus, petName, petSpecies, petBreed, petColor, petAge, petSex,

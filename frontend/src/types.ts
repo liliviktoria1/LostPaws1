@@ -8,6 +8,7 @@ export interface User {
     name: string;
     email: string;
     phoneNumber?: string;
+    isVerified?: boolean;
     createdAt?: string;
 }
 export interface PetReport {

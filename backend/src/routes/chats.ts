@@ -3,13 +3,14 @@ import { Conversation } from '../models/Conversation.js';
 import { Message } from '../models/Message.js';
 import { User } from '../models/User.js';
 import { Notification } from '../models/Notification.js';
-import { authMiddleware, AuthRequest } from '../middleware/auth.js';
+import { authMiddleware, verifiedMiddleware, AuthRequest } from '../middleware/auth.js';
+import { sendNotificationEmail } from '../services/email.js';
 import { Op } from 'sequelize';
 
 const router: Router = express.Router();
 
 // GET /api/chats - Get user's conversations
-router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.get('/', [authMiddleware, verifiedMiddleware], async (req: AuthRequest, res: Response) => {
     try {
         const userId = req.userId as string;
         const conversations = await Conversation.findAll({
@@ -41,7 +42,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/chats - Start or get a conversation
-router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.post('/', [authMiddleware, verifiedMiddleware], async (req: AuthRequest, res: Response) => {
     try {
         const userId = req.userId as string;
         const { recipientId, reportId } = req.body;
@@ -75,7 +76,7 @@ router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/chats/:id/messages - Get messages
-router.get('/:id/messages', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.get('/:id/messages', [authMiddleware, verifiedMiddleware], async (req: AuthRequest, res: Response) => {
     try {
         const conversationId = req.params.id as string;
         const messages = await Message.findAll({
@@ -89,7 +90,7 @@ router.get('/:id/messages', authMiddleware, async (req: AuthRequest, res: Respon
 });
 
 // POST /api/chats/:id/messages - Send message
-router.post('/:id/messages', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.post('/:id/messages', [authMiddleware, verifiedMiddleware], async (req: AuthRequest, res: Response) => {
     try {
         const conversationId = req.params.id as string;
         const userId = req.userId as string;
@@ -114,6 +115,7 @@ router.post('/:id/messages', authMiddleware, async (req: AuthRequest, res: Respo
         if (conversation) {
             const recipientId = conversation.user1Id === userId ? conversation.user2Id : conversation.user1Id;
             const sender = await User.findByPk(userId, { attributes: ['name'] });
+            const recipient = await User.findByPk(recipientId, { attributes: ['email'] });
 
             await Notification.create({
                 userId: recipientId,
@@ -121,6 +123,14 @@ router.post('/:id/messages', authMiddleware, async (req: AuthRequest, res: Respo
                 type: 'chat_message',
                 reportId: conversation.reportId
             });
+
+            if (recipient) {
+                await sendNotificationEmail(
+                    recipient.email,
+                    'New Message on Lost Paws',
+                    `You have received a new message from <strong>${sender?.name || 'User'}</strong>.`
+                );
+            }
         }
 
         res.status(201).json(message);

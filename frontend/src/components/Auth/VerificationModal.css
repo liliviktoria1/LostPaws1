@@ -1,0 +1,130 @@
+.verification-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.verification-modal-content {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 450px;
+    position: relative;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.verification-modal-content h2 {
+    color: #181A32;
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+}
+
+.verification-modal-content p {
+    color: #666;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+.code-inputs {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.code-inputs input {
+    width: 50px;
+    height: 60px;
+    font-size: 2rem;
+    text-align: center;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    transition: all 0.3s ease;
+}
+
+.code-inputs input:focus {
+    border-color: #FAC655;
+    background-color: #fff;
+    outline: none;
+    box-shadow: 0 0 8px rgba(250, 198, 85, 0.3);
+}
+
+.code-inputs input.error {
+    border-color: #e74c3c;
+    background-color: #fdf2f2;
+}
+
+.code-inputs input.error:focus {
+    box-shadow: 0 0 8px rgba(231, 76, 60, 0.3);
+}
+
+.verify-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #181A32;
+    color: #FAC655;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 1rem;
+}
+
+.verify-button:hover {
+    background-color: #2a2d4d;
+}
+
+.verify-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.resend-container {
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.resend-button {
+    background: none;
+    border: none;
+    color: #181A32;
+    font-weight: bold;
+    text-decoration: underline;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.close-modal-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #999;
+}
+
+.error-message {
+    color: #e74c3c;
+    font-size: 0.9rem;
+    margin: 10px 0;
+}
+
+.status-message {
+    color: #27ae60;
+    font-size: 0.9rem;
+    margin: 10px 0;
+}

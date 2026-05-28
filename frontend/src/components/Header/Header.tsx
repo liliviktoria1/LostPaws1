@@ -4,6 +4,7 @@ import { FiGlobe, FiBell, FiTrash2 } from "react-icons/fi";
 import { FaUserCircle } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import AuthModal from "../Auth/AuthModal";
+import VerificationModal from "../Auth/VerificationModal";
 import { notificationService, AppNotification } from "../../services/notificationService";
 import { useTranslation } from "react-i18next";
 import "./Header.css";
@@ -21,6 +22,15 @@ function Header() {
 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<"login" | "signup">("login");
+  const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (user && user.isVerified === false) {
+      setIsVerificationModalOpen(true);
+    } else {
+      setIsVerificationModalOpen(false);
+    }
+  }, [user]);
 
   const [prevUnreadCount, setPrevUnreadCount] = useState<number>(0);
 
@@ -144,6 +154,7 @@ function Header() {
     logout();
     setIsProfileOpen(false);
     setIsMenuOpen(false);
+    setIsVerificationModalOpen(false);
   };
 
   return (
@@ -274,6 +285,17 @@ function Header() {
         onClose={() => setIsAuthModalOpen(false)}
         initialMode={authModalMode}
       />
+
+      {isVerificationModalOpen && user && (
+        <VerificationModal 
+          email={user.email} 
+          onVerified={() => {
+            setIsVerificationModalOpen(false);
+            window.location.reload(); // Refresh to update user state globally
+          }}
+          onLogout={handleLogout}
+        />
+      )}
     </header>
   );
 }

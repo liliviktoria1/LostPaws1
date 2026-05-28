@@ -1,11 +1,11 @@
 import express, { Response, Router } from 'express';
 import { Notification } from '../models/Notification.js';
-import { authMiddleware, AuthRequest } from '../middleware/auth.js';
+import { authMiddleware, verifiedMiddleware, AuthRequest } from '../middleware/auth.js';
 
 const router: Router = express.Router();
 
 // GET /api/notifications - Get all notifications for logged-in user
-router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.get('/', [authMiddleware, verifiedMiddleware], async (req: AuthRequest, res: Response) => {
     try {
         const notifications = await Notification.findAll({
             where: { userId: req.userId },

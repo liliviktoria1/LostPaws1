@@ -7,6 +7,9 @@ export interface UserAttributes {
     email: string;
     password?: string;
     phoneNumber?: string;
+    isVerified?: boolean;
+    verificationCode?: string;
+    verificationCodeExpires?: Date;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -19,6 +22,9 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
     public email!: string;
     public password!: string;
     public phoneNumber!: string;
+    public isVerified!: boolean;
+    public verificationCode!: string;
+    public verificationCodeExpires!: Date;
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
@@ -48,6 +54,18 @@ User.init({
     },
     phoneNumber: {
         type: DataTypes.STRING,
+        allowNull: true
+    },
+    isVerified: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    verificationCode: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    verificationCodeExpires: {
+        type: DataTypes.DATE,
         allowNull: true
     }
 }, {
