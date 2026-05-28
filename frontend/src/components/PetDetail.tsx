@@ -238,7 +238,19 @@ const PetDetail: React.FC = () => {
                         </div>
                         <div className="detail-item">
                             <span className="detail-label">{t('form.color')}</span>
-                            <span className="detail-value">{report.petColor || t('common.unknown')}</span>
+                            <span className="detail-value" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                {report.petColor || t('common.unknown')}
+                                {report.petColor && report.petColor.startsWith('#') && (
+                                    <span style={{ 
+                                        display: 'inline-block', 
+                                        width: '16px', 
+                                        height: '16px', 
+                                        borderRadius: '50%', 
+                                        backgroundColor: report.petColor,
+                                        border: '1px solid #ddd'
+                                    }}></span>
+                                )}
+                            </span>
                         </div>
                         <div className="detail-item">
                             <span className="detail-label">{t('form.age')}</span>

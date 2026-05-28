@@ -139,15 +139,25 @@ const Announcements: React.FC = () => {
                         />
                     </div>
 
-                    <div className="filter-group">
+                        <div className="filter-group">
                         <label>{t('form.color')}</label>
-                        <input 
-                            type="text" 
-                            name="petColor" 
-                            placeholder={t('form.color')} 
-                            value={filters.petColor} 
-                            onChange={handleFilterChange}
-                        />
+                        <div className="color-input-container">
+                            <input 
+                                type="text" 
+                                name="petColor" 
+                                placeholder={t('form.color')} 
+                                value={filters.petColor} 
+                                onChange={handleFilterChange}
+                            />
+                            <div className="color-picker-wrapper small">
+                                <input 
+                                    type="color" 
+                                    value={filters.petColor && filters.petColor.startsWith('#') ? filters.petColor : '#FAC655'} 
+                                    onChange={(e) => setFilters(prev => ({ ...prev, petColor: e.target.value }))}
+                                    className="color-picker-input"
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     <div className="filter-group">

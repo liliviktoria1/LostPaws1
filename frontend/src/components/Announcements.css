@@ -84,7 +84,7 @@
 }
 
 .filter-group select,
-.filter-group input {
+.filter-group input[type="text"] {
     width: 100%;
     height: 42px;
     padding: 0 12px;
@@ -99,9 +99,65 @@
 }
 
 .filter-group select:focus,
-.filter-group input:focus {
+.filter-group input[type="text"]:focus {
     outline: none;
     border-color: #FAC655;
+}
+
+.color-input-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+}
+
+.color-input-container input[type="text"] {
+    flex: 1;
+    width: 0;
+    min-width: 0;
+}
+
+.color-picker-wrapper {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+}
+
+.color-picker-input {
+    width: 100%;
+    height: 100%;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 6px;
+    padding: 0 !important;
+    margin: 0 !important;
+    cursor: pointer;
+    background: none;
+    appearance: none;
+    -webkit-appearance: none;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.color-picker-input::-webkit-color-swatch-wrapper {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.color-picker-input::-webkit-color-swatch {
+    border: none !important;
+    border-radius: 8px;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.color-picker-input::-moz-color-swatch {
+    border: none !important;
+    border-radius: 8px;
+    width: 100% !important;
+    height: 100% !important;
 }
 
 .clear-filters-btn {

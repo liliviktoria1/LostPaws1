@@ -251,7 +251,20 @@ const LostPawsForm: React.FC = () => {
 
                         <div className="form-row-multi">
                             <div className="form-group"><label>{t('form.breed')}:</label><input type="text" name="petBreed" value={formData.petBreed} onChange={handleChange} /></div>
-                            <div className="form-group"><label>{t('form.color')}:</label><input type="text" name="petColor" value={formData.petColor} onChange={handleChange} /></div>
+                            <div className="form-group">
+                                <label>{t('form.color')}:</label>
+                                <div className="color-input-container">
+                                    <input type="text" name="petColor" value={formData.petColor} onChange={handleChange} />
+                                    <div className="color-picker-wrapper">
+                                        <input 
+                                            type="color" 
+                                            value={formData.petColor && formData.petColor.startsWith('#') ? formData.petColor : '#FAC655'} 
+                                            onChange={(e) => setFormData(prev => ({ ...prev, petColor: e.target.value }))}
+                                            className="color-picker-input"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div className="form-row-multi">

@@ -41,6 +41,19 @@ const PetCard: React.FC<PetCardProps> = ({ pet }) => {
                 <p>
                     <span className="pet-label">{t('form.pet_name')}:</span> <span className="pet-value">{pet.petName}</span><br/>
                     <span className="pet-label">{t('form.status')}:</span> <span className={`status-label ${pet.petStatus}`}>{t(`common.${pet.petStatus}`)}</span><br/>
+                    <span className="pet-label">{t('form.color')}:</span> <span className="pet-value" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                        {pet.petColor || t('common.unknown')}
+                        {pet.petColor && pet.petColor.startsWith('#') && (
+                            <span style={{ 
+                                display: 'inline-block', 
+                                width: '12px', 
+                                height: '12px', 
+                                borderRadius: '50%', 
+                                backgroundColor: pet.petColor,
+                                border: '1px solid #ddd'
+                            }}></span>
+                        )}
+                    </span><br/>
                     <span className="pet-label">{t('form.location')}:</span> <span className="pet-value">{pet.locationAddress}</span>
                     <button className="view-post-btn" onClick={(e) => { e.stopPropagation(); navigate(`/pet/${pet.id}`); }}>{t('maps.view_details')}</button>
                 </p>

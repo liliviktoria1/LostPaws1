@@ -106,12 +106,16 @@ const Maps: React.FC = () => {
 
                         const statusText = t(`common.${report.petStatus}`).toUpperCase();
 
+                        const colorSwatchHtml = report.petColor && report.petColor.startsWith('#') 
+                            ? `<span style="display:inline-block; width:10px; height:10px; border-radius:50%; background-color:${report.petColor}; border:1px solid #ddd; margin-left:5px;"></span>`
+                            : '';
+
                         const popupContent = `
                             <div class="map-popup">
                                 <img src="${imageUrl}" alt="${report.petName}" style="width:100px; height:80px; object-fit:cover; border-radius:8px; margin-bottom:5px;"/>
                                 <h3 style="margin:0; font-size:14px;">${report.petName}</h3>
-                                <p style="margin:2px 0; font-weight:bold; font-size:12px; color:${markerColor === 'red' ? '#d32f2f' : '#388e3c'}">
-                                    ${statusText}
+                                <p style="margin:2px 0; font-weight:bold; font-size:12px; color:${markerColor === 'red' ? '#d32f2f' : '#388e3c'}; display:flex; align-items:center;">
+                                    ${statusText} ${colorSwatchHtml}
                                 </p>
                                 <p style="margin:0; font-size:11px; color:#666;">${report.locationAddress}</p>
                                 <a href="/pet/${report.id}" style="display:inline-block; margin-top:5px; font-size:11px; color:#181A32; font-weight:700; text-decoration:none;">${t('maps.view_details')} →</a>
