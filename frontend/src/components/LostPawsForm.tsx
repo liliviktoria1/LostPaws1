@@ -179,6 +179,11 @@ const LostPawsForm: React.FC = () => {
     };
 
     const handleDrop = (acceptedFiles: File[]) => {
+        const totalPhotos = photos.length + existingPhotos.length + acceptedFiles.length;
+        if (totalPhotos > 20) {
+            alert("Maximum 20 photos allowed per report");
+            return;
+        }
         setPhotos(prev => [...prev, ...acceptedFiles]);
         const newPreviews = acceptedFiles.map(file => URL.createObjectURL(file));
         setPreviews(prev => [...prev, ...newPreviews]);

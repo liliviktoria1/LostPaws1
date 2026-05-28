@@ -103,7 +103,7 @@ const runPassiveWatcher = async (newReportId: string, lang: string = 'en') => {
 };
 
 // POST /api/reports - Create a new report
-router.post('/', [authMiddleware, upload.array('photos', 5)], async (req: AuthRequest, res: Response) => {
+router.post('/', [authMiddleware, upload.array('photos', 20)], async (req: AuthRequest, res: Response) => {
     try {
         const {
             petStatus, petName, petSpecies, petBreed, petColor, petAge, petSex,
@@ -276,7 +276,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 });
 
-router.patch('/:id', [authMiddleware, upload.array('photos', 5)], async (req: AuthRequest, res: Response) => {
+router.patch('/:id', [authMiddleware, upload.array('photos', 20)], async (req: AuthRequest, res: Response) => {
     try {
         const reportId = req.params.id as string;
         const report = await PetReport.findOne({
@@ -288,6 +288,19 @@ router.patch('/:id', [authMiddleware, upload.array('photos', 5)], async (req: Au
         const updateData = { ...req.body };
         
         const files = req.files as Express.Multer.File[];
+        const existingPhotosCount = report.photos ? report.photos.length : 0;
+        const newFilesCount = files ? files.length : 0;
+
+        if (existingPhotosCount + newFilesCount > 20) {
+            // Cleanup uploaded files if limit exceeded
+            if (files) {
+                files.forEach(f => {
+                    if (fs.existsSync(f.path)) fs.unlinkSync(f.path);
+                });
+            }
+            return res.status(400).json({ message: 'Maximum 20 photos allowed per report' });
+        }
+
         if (files && files.length > 0) {
             const newPhotos = [];
             for (const file of files) {
