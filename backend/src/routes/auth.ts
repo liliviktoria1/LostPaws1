@@ -18,6 +18,9 @@ const generateVerificationCode = () => {
 router.post('/register', async (req: Request, res: Response) => {
     try {
         const { name, password, phoneNumber } = req.body;
+        if (!req.body.email) {
+            return res.status(400).json({ message: 'Email is required' });
+        }
         const email = req.body.email.toLowerCase();
         console.log(`[Register] Attempting registration for: ${email}`);
 
