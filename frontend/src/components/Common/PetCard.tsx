@@ -38,10 +38,14 @@ const PetCard: React.FC<PetCardProps> = ({ pet }) => {
                 )}
             </div>
             <div className="pet-info-container">
-                <p>
-                    <span className="pet-label">{t('form.pet_name')}:</span> <span className="pet-value">{pet.petName}</span><br/>
-                    <span className="pet-label">{t('form.status')}:</span> <span className={`status-label ${pet.petStatus}`}>{t(`common.${pet.petStatus}`)}</span><br/>
-                    <span className="pet-label">{t('form.color')}:</span> <span className="pet-value" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                <div className="info-row">
+                    <span className="pet-label">{t('form.pet_name')}:</span> <span className="pet-value">{pet.petName}</span>
+                </div>
+                <div className="info-row">
+                    <span className="pet-label">{t('form.status')}:</span> <span className={`status-label ${pet.petStatus}`}>{t(`common.${pet.petStatus}`)}</span>
+                </div>
+                <div className="info-row">
+                    <span className="pet-label">{t('form.color')}:</span> <span className="pet-value color-row">
                         {pet.petColor || t('common.unknown')}
                         {pet.petColor && pet.petColor.startsWith('#') && (
                             <span style={{ 
@@ -53,10 +57,12 @@ const PetCard: React.FC<PetCardProps> = ({ pet }) => {
                                 border: '1px solid #ddd'
                             }}></span>
                         )}
-                    </span><br/>
-                    <span className="pet-label">{t('form.location')}:</span> <span className="pet-value">{pet.locationAddress}</span>
-                    <button className="view-post-btn" onClick={(e) => { e.stopPropagation(); navigate(`/pet/${pet.id}`); }}>{t('maps.view_details')}</button>
-                </p>
+                    </span>
+                </div>
+                <div className="info-row location-row">
+                    <span className="pet-label">{t('form.location')}:</span> <span className="pet-value truncate">{pet.locationAddress}</span>
+                </div>
+                <button className="view-post-btn" onClick={(e) => { e.stopPropagation(); navigate(`/pet/${pet.id}`); }}>{t('maps.view_details')}</button>
             </div>
         </div>
     );
