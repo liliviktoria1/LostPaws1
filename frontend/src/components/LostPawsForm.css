@@ -69,6 +69,44 @@
 
 .form-group {
     margin-bottom: 25px;
+    position: relative; /* For absolute positioning of custom dropdowns */
+}
+
+/* Custom Suggestion List */
+.breed-suggestions-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: white;
+    border: 1.5px solid #E5E7EB;
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 9999;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    display: block !important;
+}
+
+.breed-suggestion-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #4B5563;
+    transition: background 0.2s;
+}
+
+.breed-suggestion-item:hover {
+    background: #F3F4F6;
+    color: #181A32;
+}
+
+.breed-suggestion-item:last-child {
+    border-radius: 0 0 12px 12px;
 }
 
 .form-group label {
@@ -107,7 +145,6 @@ textarea {
     font-family: inherit;
     transition: border-color 0.2s;
     box-sizing: border-box;
-    appearance: none;
 }
 
 select {

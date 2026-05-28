@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { reportService } from '../services/reportService';
 import { PetReport, PetStatus, PetSpecies, PetFilters, PetSex, PetAge } from '../types';
 import { FiFilter, FiX } from 'react-icons/fi';
 import PetCard from './Common/PetCard';
 import { useTranslation } from 'react-i18next';
 import './Announcements.css';
+import { dogBreeds, catBreeds } from '../data/breedData';
 
 const Announcements: React.FC = () => {
     const { t } = useTranslation();
@@ -28,6 +29,31 @@ const Announcements: React.FC = () => {
         petColor: '',
         city: ''
     });
+
+    const [showBreedSuggestions, setShowBreedSuggestions] = useState(false);
+    const breedRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (breedRef.current && !breedRef.current.contains(event.target as Node)) {
+                setShowBreedSuggestions(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const handleBreedSelect = (breed: string) => {
+        setFilters(prev => ({ ...prev, petBreed: breed }));
+        setShowBreedSuggestions(false);
+        setCurrentPage(1);
+    };
+
+    const getFilteredBreeds = () => {
+        const breeds = filters.petSpecies === 'dog' ? dogBreeds : filters.petSpecies === 'cat' ? catBreeds : [];
+        if (!filters.petBreed) return breeds;
+        return breeds.filter(b => b.toLowerCase().includes(filters.petBreed.toLowerCase()));
+    };
 
     useEffect(() => {
         const fetchReports = async () => {
@@ -128,7 +154,7 @@ const Announcements: React.FC = () => {
                         </select>
                     </div>
 
-                    <div className="filter-group">
+                    <div className="filter-group" ref={breedRef}>
                         <label>{t('form.breed')}</label>
                         <input 
                             type="text" 
@@ -136,7 +162,22 @@ const Announcements: React.FC = () => {
                             placeholder={t('form.breed')} 
                             value={filters.petBreed} 
                             onChange={handleFilterChange}
+                            onFocus={() => setShowBreedSuggestions(true)}
+                            autoComplete="off"
                         />
+                        {showBreedSuggestions && getFilteredBreeds().length > 0 && (
+                            <ul className="breed-suggestions-list">
+                                {getFilteredBreeds().map((breed, idx) => (
+                                    <li 
+                                        key={`${breed}-${idx}`} 
+                                        className="breed-suggestion-item"
+                                        onMouseDown={() => handleBreedSelect(breed)}
+                                    >
+                                        {breed}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
                     </div>
 
                         <div className="filter-group">

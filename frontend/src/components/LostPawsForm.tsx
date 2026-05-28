@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './LostPawsForm.css';
+import { dogBreeds, catBreeds } from '../data/breedData';
 
 // Fix for default Leaflet icon paths
 const DefaultIcon = L.Icon.Default as any;
@@ -173,9 +174,34 @@ const LostPawsForm: React.FC = () => {
         }
     };
 
+    const [showBreedSuggestions, setShowBreedSuggestions] = useState(false);
+    const breedRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (breedRef.current && !breedRef.current.contains(event.target as Node)) {
+                setShowBreedSuggestions(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+        if (name === 'petBreed') setShowBreedSuggestions(true);
+    };
+
+    const handleBreedSelect = (breed: string) => {
+        setFormData(prev => ({ ...prev, petBreed: breed }));
+        setShowBreedSuggestions(false);
+    };
+
+    const getFilteredBreeds = () => {
+        const breeds = formData.petSpecies === 'dog' ? dogBreeds : formData.petSpecies === 'cat' ? catBreeds : [...dogBreeds, ...catBreeds];
+        if (!formData.petBreed) return breeds;
+        return breeds.filter(b => b.toLowerCase().includes(formData.petBreed.toLowerCase())).slice(0, 50); // Limit to 50 for performance
     };
 
     const handleDrop = (acceptedFiles: File[]) => {
@@ -249,8 +275,41 @@ const LostPawsForm: React.FC = () => {
                             </div>
                         )}
 
+                        <div className="form-group">
+                            <label>{t('form.species')}:</label>
+                            <div className="radio-group">
+                                {['cat', 'dog', 'other'].map(v => (
+                                    <label key={v}><input type="radio" name="petSpecies" value={v} checked={formData.petSpecies === v} onChange={handleChange} required /> {t(`common.${v}`)}</label>
+                                ))}
+                            </div>
+                        </div>
+
                         <div className="form-row-multi">
-                            <div className="form-group"><label>{t('form.breed')}:</label><input type="text" name="petBreed" value={formData.petBreed} onChange={handleChange} /></div>
+                            <div className="form-group" ref={breedRef}>
+                                <label>{t('form.breed')}:</label>
+                                <input 
+                                    type="text" 
+                                    name="petBreed" 
+                                    value={formData.petBreed} 
+                                    onChange={handleChange} 
+                                    onFocus={() => setShowBreedSuggestions(true)}
+                                    placeholder={t('form.breed_placeholder', { defaultValue: 'Type or select breed...' })}
+                                    autoComplete="off"
+                                />
+                                {showBreedSuggestions && getFilteredBreeds().length > 0 && (
+                                    <ul className="breed-suggestions-list">
+                                        {getFilteredBreeds().map((breed, idx) => (
+                                            <li 
+                                                key={`${breed}-${idx}`} 
+                                                className="breed-suggestion-item"
+                                                onClick={() => handleBreedSelect(breed)}
+                                            >
+                                                {breed}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
                             <div className="form-group">
                                 <label>{t('form.color')}:</label>
                                 <div className="color-input-container">
@@ -285,15 +344,6 @@ const LostPawsForm: React.FC = () => {
                                         <option key={v} value={v}>{t(`common.${v}`)}</option>
                                     ))}
                                 </select>
-                            </div>
-                        </div>
-
-                        <div className="form-group">
-                            <label>{t('form.species')}:</label>
-                            <div className="radio-group">
-                                {['cat', 'dog', 'other'].map(v => (
-                                    <label key={v}><input type="radio" name="petSpecies" value={v} checked={formData.petSpecies === v} onChange={handleChange} required /> {t(`common.${v}`)}</label>
-                                ))}
                             </div>
                         </div>
 
