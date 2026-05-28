@@ -8,6 +8,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './LostPawsForm.css';
 import { dogBreeds, catBreeds } from '../data/breedData';
+import { useAuth } from '../context/AuthContext';
 
 // Fix for default Leaflet icon paths
 const DefaultIcon = L.Icon.Default as any;
@@ -41,6 +42,7 @@ const LostPawsForm: React.FC = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const editId = searchParams.get('edit');
+    const { user } = useAuth();
     
     const mapRef = useRef<L.Map | null>(null);
     const markerRef = useRef<L.Marker | null>(null);
@@ -67,6 +69,18 @@ const LostPawsForm: React.FC = () => {
     const [photos, setPhotos] = useState<File[]>([]);
     const [previews, setPreviews] = useState<string[]>([]);
     const [existingPhotos, setExistingPhotos] = useState<any[]>([]);
+
+    // Pre-fill user contact info for new reports
+    useEffect(() => {
+        if (!editId && user) {
+            setFormData(prev => ({
+                ...prev,
+                contactName: prev.contactName || user.name || '',
+                contactEmail: prev.contactEmail || user.email || '',
+                contactNumber: prev.contactNumber || (user as any).phone || ''
+            }));
+        }
+    }, [user, editId]);
 
     // Initialize Map and Load Data if Editing
     useEffect(() => {
@@ -394,6 +408,14 @@ const LostPawsForm: React.FC = () => {
 
                         <div className="form-group contact">
                             <label>{t('form.contact_info')}:</label>
+                            <input 
+                                type="text" 
+                                name="contactName" 
+                                value={formData.contactName} 
+                                onChange={handleChange} 
+                                placeholder={t('form.contact_name', { defaultValue: 'Your Name' })} 
+                                required 
+                            />
                             <input type="email" name="contactEmail" value={formData.contactEmail} onChange={handleChange} placeholder={t('form.email')} required />
                             <input type="text" name="contactNumber" value={formData.contactNumber} onChange={handleChange} placeholder={t('form.phone')} />
                         </div>

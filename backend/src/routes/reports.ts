@@ -268,7 +268,9 @@ router.patch('/:id/reunited', authMiddleware, async (req: AuthRequest, res: Resp
 router.get('/:id', async (req: Request, res: Response) => {
     try {
         const reportId = req.params.id as string;
-        const report = await PetReport.findByPk(reportId);
+        const report = await PetReport.findByPk(reportId, {
+            include: [{ model: User, as: 'user', attributes: ['name', 'phoneNumber', 'email'] }]
+        });
         if (!report) return res.status(404).json({ message: 'Report not found' });
         res.json(report);
     } catch (err: any) {

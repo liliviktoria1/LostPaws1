@@ -32,6 +32,11 @@ export interface PetReport {
     userId?: string;
     isReunited: boolean;
     createdAt?: string;
+    user?: {
+        name: string;
+        email: string;
+        phoneNumber?: string;
+    };
 }
 
 export interface PetMatch {

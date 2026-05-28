@@ -297,9 +297,9 @@ const PetDetail: React.FC = () => {
                             )}
                         </div>
                         <div className="contact-card">
-                            <p><strong>Owner:</strong> {report.contactName || 'Anonymous'}</p>
-                            <p><strong>Phone:</strong> {report.contactNumber || 'N/A'}</p>
-                            <p><strong>Email:</strong> {report.contactEmail}</p>
+                            <p><strong>Owner:</strong> {report.contactName || (report as any).user?.name || 'Anonymous'}</p>
+                            <p><strong>Phone:</strong> {report.contactNumber || (report as any).user?.phoneNumber || 'N/A'}</p>
+                            <p><strong>Email:</strong> {report.contactEmail || (report as any).user?.email || 'N/A'}</p>
                         </div>
                     </div>
 

@@ -1,6 +1,8 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../config/database.js';
 
+import { User } from './User.js';
+
 export interface PetReportAttributes {
     id: string;
     petStatus: 'lost' | 'found';
@@ -138,3 +140,8 @@ PetReport.init({
     modelName: 'PetReport',
     timestamps: true
 });
+
+// Associations
+PetReport.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+User.hasMany(PetReport, { foreignKey: 'userId', as: 'reports' });
+
