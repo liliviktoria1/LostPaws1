@@ -1,8 +1,13 @@
 import nodemailer from 'nodemailer';
+import dns from 'dns';
+
 const getTransporter = () => {
     const host = process.env.SMTP_HOST || 'smtp.gmail.com';
     const port = parseInt(process.env.SMTP_PORT || '587');
-    const isSecure = process.env.SMTP_SECURE === 'true' || port === 465;
+    
+    // Gmail 587 MUST be secure: false (it uses STARTTLS)
+    // Gmail 465 MUST be secure: true
+    const isSecure = port === 465;
 
     console.log(`[SMTP] Connecting to ${host}:${port} (secure: ${isSecure})`);
 
@@ -14,10 +19,13 @@ const getTransporter = () => {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS
         },
-        connectionTimeout: 20000, // 20 seconds
+        connectionTimeout: 20000,
         greetingTimeout: 20000,
         socketTimeout: 20000,
-        family: 4
+        // FORCE IPv4 using custom lookup function
+        lookup: (hostname: string, options: any, callback: any) => {
+            return dns.lookup(hostname, { family: 4 }, callback);
+        }
     } as any);
 };
 
