@@ -1,9 +1,10 @@
 import nodemailer from 'nodemailer';
-
 const getTransporter = () => {
     const host = process.env.SMTP_HOST || 'smtp.gmail.com';
-    const port = parseInt(process.env.SMTP_PORT || '465');
+    const port = parseInt(process.env.SMTP_PORT || '587');
     const isSecure = process.env.SMTP_SECURE === 'true' || port === 465;
+
+    console.log(`[SMTP] Connecting to ${host}:${port} (secure: ${isSecure})`);
 
     return nodemailer.createTransport({
         host: host,
@@ -13,10 +14,10 @@ const getTransporter = () => {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS
         },
-        connectionTimeout: 15000,
-        greetingTimeout: 15000,
-        socketTimeout: 15000,
-        family: 4 // Force IPv4 to avoid ENETUNREACH on IPv6-only routes
+        connectionTimeout: 20000, // 20 seconds
+        greetingTimeout: 20000,
+        socketTimeout: 20000,
+        family: 4
     });
 };
 
