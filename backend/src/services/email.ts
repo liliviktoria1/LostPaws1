@@ -18,7 +18,7 @@ const getTransporter = () => {
         greetingTimeout: 20000,
         socketTimeout: 20000,
         family: 4
-    });
+    } as any);
 };
 
 const BRAND_NAVY = '#1B2132';
