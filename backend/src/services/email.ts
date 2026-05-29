@@ -1,17 +1,25 @@
 import nodemailer from 'nodemailer';
 
 const getTransporter = () => {
+    // Gmail standard: port 587 with secure: false
+    // Alternative: port 465 with secure: true
+    const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+    const port = parseInt(process.env.SMTP_PORT || '587');
+    const isSecure = process.env.SMTP_SECURE === 'true' || port === 465;
+
     return nodemailer.createTransport({
-        host: process.env.SMTP_HOST || 'smtp.gmail.com',
-        port: parseInt(process.env.SMTP_PORT || '587'),
-        secure: process.env.SMTP_SECURE === 'true',
+        host: host,
+        port: port,
+        secure: isSecure,
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS
         },
-        connectionTimeout: 10000, // 10 seconds
-        greetingTimeout: 10000,
-        socketTimeout: 10000,
+        connectionTimeout: 15000, // 15 seconds
+        greetingTimeout: 15000,
+        socketTimeout: 15000,
+        debug: process.env.NODE_ENV !== 'production', // true in dev
+        logger: process.env.NODE_ENV !== 'production', // true in dev
     });
 };
 
@@ -21,6 +29,7 @@ const TEXT_GREY = '#41495A';
 
 export const sendVerificationEmail = async (userEmail: string, code: string) => {
     try {
+        console.log(`[SMTP] Attempting to send verification email to: ${userEmail}`);
         const transporter = getTransporter();
         const mailOptions = {
             from: `"Lost Paws Support" <${process.env.EMAIL_USER}>`,
@@ -52,19 +61,27 @@ export const sendVerificationEmail = async (userEmail: string, code: string) => 
         };
 
         const info = await transporter.sendMail(mailOptions);
-        console.log('Verification email sent: %s', info.messageId);
+        console.log('✅ [SMTP] Verification email sent: %s', info.messageId);
         return true;
-    } catch (error) {
-        console.error('Failed to send verification email:', error);
+    } catch (error: any) {
+        console.error('❌ [SMTP] Failed to send verification email:');
+        console.error('Error Details:', {
+            message: error.message,
+            code: error.code,
+            command: error.command,
+            response: error.response,
+            stack: error.stack
+        });
         return false;
     }
 };
 
 export const sendNotificationEmail = async (userEmail: string, subject: string, message: string) => {
     try {
+        console.log(`[SMTP] Attempting to send notification to: ${userEmail}`);
         const transporter = getTransporter();
         const mailOptions = {
-            from: `"Lost Paws Notifications" <${process.env.EMAIL_USER}>`,
+            from: `"Lost Paws System" <${process.env.EMAIL_USER}>`,
             to: userEmail,
             subject: subject,
             html: `
@@ -90,16 +107,17 @@ export const sendNotificationEmail = async (userEmail: string, subject: string, 
         };
 
         const info = await transporter.sendMail(mailOptions);
-        console.log('Notification email sent: %s', info.messageId);
+        console.log('✅ [SMTP] Notification email sent: %s', info.messageId);
         return true;
-    } catch (error) {
-        console.error('Failed to send notification email:', error);
+    } catch (error: any) {
+        console.error('❌ [SMTP] Failed to send notification email:', error.message);
         return false;
     }
 };
 
 export const sendMatchAlertEmail = async (userEmail: string, petName: string, matchUrl: string) => {
     try {
+        console.log(`[SMTP] Attempting to send match alert for ${petName} to: ${userEmail}`);
         const transporter = getTransporter();
         const mailOptions = {
             from: `"Lost Paws AI Alerts" <${process.env.EMAIL_USER}>`,
@@ -131,10 +149,10 @@ export const sendMatchAlertEmail = async (userEmail: string, petName: string, ma
         };
 
         const info = await transporter.sendMail(mailOptions);
-        console.log('Match alert email sent: %s', info.messageId);
+        console.log('✅ [SMTP] Match alert email sent: %s', info.messageId);
         return true;
-    } catch (error) {
-        console.error('Failed to send match alert email:', error);
+    } catch (error: any) {
+        console.error('❌ [SMTP] Failed to send match alert email:', error.message);
         return false;
     }
 };
