@@ -1,42 +1,16 @@
-import nodemailer from 'nodemailer';
-import dns from 'dns';
+import sgMail from '@sendgrid/mail';
+import dotenv from 'dotenv';
 
-// Force Node.js to prefer IPv4 over IPv6. 
-if (typeof dns.setDefaultResultOrder === 'function') {
-    dns.setDefaultResultOrder('ipv4first');
+dotenv.config();
+
+const API_KEY = process.env.SENDGRID_API_KEY;
+const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || process.env.EMAIL_USER || 'noreply@lostpaws.com';
+
+if (API_KEY) {
+    sgMail.setApiKey(API_KEY);
+} else {
+    console.warn('[Email Service] Warning: SENDGRID_API_KEY is not set. Emails will not be sent.');
 }
-
-const getTransporter = () => {
-    // If user has provided custom SMTP host, use it. Otherwise, use built-in 'gmail' service.
-    const customHost = process.env.SMTP_HOST;
-    
-    if (customHost && customHost !== 'smtp.gmail.com') {
-        return nodemailer.createTransport({
-            host: customHost,
-            port: parseInt(process.env.SMTP_PORT || '587'),
-            secure: process.env.SMTP_SECURE === 'true',
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            },
-            connectionTimeout: 30000,
-            family: 4
-        } as any);
-    }
-
-    // Default: use the specialized 'gmail' service configuration
-    console.log(`[SMTP] Using built-in Gmail service for: ${process.env.EMAIL_USER}`);
-    return nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
-        },
-        connectionTimeout: 30000, // Increased to 30s
-        greetingTimeout: 30000,
-        socketTimeout: 30000,
-    });
-};
 
 const BRAND_NAVY = '#1B2132';
 const BRAND_YELLOW = '#FFCB58';
@@ -44,11 +18,14 @@ const TEXT_GREY = '#41495A';
 
 export const sendVerificationEmail = async (userEmail: string, code: string) => {
     try {
-        console.log(`[SMTP] Sending verification email to: ${userEmail}`);
-        const transporter = getTransporter();
-        const mailOptions = {
-            from: `"Lost Paws" <${process.env.EMAIL_USER}>`,
+        console.log(`[Email] Sending verification email to: ${userEmail}`);
+        
+        const msg = {
             to: userEmail,
+            from: {
+                email: FROM_EMAIL,
+                name: "Lost Paws Support"
+            },
             subject: 'Verify your Lost Paws account',
             text: `Welcome to Lost Paws! Your verification code is: ${code}. This code expires in 15 minutes.`,
             html: `
@@ -76,21 +53,25 @@ export const sendVerificationEmail = async (userEmail: string, code: string) => 
             `
         };
 
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ [SMTP] Email sent: %s', info.messageId);
+        if (!API_KEY) throw new Error('SENDGRID_API_KEY is missing');
+        
+        await sgMail.send(msg);
+        console.log('✅ [Email] Verification email sent successfully');
         return true;
     } catch (error: any) {
-        console.error('❌ [SMTP] Failed to send email:', error.message);
+        console.error('❌ [Email] Failed to send email:', error.response?.body?.errors || error.message);
         return false;
     }
 };
 
 export const sendNotificationEmail = async (userEmail: string, subject: string, message: string) => {
     try {
-        const transporter = getTransporter();
-        const mailOptions = {
-            from: `"Lost Paws" <${process.env.EMAIL_USER}>`,
+        const msg = {
             to: userEmail,
+            from: {
+                email: FROM_EMAIL,
+                name: "Lost Paws"
+            },
             subject: subject,
             text: message,
             html: `
@@ -115,20 +96,23 @@ export const sendNotificationEmail = async (userEmail: string, subject: string, 
             `
         };
 
-        await transporter.sendMail(mailOptions);
+        if (!API_KEY) return false;
+        await sgMail.send(msg);
         return true;
     } catch (error: any) {
-        console.error('❌ [SMTP] Notification error:', error.message);
+        console.error('❌ [Email] Notification error:', error.response?.body?.errors || error.message);
         return false;
     }
 };
 
 export const sendMatchAlertEmail = async (userEmail: string, petName: string, matchUrl: string) => {
     try {
-        const transporter = getTransporter();
-        const mailOptions = {
-            from: `"Lost Paws" <${process.env.EMAIL_USER}>`,
+        const msg = {
             to: userEmail,
+            from: {
+                email: FROM_EMAIL,
+                name: "Lost Paws AI Alerts"
+            },
             subject: `Match found for ${petName}!`,
             text: `We found a potential match for ${petName}. View details at: ${matchUrl}`,
             html: `
@@ -153,10 +137,11 @@ export const sendMatchAlertEmail = async (userEmail: string, petName: string, ma
             `
         };
 
-        await transporter.sendMail(mailOptions);
+        if (!API_KEY) return false;
+        await sgMail.send(msg);
         return true;
     } catch (error: any) {
-        console.error('❌ [SMTP] Match alert error:', error.message);
+        console.error('❌ [Email] Match alert error:', error.response?.body?.errors || error.message);
         return false;
     }
 };
