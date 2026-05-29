@@ -26,8 +26,23 @@ router.post('/register', async (req: Request, res: Response) => {
 
         const existingUser = await User.findOne({ where: { email } });
         if (existingUser) {
-            console.log(`[Register] User already exists: ${email}`);
-            return res.status(400).json({ message: 'User already exists' });
+            if (existingUser.isVerified) {
+                console.log(`[Register] Verified user already exists: ${email}`);
+                return res.status(400).json({ message: 'User already exists and is verified' });
+            } else {
+                console.log(`[Register] Unverified user exists, resending code to: ${email}`);
+                const newCode = generateVerificationCode();
+                existingUser.verificationCode = newCode;
+                existingUser.verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
+                await existingUser.save();
+                
+                const emailSent = await sendVerificationEmail(email, newCode);
+                return res.status(403).json({ 
+                    message: emailSent ? 'User exists but is unverified. A new code has been sent.' : 'User exists but is unverified. Email failed to send, please try resending.', 
+                    email: existingUser.email, 
+                    isVerified: false 
+                });
+            }
         }
 
         // Hash password
@@ -49,22 +64,19 @@ router.post('/register', async (req: Request, res: Response) => {
         });
         console.log(`[Register] User created in DB: ${newUser.id}`);
 
-        // Send verification email (with a reasonable timeout internally)
+        // Send verification email
         console.log(`[Register] Attempting to send verification email to: ${email}`);
         const emailSent = await sendVerificationEmail(email, verificationCode);
         
-        if (!emailSent) {
-            console.warn(`[Register] Email failed to send, but user was created. User will need to resend code.`);
-        }
-
         console.log(`[Register] Registration successful for: ${email}`);
-        res.status(201).json({
+        return res.status(201).json({
             email: newUser.email,
-            message: emailSent ? 'Verification code sent to your email.' : 'Registration successful, but verification email failed to send. Please try resending the code from the dashboard.'
+            isVerified: false,
+            message: emailSent ? 'Verification code sent to your email.' : 'Registration successful, but verification email failed to send. Please use the resend button.'
         });
     } catch (err: any) {
         console.error('[Register] Critical Error:', err);
-        res.status(500).json({ message: 'Internal Server Error during registration' });
+        return res.status(500).json({ message: 'Internal Server Error during registration' });
     }
 });
 

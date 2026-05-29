@@ -21,7 +21,13 @@ export const authService = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userData),
         });
-        const data = await response.json();
+        const contentType = response.headers.get('content-type');
+        const isJson = contentType && contentType.includes('application/json');
+        const data = isJson ? await response.json() : null;
+
+        if (response.status === 403 && data?.isVerified === false) {
+            return { requiresVerification: true, email: data.email };
+        }
         if (!response.ok) throw new Error(data?.message || 'Registration failed');
         return data;
     },
@@ -32,8 +38,11 @@ export const authService = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(credentials),
         });
-        const data = await response.json();
-        if (response.status === 403 && data.isVerified === false) {
+        const contentType = response.headers.get('content-type');
+        const isJson = contentType && contentType.includes('application/json');
+        const data = isJson ? await response.json() : null;
+
+        if (response.status === 403 && data?.isVerified === false) {
             return { requiresVerification: true, email: data.email };
         }
         if (!response.ok) throw new Error(data?.message || 'Login failed');
@@ -46,9 +55,7 @@ export const authService = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, code }),
         });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data?.message || 'Verification failed');
-        return data;
+        return handleResponse(response);
     },
 
     resendVerification: async (email: string) => {
@@ -57,9 +64,7 @@ export const authService = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email }),
         });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data?.message || 'Failed to resend code');
-        return data;
+        return handleResponse(response);
     },
 
     logout: () => {
