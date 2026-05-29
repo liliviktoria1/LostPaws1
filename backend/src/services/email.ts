@@ -2,36 +2,40 @@ import nodemailer from 'nodemailer';
 import dns from 'dns';
 
 // Force Node.js to prefer IPv4 over IPv6. 
-// This is a critical fix for "ENETUNREACH" errors on platforms like Render/AWS
-// where IPv6 might be resolved but is not actually routable for SMTP.
 if (typeof dns.setDefaultResultOrder === 'function') {
     dns.setDefaultResultOrder('ipv4first');
 }
 
 const getTransporter = () => {
-    const host = process.env.SMTP_HOST || 'smtp.gmail.com';
-    const port = parseInt(process.env.SMTP_PORT || '587');
+    // If user has provided custom SMTP host, use it. Otherwise, use built-in 'gmail' service.
+    const customHost = process.env.SMTP_HOST;
     
-    // Gmail 587 MUST be secure: false (it uses STARTTLS)
-    // Gmail 465 MUST be secure: true
-    const isSecure = port === 465;
+    if (customHost && customHost !== 'smtp.gmail.com') {
+        return nodemailer.createTransport({
+            host: customHost,
+            port: parseInt(process.env.SMTP_PORT || '587'),
+            secure: process.env.SMTP_SECURE === 'true',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            },
+            connectionTimeout: 30000,
+            family: 4
+        } as any);
+    }
 
-    console.log(`[SMTP] Connecting to ${host}:${port} (secure: ${isSecure})`);
-
+    // Default: use the specialized 'gmail' service configuration
+    console.log(`[SMTP] Using built-in Gmail service for: ${process.env.EMAIL_USER}`);
     return nodemailer.createTransport({
-        host: host,
-        port: port,
-        secure: isSecure,
+        service: 'gmail',
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS
         },
-        connectionTimeout: 20000,
-        greetingTimeout: 20000,
-        socketTimeout: 20000,
-        // We also keep the family hint for double-safety
-        family: 4
-    } as any);
+        connectionTimeout: 30000, // Increased to 30s
+        greetingTimeout: 30000,
+        socketTimeout: 30000,
+    });
 };
 
 const BRAND_NAVY = '#1B2132';
@@ -111,7 +115,7 @@ export const sendNotificationEmail = async (userEmail: string, subject: string, 
             `
         };
 
-        const info = await transporter.sendMail(mailOptions);
+        await transporter.sendMail(mailOptions);
         return true;
     } catch (error: any) {
         console.error('❌ [SMTP] Notification error:', error.message);
@@ -149,7 +153,7 @@ export const sendMatchAlertEmail = async (userEmail: string, petName: string, ma
             `
         };
 
-        const info = await transporter.sendMail(mailOptions);
+        await transporter.sendMail(mailOptions);
         return true;
     } catch (error: any) {
         console.error('❌ [SMTP] Match alert error:', error.message);
