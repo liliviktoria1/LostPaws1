@@ -1,6 +1,13 @@
 import nodemailer from 'nodemailer';
 import dns from 'dns';
 
+// Force Node.js to prefer IPv4 over IPv6. 
+// This is a critical fix for "ENETUNREACH" errors on platforms like Render/AWS
+// where IPv6 might be resolved but is not actually routable for SMTP.
+if (typeof dns.setDefaultResultOrder === 'function') {
+    dns.setDefaultResultOrder('ipv4first');
+}
+
 const getTransporter = () => {
     const host = process.env.SMTP_HOST || 'smtp.gmail.com';
     const port = parseInt(process.env.SMTP_PORT || '587');
@@ -22,10 +29,8 @@ const getTransporter = () => {
         connectionTimeout: 20000,
         greetingTimeout: 20000,
         socketTimeout: 20000,
-        // FORCE IPv4 using custom lookup function
-        lookup: (hostname: string, options: any, callback: any) => {
-            return dns.lookup(hostname, { family: 4 }, callback);
-        }
+        // We also keep the family hint for double-safety
+        family: 4
     } as any);
 };
 
@@ -60,6 +65,7 @@ export const sendVerificationEmail = async (userEmail: string, code: string) => 
                     <p style="text-align: center; font-size: 14px;">This code is valid for <strong>15 minutes</strong>.</p>
                     
                     <div style="margin-top: 40px; border-top: 1px solid #F3F4F6; padding-top: 20px; text-align: center;">
+                        <p style="font-size: 14px; font-weight: 600; margin-bottom: 5px;">The Lost Paws Team</p>
                         <p style="font-size: 11px; color: #A0AEC0;">&copy; 2026 Lost Paws. All rights reserved.</p>
                     </div>
                 </div>
