@@ -110,5 +110,19 @@ export const reportService = {
         }
 
         return response.json();
+    },
+
+    // Delete a report
+    deleteReport: async (id: string): Promise<void> => {
+        const token = authService.getToken();
+        const response = await fetch(`${BASE_API_URL}/reports/${id}`, {
+            method: 'DELETE',
+            headers: getHeaders(token)
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to delete report');
+        }
     }
 };

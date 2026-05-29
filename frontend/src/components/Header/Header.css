@@ -85,6 +85,26 @@
     background-color: var(--brand-yellow);
 }
 
+.nav-link.admin-nav-link {
+    color: var(--brand-navy);
+    border: 2px solid var(--brand-yellow);
+    padding: 4px 14px;
+    border-radius: 8px;
+    font-weight: 800;
+    margin-left: 8px;
+    background-color: transparent;
+    transition: all 0.3s ease;
+}
+
+.nav-link.admin-nav-link:hover {
+    background-color: var(--brand-yellow);
+    color: var(--brand-navy);
+}
+
+.nav-link.admin-nav-link.active::after {
+    display: none; /* Hide standard underline for admin box style */
+}
+
 .mobile-nav-only {
     display: none;
 }

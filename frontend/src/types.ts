@@ -9,6 +9,7 @@ export interface User {
     email: string;
     phoneNumber?: string;
     isVerified?: boolean;
+    role?: 'user' | 'admin';
     createdAt?: string;
 }
 export interface PetReport {

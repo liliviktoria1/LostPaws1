@@ -133,6 +133,10 @@ function Header() {
     { path: "/contact", label: t('header.contact') },
   ];
 
+  if (user && user.role === 'admin') {
+    navLinks.push({ path: "/admin", label: "Admin", className: "admin-nav-link" });
+  }
+
   const toggleLanguage = () => {
     const nextLang = i18n.language === 'en' ? 'ua' : 'en';
     i18n.changeLanguage(nextLang);
@@ -273,6 +277,11 @@ function Header() {
                       <Link to="/profile" className="dropdown-item" onClick={() => setIsProfileOpen(false)} style={{ color: 'var(--brand-navy)', textDecoration: 'none' }}>
                         {t('header.my_profile')}
                       </Link>
+                      {user.role === 'admin' && (
+                        <Link to="/admin" className="dropdown-item" onClick={() => setIsProfileOpen(false)} style={{ color: '#ef4444', fontWeight: 'bold', textDecoration: 'none' }}>
+                          Admin Dashboard
+                        </Link>
+                      )}
                       <Link to="/my-reports" className="dropdown-item" onClick={() => setIsProfileOpen(false)} style={{ color: 'var(--brand-navy)', textDecoration: 'none' }}>
                         {t('header.my_reports')}
                       </Link>

@@ -329,9 +329,23 @@ router.patch('/:id', [authMiddleware, upload.array('photos', 20)], async (req: A
 router.delete('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
     try {
         const reportId = req.params.id as string;
+        const userId = req.userId;
+
+        // Fetch the user to check their role
+        const user = await User.findByPk(userId);
+        const isAdmin = user && user.role === 'admin';
+
+        const whereCondition: any = { id: reportId };
+        
+        // If not admin, restrict to reports owned by this user
+        if (!isAdmin) {
+            whereCondition.userId = userId;
+        }
+
         const deleted = await PetReport.destroy({
-            where: { id: reportId, userId: req.userId }
+            where: whereCondition
         });
+
         if (!deleted) return res.status(404).json({ message: 'Report not found or unauthorized' });
         res.json({ message: 'Deleted' });
     } catch (err: any) {

@@ -14,6 +14,7 @@ import SuccessStories from './components/SuccessStories';
 import Profile from './components/Auth/Profile';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminDashboard from './components/Admin/AdminDashboard';
 
 function App() {
     return (
@@ -35,6 +36,9 @@ function App() {
                             <Route path="/my-reports" element={<ProtectedRoute><MyReports /></ProtectedRoute>} />
                             <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
                             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                            
+                            {/* Admin Routes */}
+                            <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
                         </Routes>
                     </main>
                     <Footer />

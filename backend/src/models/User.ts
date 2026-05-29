@@ -7,6 +7,7 @@ export interface UserAttributes {
     email: string;
     password?: string;
     phoneNumber?: string;
+    role?: 'user' | 'admin';
     isVerified?: boolean;
     verificationCode?: string;
     verificationCodeExpires?: Date;
@@ -22,6 +23,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
     public email!: string;
     public password!: string;
     public phoneNumber!: string;
+    public role!: 'user' | 'admin';
     public isVerified!: boolean;
     public verificationCode!: string;
     public verificationCodeExpires!: Date;
@@ -55,6 +57,10 @@ User.init({
     phoneNumber: {
         type: DataTypes.STRING,
         allowNull: true
+    },
+    role: {
+        type: DataTypes.ENUM('user', 'admin'),
+        defaultValue: 'user'
     },
     isVerified: {
         type: DataTypes.BOOLEAN,

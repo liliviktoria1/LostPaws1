@@ -4,21 +4,24 @@ import { useAuth } from '../context/AuthContext';
 
 interface ProtectedRouteProps {
     children: React.ReactNode;
+    adminOnly?: boolean;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, adminOnly = false }) => {
     const { user, isLoading } = useAuth();
     const location = useLocation();
 
     if (isLoading) {
-        return <div>Loading...</div>; // Could be replaced with a proper spinner
+        return <div style={{ padding: '50px', textAlign: 'center' }}>Loading...</div>;
     }
 
     if (!user) {
-        // Redirect them to the / login page, but save the current location they were
-        // trying to go to when they were redirected. This allows us to send them
-        // along to that page after they login, which is a nicer user experience.
         return <Navigate to="/" state={{ from: location, openLogin: true }} replace />;
+    }
+
+    if (adminOnly && user.role !== 'admin') {
+        // If they are logged in but not an admin, send them home
+        return <Navigate to="/" replace />;
     }
 
     return <>{children}</>;

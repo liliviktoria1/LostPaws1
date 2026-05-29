@@ -43,3 +43,20 @@ export const verifiedMiddleware = async (req: AuthRequest, res: Response, next: 
         res.status(500).json({ message: 'Server Error' });
     }
 };
+
+export const adminMiddleware = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+        if (!req.userId) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
+        const user = await User.findByPk(req.userId);
+        if (!user || user.role !== 'admin') {
+            return res.status(403).json({ message: 'Admin access required' });
+        }
+
+        next();
+    } catch (err: any) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+};

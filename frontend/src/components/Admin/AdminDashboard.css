@@ -1,0 +1,118 @@
+.admin-dashboard {
+    padding: 40px;
+    max-width: 1300px;
+    margin: 0 auto;
+    font-family: 'Poppins', sans-serif;
+}
+
+.admin-header {
+    margin-bottom: 30px;
+    border-bottom: 2px solid #F3F4F6;
+    padding-bottom: 20px;
+}
+
+.admin-header h1 {
+    color: #181A32;
+    margin: 0 0 20px 0;
+}
+
+.admin-tabs {
+    display: flex;
+    gap: 10px;
+}
+
+.tab-btn {
+    padding: 10px 25px;
+    border-radius: 8px;
+    border: 2px solid #F3F4F6;
+    background: white;
+    font-weight: 600;
+    color: #6B7280;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tab-btn.active {
+    background: #181A32;
+    color: #FAC655;
+    border-color: #181A32;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.admin-table th, .admin-table td {
+    padding: 18px;
+    text-align: left;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.admin-table th {
+    background: #F9FAFB;
+    color: #4B5563;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.status-badge.lost { background: #fee2e2; color: #991b1b; }
+.status-badge.found { background: #dcfce7; color: #166534; }
+
+.role-badge {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.role-badge.admin { background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; }
+.role-badge.user { background: #f3f4f6; color: #374151; }
+
+.action-group {
+    display: flex;
+    gap: 8px;
+}
+
+.admin-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.admin-btn.delete { background: #fee2e2; color: #ef4444; }
+.admin-btn.delete:hover { background: #ef4444; color: white; }
+
+.admin-btn.verify { background: #dcfce7; color: #166534; }
+.admin-btn.verify:hover { background: #166534; color: white; }
+
+.admin-btn.role { background: #e0e7ff; color: #4338ca; }
+.admin-btn.role:hover { background: #4338ca; color: white; }
+
+.verified-yes { font-size: 1.2rem; }
+
+.admin-loading {
+    text-align: center;
+    padding: 100px;
+    font-size: 1.2rem;
+    color: #6B7280;
+}

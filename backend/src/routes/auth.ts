@@ -2,7 +2,7 @@ import express, { Request, Response, Router } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
-import { authMiddleware, AuthRequest } from '../middleware/auth.js';
+import { authMiddleware, adminMiddleware, AuthRequest } from '../middleware/auth.js';
 import { sendVerificationEmail } from '../services/email.js';
 import { Op } from 'sequelize';
 
@@ -60,7 +60,8 @@ router.post('/register', async (req: Request, res: Response) => {
             phoneNumber,
             isVerified: false,
             verificationCode,
-            verificationCodeExpires
+            verificationCodeExpires,
+            role: 'user' // Explicitly set default
         });
         console.log(`[Register] User created in DB: ${newUser.id}`);
 
@@ -118,7 +119,11 @@ router.post('/verify-email', async (req: Request, res: Response) => {
         const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1d' });
 
         console.log(`[VerifyEmail] Verification successful for user ${user.id}`);
-        res.json({ message: 'Email verified successfully', token, user: { id: user.id, name: user.name, email: user.email, isVerified: true } });
+        res.json({ 
+            message: 'Email verified successfully', 
+            token, 
+            user: { id: user.id, name: user.name, email: user.email, isVerified: true, role: user.role } 
+        });
     } catch (err) {
         console.error('[VerifyEmail] Error:', err);
         res.status(500).json({ message: 'Verification failed' });
@@ -185,7 +190,7 @@ router.post('/login', async (req: Request, res: Response) => {
 
         res.json({
             token,
-            user: { id: user.id, name: user.name, email: user.email, isVerified: true }
+            user: { id: user.id, name: user.name, email: user.email, isVerified: true, role: user.role }
         });
     } catch (err: any) {
         console.error('Login Error:', err);
@@ -197,7 +202,7 @@ router.post('/login', async (req: Request, res: Response) => {
 router.get('/verify', authMiddleware, async (req: AuthRequest, res: Response) => {
     try {
         const user = await User.findByPk(req.userId, {
-            attributes: ['id', 'name', 'email', 'phoneNumber', 'isVerified']
+            attributes: ['id', 'name', 'email', 'phoneNumber', 'isVerified', 'role']
         });
         if (!user) return res.status(404).json({ message: 'User not found' });
         res.json(user);
@@ -210,7 +215,7 @@ router.get('/verify', authMiddleware, async (req: AuthRequest, res: Response) =>
 router.get('/profile', authMiddleware, async (req: AuthRequest, res: Response) => {
     try {
         const user = await User.findByPk(req.userId, {
-            attributes: ['id', 'name', 'email', 'phoneNumber', 'createdAt', 'isVerified']
+            attributes: ['id', 'name', 'email', 'phoneNumber', 'createdAt', 'isVerified', 'role']
         });
         if (!user) return res.status(404).json({ message: 'User not found' });
         res.json(user);
@@ -237,10 +242,76 @@ router.patch('/profile', authMiddleware, async (req: AuthRequest, res: Response)
         
         res.json({
             message: 'Profile updated successfully',
-            user: { id: user.id, name: user.name, email: user.email, phoneNumber: user.phoneNumber, isVerified: user.isVerified }
+            user: { id: user.id, name: user.name, email: user.email, phoneNumber: user.phoneNumber, isVerified: user.isVerified, role: user.role }
         });
     } catch (err) {
         res.status(500).json({ message: 'Update failed' });
+    }
+});
+
+// --- ADMIN USER MANAGEMENT ROUTES ---
+
+// GET /api/auth/admin/users - List all users (Admin only)
+router.get('/admin/users', [authMiddleware, adminMiddleware], async (req: AuthRequest, res: Response) => {
+    try {
+        const users = await User.findAll({
+            attributes: ['id', 'name', 'email', 'phoneNumber', 'role', 'isVerified', 'createdAt'],
+            order: [['createdAt', 'DESC']]
+        });
+        res.json(users);
+    } catch (err: any) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// PATCH /api/auth/admin/users/:id/verify - Manually verify (Admin only)
+router.post('/admin/users/:id/verify', [authMiddleware, adminMiddleware], async (req: AuthRequest, res: Response) => {
+    try {
+        const user = await User.findByPk(req.params.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        user.isVerified = true;
+        user.verificationCode = null as any;
+        user.verificationCodeExpires = null as any;
+        await user.save();
+
+        res.json({ message: 'User verified manually', user });
+    } catch (err: any) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// PATCH /api/auth/admin/users/:id/role - Change role (Admin only)
+router.patch('/admin/users/:id/role', [authMiddleware, adminMiddleware], async (req: AuthRequest, res: Response) => {
+    try {
+        const { role } = req.body;
+        if (!['user', 'admin'].includes(role)) return res.status(400).json({ message: 'Invalid role' });
+
+        const user = await User.findByPk(req.params.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        user.role = role;
+        await user.save();
+
+        res.json({ message: `User role updated to ${role}`, user });
+    } catch (err: any) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// DELETE /api/auth/admin/users/:id - Delete user (Admin only)
+router.delete('/admin/users/:id', [authMiddleware, adminMiddleware], async (req: AuthRequest, res: Response) => {
+    try {
+        const user = await User.findByPk(req.params.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        // Prevent self-deletion
+        if (user.id === req.userId) return res.status(400).json({ message: 'Cannot delete yourself' });
+
+        await user.destroy();
+        res.json({ message: 'User deleted' });
+    } catch (err: any) {
+        res.status(500).json({ message: err.message });
     }
 });
 

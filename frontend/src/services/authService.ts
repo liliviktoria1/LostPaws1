@@ -114,5 +114,45 @@ export const authService = {
 
     getToken: (): string | null => {
         return localStorage.getItem('token');
+    },
+
+    // Admin Methods
+    adminGetAllUsers: async (): Promise<User[]> => {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${BASE_API_URL}/auth/admin/users`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        return handleResponse(response);
+    },
+
+    adminVerifyUser: async (userId: string): Promise<void> => {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${BASE_API_URL}/auth/admin/users/${userId}/verify`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        return handleResponse(response);
+    },
+
+    adminUpdateRole: async (userId: string, role: 'user' | 'admin'): Promise<void> => {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${BASE_API_URL}/auth/admin/users/${userId}/role`, {
+            method: 'PATCH',
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ role })
+        });
+        return handleResponse(response);
+    },
+
+    adminDeleteUser: async (userId: string): Promise<void> => {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${BASE_API_URL}/auth/admin/users/${userId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        return handleResponse(response);
     }
 };
