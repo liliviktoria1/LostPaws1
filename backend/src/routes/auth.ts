@@ -267,7 +267,7 @@ router.get('/admin/users', [authMiddleware, adminMiddleware], async (req: AuthRe
 // PATCH /api/auth/admin/users/:id/verify - Manually verify (Admin only)
 router.post('/admin/users/:id/verify', [authMiddleware, adminMiddleware], async (req: AuthRequest, res: Response) => {
     try {
-        const user = await User.findByPk(req.params.id);
+        const user = await User.findByPk(req.params.id as string);
         if (!user) return res.status(404).json({ message: 'User not found' });
 
         user.isVerified = true;
@@ -287,7 +287,7 @@ router.patch('/admin/users/:id/role', [authMiddleware, adminMiddleware], async (
         const { role } = req.body;
         if (!['user', 'admin'].includes(role)) return res.status(400).json({ message: 'Invalid role' });
 
-        const user = await User.findByPk(req.params.id);
+        const user = await User.findByPk(req.params.id as string);
         if (!user) return res.status(404).json({ message: 'User not found' });
 
         user.role = role;
@@ -302,7 +302,7 @@ router.patch('/admin/users/:id/role', [authMiddleware, adminMiddleware], async (
 // DELETE /api/auth/admin/users/:id - Delete user (Admin only)
 router.delete('/admin/users/:id', [authMiddleware, adminMiddleware], async (req: AuthRequest, res: Response) => {
     try {
-        const user = await User.findByPk(req.params.id);
+        const user = await User.findByPk(req.params.id as string);
         if (!user) return res.status(404).json({ message: 'User not found' });
 
         // Prevent self-deletion
