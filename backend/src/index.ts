@@ -92,10 +92,11 @@ const startServer = async () => {
         
     } catch (err: any) {
         console.error('❌ FATAL ERROR DURING STARTUP:');
-        console.error(err.message);
-        // If it's a database error, we log it but keep the server running 
-        // so you can still see the logs and the service doesn't just "disappear"
-        if (err.name === 'SequelizeConnectionError' || err.name === 'SequelizeConnectionRefusedError') {
+        console.error(err); // Log the full error object for better debugging
+        
+        // If it's a database error, provide specific tips
+        if (err.name?.includes('SequelizeConnection') || err.name?.includes('ConnectionError')) {
+            console.error('👉 Tip: Ensure your PostgreSQL service is running and accessible.');
             console.error('👉 Tip: Check your DATABASE_URL and ensure SSL is enabled if required.');
         }
     }

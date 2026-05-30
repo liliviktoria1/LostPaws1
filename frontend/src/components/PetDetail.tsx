@@ -70,29 +70,38 @@ const PetDetail: React.FC = () => {
 
     useEffect(() => {
         if (report && report.locationLat && report.locationLng && !mapRef.current) {
-            const mapContainer = document.getElementById('pet-detail-map');
-            if (mapContainer) {
-                mapRef.current = L.map('pet-detail-map').setView([report.locationLat, report.locationLng], 15);
+            // Small timeout to ensure DOM is ready
+            const timer = setTimeout(() => {
+                const mapContainer = document.getElementById('pet-detail-map');
+                if (mapContainer && !mapRef.current) {
+                    mapRef.current = L.map('pet-detail-map').setView([report.locationLat!, report.locationLng!], 15);
 
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; OpenStreetMap contributors',
-                }).addTo(mapRef.current);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; OpenStreetMap contributors',
+                    }).addTo(mapRef.current);
 
-                const markerColor = report.petStatus === 'lost' ? 'red' : 'green';
-                const customIcon = new L.Icon({
-                    iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${markerColor}.png`,
-                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-                    iconSize: [25, 41],
-                    iconAnchor: [12, 41],
-                    popupAnchor: [1, -34],
-                    shadowSize: [41, 41]
-                });
+                    const markerColor = report.petStatus === 'lost' ? 'red' : 'green';
+                    const customIcon = new L.Icon({
+                        iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${markerColor}.png`,
+                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34],
+                        shadowSize: [41, 41]
+                    });
 
-                L.marker([report.locationLat, report.locationLng], { icon: customIcon })
-                    .addTo(mapRef.current)
-                    .bindPopup(`${report.petName} ${report.petStatus === 'lost' ? 'was last seen here' : 'was found here'}`)
-                    .openPopup();
-            }
+                    L.marker([report.locationLat!, report.locationLng!], { icon: customIcon })
+                        .addTo(mapRef.current)
+                        .bindPopup(`${report.petName} ${report.petStatus === 'lost' ? t('pet_detail.was_last_seen') : t('pet_detail.was_found')}`)
+                        .openPopup();
+                    
+                    // Force a resize fix for Leaflet
+                    setTimeout(() => {
+                        mapRef.current?.invalidateSize();
+                    }, 200);
+                }
+            }, 100);
+            return () => clearTimeout(timer);
         }
 
         return () => {
@@ -101,7 +110,7 @@ const PetDetail: React.FC = () => {
                 mapRef.current = null;
             }
         };
-    }, [report]);
+    }, [report, t]);
 
     const handleDeepScan = async () => {
         if (!id) return;
@@ -277,10 +286,12 @@ const PetDetail: React.FC = () => {
                         <p>{report.description || "N/A"}</p>
                     </div>
 
-                    <div className="map-section">
-                        <h3>{t('form.location')}</h3>
-                        <div id="pet-detail-map" style={{ height: '300px', width: '100%', borderRadius: '15px', marginTop: '10px' }}></div>
-                    </div>
+                    {report.locationLat && report.locationLng && (
+                        <div className="map-section">
+                            <h3>{t('form.location')}</h3>
+                            <div id="pet-detail-map" style={{ height: '300px', width: '100%', borderRadius: '15px', marginTop: '10px' }}></div>
+                        </div>
+                    )}
 
                     <div className="contact-section">
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
