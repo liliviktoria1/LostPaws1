@@ -290,10 +290,19 @@ router.patch('/:id', [authMiddleware, upload.array('photos', 20)], async (req: A
         const updateData = { ...req.body };
         
         const files = req.files as Express.Multer.File[];
-        const existingPhotosCount = report.photos ? report.photos.length : 0;
+        
+        let currentPhotos = report.photos || [];
+        if (req.body.existingPhotos) {
+            try {
+                currentPhotos = JSON.parse(req.body.existingPhotos);
+            } catch (e) {
+                console.error("Error parsing existingPhotos:", e);
+            }
+        }
+
         const newFilesCount = files ? files.length : 0;
 
-        if (existingPhotosCount + newFilesCount > 20) {
+        if (currentPhotos.length + newFilesCount > 20) {
             // Cleanup uploaded files if limit exceeded
             if (files) {
                 files.forEach(f => {
@@ -309,8 +318,11 @@ router.patch('/:id', [authMiddleware, upload.array('photos', 20)], async (req: A
                 const url = await uploadToCloudinary(file.path);
                 newPhotos.push({ url });
             }
-            updateData.photos = [...(report.photos || []), ...newPhotos];
+            currentPhotos = [...currentPhotos, ...newPhotos];
         }
+
+        updateData.photos = currentPhotos;
+        delete updateData.existingPhotos; // Don't save this field to DB
 
         await report.update(updateData);
         res.json(report);

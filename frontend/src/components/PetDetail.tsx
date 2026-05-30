@@ -277,6 +277,11 @@ const PetDetail: React.FC = () => {
                         <p>{report.description || "N/A"}</p>
                     </div>
 
+                    <div className="map-section">
+                        <h3>{t('form.location')}</h3>
+                        <div id="pet-detail-map" style={{ height: '300px', width: '100%', borderRadius: '15px', marginTop: '10px' }}></div>
+                    </div>
+
                     <div className="contact-section">
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                             <h3>{t('pet_detail.contact')}</h3>

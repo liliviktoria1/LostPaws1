@@ -9,8 +9,9 @@ const Profile: React.FC = () => {
     const { t } = useTranslation();
     const [profile, setProfile] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [isSaving, setIsSubmitting] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+    const [phoneError, setPhoneError] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         name: '',
         phoneNumber: '',
@@ -37,12 +38,33 @@ const Profile: React.FC = () => {
     }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        
+        if (name === 'phoneNumber') {
+            const sanitizedValue = value.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '');
+            setFormData(prev => ({ ...prev, [name]: sanitizedValue }));
+            setPhoneError(null);
+            return;
+        }
+
         setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const validatePhone = (phone: string) => {
+        const phoneRegex = /^\+?[\d\s-]{10,}$/;
+        return phoneRegex.test(phone);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsSubmitting(true);
+        setPhoneError(null);
+
+        if (formData.phoneNumber && !validatePhone(formData.phoneNumber)) {
+            setPhoneError("Please enter a valid phone number (e.g. +380...)");
+            return;
+        }
+
+        setIsSaving(true);
         try {
             const updateData: any = { name: formData.name, phoneNumber: formData.phoneNumber };
             if (formData.password) updateData.password = formData.password;
@@ -53,7 +75,7 @@ const Profile: React.FC = () => {
         } catch (err) {
             alert("Update failed");
         } finally {
-            setIsSubmitting(false);
+            setIsSaving(false);
         }
     };
 
@@ -116,8 +138,10 @@ const Profile: React.FC = () => {
                                         placeholder={t('profile_page.phone_number')}
                                         value={formData.phoneNumber}
                                         onChange={handleChange}
+                                        className={phoneError ? 'input-error' : ''}
                                     />
                                 </div>
+                                {phoneError && <span className="profile-error-text" style={{ color: '#EF4444', fontSize: '0.8rem', display: 'block', marginTop: '5px', marginLeft: '35px' }}>{phoneError}</span>}
                             </section>
 
                             <section className="form-section">

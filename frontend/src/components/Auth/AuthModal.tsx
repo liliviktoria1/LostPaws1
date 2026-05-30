@@ -40,13 +40,18 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode }) =
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+
+        if (mode === 'signup') {
+            if (formData.password !== formData.confirmPassword) {
+                setError("Passwords don't match");
+                return;
+            }
+        }
+
         setIsLoading(true);
 
         try {
             if (mode === 'signup') {
-                if (formData.password !== formData.confirmPassword) {
-                    throw new Error("Passwords don't match");
-                }
                 const res = await register({
                     name: formData.name,
                     email: formData.email,

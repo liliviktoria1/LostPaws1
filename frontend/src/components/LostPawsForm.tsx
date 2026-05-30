@@ -48,6 +48,7 @@ const LostPawsForm: React.FC = () => {
     const markerRef = useRef<L.Marker | null>(null);
     
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const [phoneError, setPhoneError] = useState<string | null>(null);
     const [formData, setFormData] = useState<LocalFormData>({
         petStatus: '',
         petName: '',
@@ -77,7 +78,7 @@ const LostPawsForm: React.FC = () => {
                 ...prev,
                 contactName: prev.contactName || user.name || '',
                 contactEmail: prev.contactEmail || user.email || '',
-                contactNumber: prev.contactNumber || (user as any).phone || ''
+                contactNumber: prev.contactNumber || user.phoneNumber || ''
             }));
         }
     }, [user, editId]);
@@ -85,7 +86,6 @@ const LostPawsForm: React.FC = () => {
     // Initialize Map and Load Data if Editing
     useEffect(() => {
         const init = async () => {
-            // 1. Initialize Map
             if (!mapRef.current) {
                 const initialCoords: [number, number] = [50.4501, 30.5234];
                 const map = L.map('form-map').setView(initialCoords, 13);
@@ -97,7 +97,6 @@ const LostPawsForm: React.FC = () => {
                 mapRef.current = map;
             }
 
-            // 2. Fetch data if edit mode
             if (editId) {
                 try {
                     const report = await reportService.getReportById(editId);
@@ -120,7 +119,6 @@ const LostPawsForm: React.FC = () => {
                     });
                     
                     if (report.locationLat && report.locationLng) {
-                        setFormData(prev => ({ ...prev, locationLat: report.locationLat!, locationLng: report.locationLng! }));
                         markerRef.current = L.marker([report.locationLat, report.locationLng]).addTo(mapRef.current!);
                         mapRef.current?.setView([report.locationLat, report.locationLng], 15);
                     }
@@ -146,14 +144,12 @@ const LostPawsForm: React.FC = () => {
     const updateLocation = async (lat: number, lng: number) => {
         setFormData(prev => ({ ...prev, locationLat: lat, locationLng: lng }));
         
-        // Update Marker
         if (markerRef.current) {
             markerRef.current.setLatLng([lat, lng]);
         } else if (mapRef.current) {
             markerRef.current = L.marker([lat, lng]).addTo(mapRef.current);
         }
 
-        // Reverse Geocoding (Lat/Lng -> Address)
         try {
             const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
             const data = await response.json();
@@ -203,6 +199,16 @@ const LostPawsForm: React.FC = () => {
 
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
+        
+        if (name === 'contactNumber') {
+            // Remove any characters that aren't digits or a '+' sign
+            // and ensure '+' only appears at the very beginning
+            const sanitizedValue = value.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '');
+            setFormData(prev => ({ ...prev, [name]: sanitizedValue }));
+            setPhoneError(null);
+            return;
+        }
+
         setFormData(prev => ({ ...prev, [name]: value }));
         if (name === 'petBreed') setShowBreedSuggestions(true);
     };
@@ -215,7 +221,7 @@ const LostPawsForm: React.FC = () => {
     const getFilteredBreeds = () => {
         const breeds = formData.petSpecies === 'dog' ? dogBreeds : formData.petSpecies === 'cat' ? catBreeds : [...dogBreeds, ...catBreeds];
         if (!formData.petBreed) return breeds;
-        return breeds.filter(b => b.toLowerCase().includes(formData.petBreed.toLowerCase())).slice(0, 50); // Limit to 50 for performance
+        return breeds.filter(b => b.toLowerCase().includes(formData.petBreed.toLowerCase())).slice(0, 50);
     };
 
     const handleDrop = (acceptedFiles: File[]) => {
@@ -235,8 +241,38 @@ const LostPawsForm: React.FC = () => {
         setPreviews(prev => prev.filter((_, i) => i !== index));
     };
 
+    const handleRemoveExistingPhoto = (index: number) => {
+        setExistingPhotos(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const handleDeleteReport = async () => {
+        if (!editId) return;
+        if (!window.confirm(t('common.confirm_delete', { defaultValue: 'Are you sure you want to delete this report?' }))) return;
+        
+        try {
+            await reportService.deleteReport(editId);
+            navigate('/my-reports');
+        } catch (err: any) {
+            alert("Failed to delete: " + err.message);
+        }
+    };
+
+    const validatePhone = (phone: string) => {
+        const phoneRegex = /^\+?[\d\s-]{10,}$/;
+        return phoneRegex.test(phone);
+    };
+
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
+        setPhoneError(null);
+
+        if (formData.contactNumber && !validatePhone(formData.contactNumber)) {
+            setPhoneError("Please enter a valid phone number (e.g. +380...)");
+            const element = document.getElementById('contactNumber');
+            element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+
         setIsSubmitting(true);
         try {
             const data = new FormData();
@@ -244,13 +280,14 @@ const LostPawsForm: React.FC = () => {
                 if (value !== null && value !== undefined) data.append(key, value.toString());
             });
             photos.forEach(file => data.append('photos', file));
-
+            
             if (editId) {
+                // Send existing photos that we kept
+                data.append('existingPhotos', JSON.stringify(existingPhotos));
                 await reportService.updateReport(editId, data);
                 navigate('/my-reports');
             } else {
                 await reportService.createReport(data);
-                // REDIRECT IMMEDIATELY
                 navigate('/announcements');
             }
         } catch (err: any) {
@@ -381,6 +418,7 @@ const LostPawsForm: React.FC = () => {
                                     {editId && existingPhotos.map((p, idx) => (
                                         <div key={`ex-${idx}`} className="preview-card existing">
                                             <img src={(p.url.startsWith('/') ? (process.env.REACT_APP_API_URL || 'http://localhost:8080/api').replace(/\/api$/, '') + p.url : p.url)} alt="Existing" />
+                                            <button type="button" className="remove-preview-btn" onClick={() => handleRemoveExistingPhoto(idx)}>×</button>
                                             <span className="existing-tag">Keep</span>
                                         </div>
                                     ))}
@@ -413,17 +451,34 @@ const LostPawsForm: React.FC = () => {
                                 required 
                             />
                             <input type="email" name="contactEmail" value={formData.contactEmail} onChange={handleChange} placeholder={t('form.email')} required />
-                            <input type="text" name="contactNumber" value={formData.contactNumber} onChange={handleChange} placeholder={t('form.phone')} />
+                            <input 
+                                type="text" 
+                                id="contactNumber"
+                                name="contactNumber" 
+                                value={formData.contactNumber} 
+                                onChange={handleChange} 
+                                placeholder={t('form.phone')} 
+                                className={phoneError ? 'input-error' : ''}
+                            />
+                            {phoneError && <span className="error-text" style={{ color: '#EF4444', fontSize: '0.8rem', marginTop: '4px' }}>{phoneError}</span>}
                         </div>
 
-                        <button type="submit" className="submit-button" disabled={isSubmitting}>
-                            {isSubmitting ? t('common.loading') : (editId ? t('my_reports_page.edit_btn') : t('form.submit'))}
-                        </button>
+                        <div className="form-actions">
+                            {editId && (
+                                <button type="button" className="delete-report-btn" onClick={handleDeleteReport}>
+                                    {t('common.delete', { defaultValue: 'Delete Report' })}
+                                </button>
+                            )}
+                            <button type="submit" className="submit-button" disabled={isSubmitting}>
+                                {isSubmitting ? t('common.loading') : (editId ? t('my_reports_page.edit_btn') : t('form.submit'))}
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
     );
 };
+
 
 export default LostPawsForm;

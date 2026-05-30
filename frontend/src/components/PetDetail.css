@@ -144,10 +144,14 @@
     font-weight: 600;
 }
 
-.description-section h3, .contact-section h3 {
+.description-section h3, .contact-section h3, .map-section h3 {
     font-size: 1.2rem;
     color: #181A32;
     margin-bottom: 15px;
+}
+
+.map-section {
+    margin-bottom: 30px;
 }
 
 .description-section p {
