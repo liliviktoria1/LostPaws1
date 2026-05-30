@@ -151,7 +151,10 @@
 }
 
 .map-section {
-    margin-bottom: 30px;
+    grid-column: 1 / -1;
+    margin-top: 20px;
+    padding-top: 30px;
+    border-top: 1.5px dashed #e2e8f0;
 }
 
 .description-section p {
@@ -332,7 +335,7 @@
 }
 
 .share-section h3 {
-    font-size: 1.1rem !ve !important;
+    font-size: 1.1rem !important;
     color: #181A32;
     margin-bottom: 8px;
     display: flex;

@@ -110,7 +110,7 @@ const PetDetail: React.FC = () => {
                 mapRef.current = null;
             }
         };
-    }, [report, t]);
+    }, [report, t, loading]);
 
     const handleDeepScan = async () => {
         if (!id) return;
@@ -286,13 +286,6 @@ const PetDetail: React.FC = () => {
                         <p>{report.description || "N/A"}</p>
                     </div>
 
-                    {report.locationLat && report.locationLng && (
-                        <div className="map-section">
-                            <h3>{t('form.location')}</h3>
-                            <div id="pet-detail-map" style={{ height: '300px', width: '100%', borderRadius: '15px', marginTop: '10px' }}></div>
-                        </div>
-                    )}
-
                     <div className="contact-section">
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                             <h3>{t('pet_detail.contact')}</h3>
@@ -340,6 +333,13 @@ const PetDetail: React.FC = () => {
                         </div>
                     </div>
                 </div>
+
+                {report.locationLat && report.locationLng && (
+                    <div className="map-section">
+                        <h3>{t('form.location')}</h3>
+                        <div id="pet-detail-map" style={{ height: '350px', width: '100%', borderRadius: '15px', marginTop: '10px' }}></div>
+                    </div>
+                )}
             </div>
 
             {/* Deep Scan Results Section */}

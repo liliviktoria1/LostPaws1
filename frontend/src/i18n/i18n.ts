@@ -105,7 +105,9 @@ const resources = {
         "scanning": "AI scanning in progress...",
         "other_missing": "Other Missing Pets",
         "share_title": "Share this report",
-        "share_desc": "Help this pet get home by sharing with your community."
+        "share_desc": "Help this pet get home by sharing with your community.",
+        "was_last_seen": "was last seen here",
+        "was_found": "was found here"
       },
       "success_stories_page": {
         "title": "Success Stories",
@@ -278,7 +280,9 @@ const resources = {
         "scanning": "Триває сканування ШІ...",
         "other_missing": "Інші загублені тварини",
         "share_title": "Поділитися оголошенням",
-        "share_desc": "Допоможіть тварині повернутися додому, поширивши інформацію."
+        "share_desc": "Допоможіть тварині повернутися додому, поширивши інформацію.",
+        "was_last_seen": "востаннє бачили тут",
+        "was_found": "було знайдено тут"
       },
       "success_stories_page": {
         "title": "Щасливі історії",
