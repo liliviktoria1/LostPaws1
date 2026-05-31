@@ -10,6 +10,7 @@
     "build": "tsc",
     "postinstall": "npm run build",
     "seed": "node --loader ts-node/esm src/seed.ts",
+    "promote-admin": "node --loader ts-node/esm src/promote_admin.ts",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "keywords": [],

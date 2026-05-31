@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+const API_URL = (process.env.REACT_APP_API_URL || 'http://localhost:8080/api').replace(/\/$/, '');
 
 export interface ContactData {
     name: string;
@@ -11,9 +9,22 @@ export interface ContactData {
 
 export const sendContactMessage = async (data: ContactData) => {
     try {
-        const response = await axios.post(`${API_URL}/contact`, data);
-        return response.data;
+        const response = await fetch(`${API_URL}/contact`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || 'Failed to send message');
+        }
+
+        return result;
     } catch (error: any) {
-        throw error.response?.data?.message || 'Failed to send message';
+        throw error.message || 'Failed to send message';
     }
 };
