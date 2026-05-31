@@ -1,17 +1,41 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiMail, FiPhone, FiMapPin, FiSend } from 'react-icons/fi';
+import { FiMail, FiPhone, FiMapPin, FiSend, FiLoader } from 'react-icons/fi';
+import { sendContactMessage } from '../services/contactService';
 import './ContactUs.css';
 
 const ContactUs: React.FC = () => {
     const { t } = useTranslation();
-    const [formStatus, setFormStatus] = useState<'idle' | 'success'>('idle');
+    const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+    const [errorMessage, setErrorMessage] = useState('');
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
+    });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Mock submission
-        setFormStatus('success');
-        setTimeout(() => setFormStatus('idle'), 5000);
+        setFormStatus('loading');
+        setErrorMessage('');
+
+        try {
+            await sendContactMessage(formData);
+            setFormStatus('success');
+            setFormData({ name: '', email: '', subject: '', message: '' });
+            setTimeout(() => setFormStatus('idle'), 5000);
+        } catch (error: any) {
+            setFormStatus('error');
+            setErrorMessage(error || 'Something went wrong. Please try again.');
+        }
     };
 
     return (
@@ -66,22 +90,63 @@ const ContactUs: React.FC = () => {
                             </div>
                         ) : (
                             <form onSubmit={handleSubmit}>
+                                {formStatus === 'error' && (
+                                    <div className="contact-error-msg">
+                                        {errorMessage}
+                                    </div>
+                                )}
                                 <div className="form-row">
                                     <div className="input-group">
-                                        <input type="text" placeholder={t('contact_page.name_placeholder')} required />
+                                        <input 
+                                            type="text" 
+                                            name="name"
+                                            value={formData.name}
+                                            onChange={handleChange}
+                                            placeholder={t('contact_page.name_placeholder')} 
+                                            required 
+                                        />
                                     </div>
                                     <div className="input-group">
-                                        <input type="email" placeholder={t('contact_page.email_placeholder')} required />
+                                        <input 
+                                            type="email" 
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={handleChange}
+                                            placeholder={t('contact_page.email_placeholder')} 
+                                            required 
+                                        />
                                     </div>
                                 </div>
                                 <div className="input-group">
-                                    <input type="text" placeholder={t('contact_page.subject_label')} required />
+                                    <input 
+                                        type="text" 
+                                        name="subject"
+                                        value={formData.subject}
+                                        onChange={handleChange}
+                                        placeholder={t('contact_page.subject_label')} 
+                                        required 
+                                    />
                                 </div>
                                 <div className="input-group">
-                                    <textarea placeholder={t('contact_page.message_label')} rows={5} required></textarea>
+                                    <textarea 
+                                        name="message"
+                                        value={formData.message}
+                                        onChange={handleChange}
+                                        placeholder={t('contact_page.message_label')} 
+                                        rows={5} 
+                                        required
+                                    ></textarea>
                                 </div>
-                                <button type="submit" className="contact-submit-btn">
-                                    {t('contact_page.send_btn')} <FiSend />
+                                <button 
+                                    type="submit" 
+                                    className="contact-submit-btn" 
+                                    disabled={formStatus === 'loading'}
+                                >
+                                    {formStatus === 'loading' ? (
+                                        <><FiLoader className="spin" /> {t('contact_page.sending_btn', 'Sending...')}</>
+                                    ) : (
+                                        <>{t('contact_page.send_btn')} <FiSend /></>
+                                    )}
                                 </button>
                             </form>
                         )}
@@ -93,3 +158,4 @@ const ContactUs: React.FC = () => {
 };
 
 export default ContactUs;
+

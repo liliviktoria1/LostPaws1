@@ -68,8 +68,11 @@ const PetDetail: React.FC = () => {
         fetchReport();
     }, [id]);
 
+    // Refs to hold marker instance for dynamic updates
+    const markerRef = useRef<L.Marker | null>(null);
+
     useEffect(() => {
-        if (report && report.locationLat && report.locationLng && !mapRef.current) {
+        if (report && report.locationLat && report.locationLng && !loading) {
             // Small timeout to ensure DOM is ready
             const timer = setTimeout(() => {
                 const mapContainer = document.getElementById('pet-detail-map');
@@ -90,27 +93,51 @@ const PetDetail: React.FC = () => {
                         shadowSize: [41, 41]
                     });
 
-                    L.marker([report.locationLat!, report.locationLng!], { icon: customIcon })
-                        .addTo(mapRef.current)
-                        .bindPopup(`${report.petName} ${report.petStatus === 'lost' ? t('pet_detail.was_last_seen') : t('pet_detail.was_found')}`)
-                        .openPopup();
+                    markerRef.current = L.marker([report.locationLat!, report.locationLng!], { icon: customIcon })
+                        .addTo(mapRef.current);
                     
                     // Force a resize fix for Leaflet
                     setTimeout(() => {
                         mapRef.current?.invalidateSize();
                     }, 200);
                 }
+
+                // Always update the popup content to catch language changes
+                if (markerRef.current) {
+                    const popupContent = `${report.petName} ${report.petStatus === 'lost' ? t('pet_detail.was_last_seen') : t('pet_detail.was_found')}`;
+                    markerRef.current.bindPopup(popupContent);
+                    // Only open it if it's the first time
+                    if (!markerRef.current.isPopupOpen()) {
+                        markerRef.current.openPopup();
+                    }
+                }
+
             }, 100);
             return () => clearTimeout(timer);
         }
 
+        return () => {
+            // Only clean up the map when the component actually unmounts, 
+            // not on every language change
+            if (!report) {
+                if (mapRef.current) {
+                    mapRef.current.remove();
+                    mapRef.current = null;
+                    markerRef.current = null;
+                }
+            }
+        };
+    }, [report, t, loading]);
+
+    // Separate cleanup for component unmount
+    useEffect(() => {
         return () => {
             if (mapRef.current) {
                 mapRef.current.remove();
                 mapRef.current = null;
             }
         };
-    }, [report, t, loading]);
+    }, []);
 
     const handleDeepScan = async () => {
         if (!id) return;

@@ -21,6 +21,7 @@ import reportRoutes from './routes/reports.js';
 import authRoutes from './routes/auth.js';
 import notificationRoutes from './routes/notifications.js';
 import chatRoutes from './routes/chats.js';
+import contactRoutes from './routes/contact.js';
 
 import fs from 'fs';
 
@@ -57,6 +58,7 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/chats', chatRoutes);
+app.use('/api/contact', contactRoutes);
 
 // Socket.io Real-time Logic
 io.on('connection', (socket) => {

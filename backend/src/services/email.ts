@@ -145,3 +145,42 @@ export const sendMatchAlertEmail = async (userEmail: string, petName: string, ma
         return false;
     }
 };
+
+export const sendSupportEmail = async (senderEmail: string, senderName: string, subject: string, message: string) => {
+    try {
+        const msg = {
+            to: FROM_EMAIL, // Send TO the site administrator
+            from: {
+                email: FROM_EMAIL, // Send FROM verified sender (SendGrid requirement)
+                name: "Lost Paws Support Request"
+            },
+            replyTo: senderEmail, // Set reply-to as the person who filled the form
+            subject: `[Support] ${subject}`,
+            text: `From: ${senderName} (${senderEmail})\n\nMessage:\n${message}`,
+            html: `
+                <div style="font-family: 'Poppins', sans-serif; max-width: 600px; margin: auto; padding: 30px; border: 1px solid #eee; border-radius: 10px;">
+                    <h2 style="color: ${BRAND_NAVY}; border-bottom: 2px solid ${BRAND_YELLOW}; padding-bottom: 10px;">New Support Request</h2>
+                    <p><strong>From:</strong> ${senderName} (<a href="mailto:${senderEmail}">${senderEmail}</a>)</p>
+                    <p><strong>Subject:</strong> ${subject}</p>
+                    <div style="background: #f9f9f9; padding: 20px; border-radius: 5px; margin-top: 20px; white-space: pre-wrap;">
+                        ${message}
+                    </div>
+                    <p style="font-size: 12px; color: #888; margin-top: 30px;">This message was sent via the Contact Us form on Lost Paws.</p>
+                </div>
+            `
+        };
+
+        if (!API_KEY) {
+            console.error('❌ [Email] Cannot send support email: SENDGRID_API_KEY is missing');
+            return false;
+        }
+        
+        await sgMail.send(msg);
+        console.log(`✅ [Email] Support email sent from ${senderEmail}`);
+        return true;
+    } catch (error: any) {
+        console.error('❌ [Email] Support email error:', error.response?.body?.errors || error.message);
+        return false;
+    }
+};
+
