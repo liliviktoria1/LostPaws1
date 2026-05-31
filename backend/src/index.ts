@@ -91,6 +91,20 @@ const startServer = async () => {
         console.log('⏳ Syncing database...');
         await sequelize.sync({ alter: true });
         console.log('✅ Database synced successfully');
+
+        // Temporary: Auto-promote admin account
+        try {
+            const { User } = await import('./models/User.js');
+            const [updatedCount] = await User.update(
+                { role: 'admin' },
+                { where: { email: 'lost.pawsss@gmail.com' } }
+            );
+            if (updatedCount > 0) {
+                console.log('👑 Admin access granted to lost.pawsss@gmail.com');
+            }
+        } catch (adminErr) {
+            console.error('Admin promotion failed:', adminErr);
+        }
         
     } catch (err: any) {
         console.error('❌ FATAL ERROR DURING STARTUP:');
