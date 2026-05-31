@@ -91,9 +91,13 @@ function Header() {
               setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, isRead: true } : n));
               setPrevUnreadCount(prev => Math.max(0, prev - 1));
           }
-          if (notif.reportId) {
+          
+          setIsNotificationsOpen(false);
+
+          if (notif.type === 'chat_message') {
+              navigate('/chat');
+          } else if (notif.reportId) {
               navigate(`/pet/${notif.reportId}`);
-              setIsNotificationsOpen(false);
           }
       } catch (error) {
           console.error('Failed to mark notification read', error);

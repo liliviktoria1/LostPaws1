@@ -80,19 +80,49 @@ const runPassiveWatcher = async (newReportId: string, lang: string = 'en') => {
             if (!newReport) return;
 
             for (const match of matches) {
+                // Only notify if confidence is 80% or higher
+                if (match.score < 0.8) {
+                    console.log(`[Passive Watcher] Skipping match for ${newReportId} due to low confidence: ${(match.score * 100).toFixed(1)}%`);
+                    continue;
+                }
+
+                console.log(`[Passive Watcher] High confidence match found: ${(match.score * 100).toFixed(1)}%`);
+
+                let targetUserId = null;
+                let targetReportId = null;
+                let petName = '';
+
+                // Case A: Someone found a pet -> Notify the person who lost a similar pet
                 if (newReport.petStatus === 'found' && match.report.userId) {
+                    targetUserId = match.report.userId;
+                    targetReportId = newReport.id; // Link to the found report
+                    petName = match.report.petName;
+                } 
+                // Case B: Someone lost a pet -> Notify them about existing found matches
+                else if (newReport.petStatus === 'lost' && newReport.userId) {
+                    targetUserId = newReport.userId;
+                    targetReportId = match.report.id; // Link to the found report
+                    petName = newReport.petName;
+                }
+
+                if (targetUserId && targetReportId) {
+                    const confidence = (match.score * 100).toFixed(0);
+                    const message = lang === 'ua' 
+                        ? `Знайдено потенційний збіг (${confidence}%) для вашого улюбленця ${petName}!`
+                        : `High confidence match (${confidence}%) found for your pet ${petName}!`;
+
                     await Notification.create({
-                        userId: match.report.userId,
-                        message: `High confidence match (${(match.score * 100).toFixed(0)}%) found for ${match.report.petName}!`,
-                        reportId: newReport.id,
+                        userId: targetUserId,
+                        message,
+                        reportId: targetReportId,
                         type: 'match_alert'
                     });
 
-                    const owner = await User.findByPk(match.report.userId);
+                    const owner = await User.findByPk(targetUserId);
                     if (owner) {
                         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3005';
-                        const matchUrl = `${frontendUrl.replace(/\/$/, '')}/pet/${newReport.id}`;
-                        await sendMatchAlertEmail(owner.email, match.report.petName, matchUrl);
+                        const matchUrl = `${frontendUrl.replace(/\/$/, '')}/pet/${targetReportId}`;
+                        await sendMatchAlertEmail(owner.email, petName, matchUrl);
                     }
                 }
             }
