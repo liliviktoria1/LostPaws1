@@ -8,7 +8,7 @@ export interface AppNotification {
     message: string;
     reportId?: string;
     isRead: boolean;
-    type: 'match_alert' | 'system';
+    type: 'match_alert' | 'chat_message' | 'system';
     createdAt: string;
 }
 
