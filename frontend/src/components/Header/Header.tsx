@@ -8,6 +8,7 @@ import VerificationModal from "../Auth/VerificationModal";
 import { notificationService, AppNotification } from "../../services/notificationService";
 import { useTranslation } from "react-i18next";
 import "./Header.css";
+import { motion, AnimatePresence } from "framer-motion";
 
 function Header() {
   const { t, i18n } = useTranslation();
@@ -179,7 +180,12 @@ function Header() {
     <header className="header">
       <div className="header-left">
         <Link to="/" className="logo-container" onClick={() => setIsMenuOpen(false)}>
-          <img src="/assets/logo.svg" alt="Logo" className="logo" />
+          <motion.img 
+            src="/assets/logo.svg" 
+            alt="Logo" 
+            className="logo" 
+            whileHover={{ rotate: 10, scale: 1.1 }}
+          />
           <h1 className="site-title">
             <span className="header-lost">Lost</span>
             <span className="paws">Paws</span>
@@ -187,126 +193,202 @@ function Header() {
         </Link>
       </div>
 
-      <nav className={`nav-links ${isMenuOpen ? "open" : ""}`}>
+      <motion.nav 
+        className={`nav-links ${isMenuOpen ? "open" : ""}`}
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: {
+              staggerChildren: 0.05,
+              delayChildren: 0.1
+            }
+          }
+        }}
+      >
         {navLinks.map((link) => (
-          <Link
+          <motion.div
             key={link.path}
-            to={link.path}
-            className={`nav-link ${location.pathname === link.path ? "active" : ""} ${link.className || ""}`}
+            className={link.className || ""}
+            variants={{
+              hidden: { opacity: 0, y: -10 },
+              visible: { opacity: 1, y: 0 }
+            }}
+            whileHover={{ y: -2 }}
+          >
+            <Link
+              to={link.path}
+              className={`nav-link ${location.pathname === link.path ? "active" : ""}`}
+              onClick={(e) => {
+                setIsMenuOpen(false);
+                if (link.path === "/report" && !user) {
+                  e.preventDefault();
+                  openLogin();
+                }
+              }}
+            >
+              {link.label}
+              {location.pathname === link.path && (
+                <motion.div 
+                  className="active-indicator"
+                  layoutId="activeNav"
+                  initial={false}
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
+              )}
+            </Link>
+          </motion.div>
+        ))}
+      </motion.nav>
+
+      <div className="header-actions">
+        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <Link 
+            to="/report" 
+            className="report-button"
             onClick={(e) => {
-              setIsMenuOpen(false);
-              if (link.path === "/report" && !user) {
+              if (!user) {
                 e.preventDefault();
                 openLogin();
               }
             }}
           >
-            {link.label}
+            {t('header.report_btn')}
           </Link>
-        ))}
-      </nav>
+        </motion.div>
 
-      <div className="header-actions">
-        <Link 
-          to="/report" 
-          className="report-button"
-          onClick={(e) => {
-            if (!user) {
-              e.preventDefault();
-              openLogin();
-            }
-          }}
+        <motion.button 
+            className="globe-button" 
+            onClick={toggleLanguage} 
+            aria-label="Language selection"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
         >
-          {t('header.report_btn')}
-        </Link>
-
-        <button className="globe-button" onClick={toggleLanguage} aria-label="Language selection">
           <FiGlobe />
           <span className="lang-code">{i18n.language.toUpperCase().substring(0, 2)}</span>
-        </button>
+        </motion.button>
 
         <div className="auth-buttons" ref={dropdownRef}>
           {user ? (
             <>
                 {/* Notifications Bell */}
                 <div className="profile-container">
-                    <button className="profile-button notif-bell" onClick={toggleNotifications}>
+                    <motion.button 
+                        className="profile-button notif-bell" 
+                        onClick={toggleNotifications}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                    >
                         <FiBell />
                         {unreadCount > 0 && <span className="notif-badge">{unreadCount}</span>}
-                    </button>
-                    {isNotificationsOpen && (
-                        <div className="profile-dropdown notifications-dropdown">
-                            <div className="dropdown-user-info notif-dropdown-header">
-                                <strong>{t('header.notifications')}</strong>
-                                {notifications.length > 0 && (
-                                    <button className="mark-read-btn" onClick={handleMarkAllAsRead}>
-                                        {t('header.mark_all_read')}
-                                    </button>
+                    </motion.button>
+                    <AnimatePresence>
+                        {isNotificationsOpen && (
+                            <motion.div 
+                                className="profile-dropdown notifications-dropdown"
+                                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                transition={{ duration: 0.2 }}
+                            >
+                                <div className="dropdown-user-info notif-dropdown-header">
+                                    <strong>{t('header.notifications')}</strong>
+                                    {notifications.length > 0 && (
+                                        <button className="mark-read-btn" onClick={handleMarkAllAsRead}>
+                                            {t('header.mark_all_read')}
+                                        </button>
+                                    )}
+                                </div>
+                                <hr />
+                                {notifications.length > 0 ? (
+                                    <ul className="notif-list">
+                                        {notifications.slice(0, 10).map(n => (
+                                            <li key={n.id} className={`notif-item ${!n.isRead ? 'unread' : ''}`} onClick={() => handleNotificationClick(n)}>
+                                                <div className="notif-content">
+                                                    <p>{n.message}</p>
+                                                    <span className="notif-time">{new Date(n.createdAt).toLocaleDateString()}</span>
+                                                </div>
+                                                <button className="delete-notif-btn" onClick={(e) => handleDeleteNotification(e, n.id)} title="Delete notification">
+                                                    <FiTrash2 />
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p className="no-notifs">No new notifications</p>
                                 )}
-                            </div>
-                            <hr />
-                            {notifications.length > 0 ? (
-                                <ul className="notif-list">
-                                    {notifications.slice(0, 10).map(n => (
-                                        <li key={n.id} className={`notif-item ${!n.isRead ? 'unread' : ''}`} onClick={() => handleNotificationClick(n)}>
-                                            <div className="notif-content">
-                                                <p>{n.message}</p>
-                                                <span className="notif-time">{new Date(n.createdAt).toLocaleDateString()}</span>
-                                            </div>
-                                            <button className="delete-notif-btn" onClick={(e) => handleDeleteNotification(e, n.id)} title="Delete notification">
-                                                <FiTrash2 />
-                                            </button>
-                                        </li>
-                                    ))}
-                                </ul>
-                            ) : (
-                                <p className="no-notifs">No new notifications</p>
-                            )}
-                        </div>
-                    )}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
 
                 {/* Profile */}
                 <div className="profile-container">
-                  <button className="profile-button" onClick={toggleProfile}>
+                  <motion.button 
+                    className="profile-button" 
+                    onClick={toggleProfile}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
                     <FaUserCircle />
-                  </button>
-                  {isProfileOpen && (
-                    <div className="profile-dropdown">
-                      <div className="dropdown-user-info">
-                        <strong>{user.name}</strong>
-                        <span>{user.email}</span>
-                      </div>
-                      <hr />
-                      <Link to="/profile" className="dropdown-item" onClick={() => setIsProfileOpen(false)} style={{ color: 'var(--brand-navy)', textDecoration: 'none' }}>
-                        {t('header.my_profile')}
-                      </Link>
-                      {user.role === 'admin' && (
-                        <Link to="/admin" className="dropdown-item" onClick={() => setIsProfileOpen(false)} style={{ color: '#ef4444', fontWeight: 'bold', textDecoration: 'none' }}>
-                          Admin Dashboard
+                  </motion.button>
+                  <AnimatePresence>
+                    {isProfileOpen && (
+                        <motion.div 
+                            className="profile-dropdown"
+                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                        <div className="dropdown-user-info">
+                            <strong>{user.name}</strong>
+                            <span>{user.email}</span>
+                        </div>
+                        <hr />
+                        <Link to="/profile" className="dropdown-item" onClick={() => setIsProfileOpen(false)} style={{ color: 'var(--brand-navy)', textDecoration: 'none' }}>
+                            {t('header.my_profile')}
                         </Link>
-                      )}
-                      <Link to="/my-reports" className="dropdown-item" onClick={() => setIsProfileOpen(false)} style={{ color: 'var(--brand-navy)', textDecoration: 'none' }}>
-                        {t('header.my_reports')}
-                      </Link>
-                      <Link to="/chat" className="dropdown-item" onClick={() => setIsProfileOpen(false)} style={{ color: 'var(--brand-navy)', textDecoration: 'none' }}>
-                        {t('header.messages')}
-                      </Link>
-                      <hr />
-                      <button className="dropdown-item" onClick={handleLogout}>
-                        {t('header.logout')}
-                      </button>                    </div>
-                  )}
+                        {user.role === 'admin' && (
+                            <Link to="/admin" className="dropdown-item" onClick={() => setIsProfileOpen(false)} style={{ color: '#ef4444', fontWeight: 'bold', textDecoration: 'none' }}>
+                            Admin Dashboard
+                            </Link>
+                        )}
+                        <Link to="/my-reports" className="dropdown-item" onClick={() => setIsProfileOpen(false)} style={{ color: 'var(--brand-navy)', textDecoration: 'none' }}>
+                            {t('header.my_reports')}
+                        </Link>
+                        <Link to="/chat" className="dropdown-item" onClick={() => setIsProfileOpen(false)} style={{ color: 'var(--brand-navy)', textDecoration: 'none' }}>
+                            {t('header.messages')}
+                        </Link>
+                        <hr />
+                        <button className="dropdown-item" onClick={handleLogout}>
+                            {t('header.logout')}
+                        </button>                    
+                        </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
             </>
           ) : (
             <>
-              <button className="login-button" onClick={openLogin}>
+              <motion.button 
+                className="login-button" 
+                onClick={openLogin}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 {t('header.login')}
-              </button>
-              <button className="signup-button" onClick={openSignup}>
+              </motion.button>
+              <motion.button 
+                className="signup-button" 
+                onClick={openSignup}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 {t('header.signin')}
-              </button>
+              </motion.button>
             </>
           )}
         </div>

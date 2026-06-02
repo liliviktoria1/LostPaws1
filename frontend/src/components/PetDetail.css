@@ -378,3 +378,67 @@
     border-color: var(--brand-color);
     box-shadow: 0 8px 15px rgba(0,0,0,0.1);
 }
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 992px) {
+    .pet-detail-card {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        padding: 25px;
+        border-radius: 25px;
+    }
+
+    .main-image-container {
+        height: 350px;
+    }
+
+    .pet-detail-title {
+        font-size: 2.2rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .pet-detail-container {
+        padding: 20px 15px;
+    }
+
+    .main-image-container {
+        height: 280px;
+    }
+
+    .pet-detail-title {
+        font-size: 1.8rem;
+    }
+
+    .detail-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .deep-scan-btn {
+        padding: 10px 16px;
+        font-size: 13px;
+        border-radius: 12px;
+    }
+
+    .contact-section h3 {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 10px;
+    }
+
+    .message-owner-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .share-buttons-grid {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .deep-matches-section h3 {
+        font-size: 1.4rem;
+    }
+}

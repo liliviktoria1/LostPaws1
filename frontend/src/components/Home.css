@@ -160,6 +160,11 @@
 .step {
   width: 27%;
   text-align: left;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.step:hover {
+  transform: translateY(-10px);
 }
 
 .step h3 {
@@ -180,6 +185,11 @@
   border-radius: 47px;
   padding: 3rem 2rem;
   min-height: 220px;
+  transition: box-shadow 0.3s ease;
+}
+
+.step:hover .step-content {
+  box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.15);
 }
 
 .step .step-content li {

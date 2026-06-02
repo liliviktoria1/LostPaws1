@@ -6,6 +6,7 @@ import PetCard from './Common/PetCard';
 import { useTranslation } from 'react-i18next';
 import './Announcements.css';
 import { dogBreeds, catBreeds } from '../data/breedData';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 
 const Announcements: React.FC = () => {
     const { t } = useTranslation();
@@ -32,6 +33,21 @@ const Announcements: React.FC = () => {
 
     const [showBreedSuggestions, setShowBreedSuggestions] = useState(false);
     const breedRef = useRef<HTMLDivElement>(null);
+
+    const containerVariants: Variants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    };
+
+    const itemVariants: Variants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0 }
+    };
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -106,122 +122,151 @@ const Announcements: React.FC = () => {
     return (
         <div className="announcements-page">
             <div className="announcements-container-main">
-                <aside className={`announcements-sidebar ${showFilters ? 'visible' : 'hidden'}`}>
-                    <div className="sidebar-header">
-                        <h2 className="sidebar-title">{t('announcements.filter_title')}</h2>
-                        <button className="icon-close-btn" onClick={() => setShowFilters(false)}>
-                            <FiX />
-                        </button>
-                    </div>
-                    
-                    <div className="filter-group">
-                        <label>{t('form.status')}</label>
-                        <select name="petStatus" value={filters.petStatus} onChange={handleFilterChange}>
-                            <option value="">{t('maps.all_statuses')}</option>
-                            <option value="lost">{t('common.lost')}</option>
-                            <option value="found">{t('common.found')}</option>
-                        </select>
-                    </div>
+                <AnimatePresence>
+                    {showFilters && (
+                        <motion.aside 
+                            className="announcements-sidebar"
+                            initial={{ x: -300, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            exit={{ x: -300, opacity: 0 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        >
+                            <div className="sidebar-header">
+                                <h2 className="sidebar-title">{t('announcements.filter_title')}</h2>
+                                <button className="icon-close-btn" onClick={() => setShowFilters(false)}>
+                                    <FiX />
+                                </button>
+                            </div>
+                            
+                            <div className="filter-group">
+                                <label>{t('form.status')}</label>
+                                <select name="petStatus" value={filters.petStatus} onChange={handleFilterChange}>
+                                    <option value="">{t('maps.all_statuses')}</option>
+                                    <option value="lost">{t('common.lost')}</option>
+                                    <option value="found">{t('common.found')}</option>
+                                </select>
+                            </div>
 
-                    <div className="filter-group">
-                        <label>{t('form.species')}</label>
-                        <select name="petSpecies" value={filters.petSpecies} onChange={handleFilterChange}>
-                            <option value="">{t('maps.all_animals')}</option>
-                            <option value="dog">{t('common.dog')}</option>
-                            <option value="cat">{t('common.cat')}</option>
-                            <option value="other">{t('common.other')}</option>
-                        </select>
-                    </div>
+                            <div className="filter-group">
+                                <label>{t('form.species')}</label>
+                                <select name="petSpecies" value={filters.petSpecies} onChange={handleFilterChange}>
+                                    <option value="">{t('maps.all_animals')}</option>
+                                    <option value="dog">{t('common.dog')}</option>
+                                    <option value="cat">{t('common.cat')}</option>
+                                    <option value="other">{t('common.other')}</option>
+                                </select>
+                            </div>
 
-                    <div className="filter-group">
-                        <label>{t('form.sex')}</label>
-                        <select name="petSex" value={filters.petSex} onChange={handleFilterChange}>
-                            <option value="">{t('announcements.any_sex')}</option>
-                            <option value="male">{t('common.male')}</option>
-                            <option value="female">{t('common.female')}</option>
-                            <option value="unknown">{t('common.unknown')}</option>
-                        </select>
-                    </div>
+                            <div className="filter-group">
+                                <label>{t('form.sex')}</label>
+                                <select name="petSex" value={filters.petSex} onChange={handleFilterChange}>
+                                    <option value="">{t('announcements.any_sex')}</option>
+                                    <option value="male">{t('common.male')}</option>
+                                    <option value="female">{t('common.female')}</option>
+                                    <option value="unknown">{t('common.unknown')}</option>
+                                </select>
+                            </div>
 
-                    <div className="filter-group">
-                        <label>{t('form.age')}</label>
-                        <select name="petAge" value={filters.petAge} onChange={handleFilterChange}>
-                            <option value="">{t('announcements.any_age')}</option>
-                            <option value="baby">{t('common.baby')}</option>
-                            <option value="young">{t('common.young')}</option>
-                            <option value="adult">{t('common.adult')}</option>
-                            <option value="senior">{t('common.senior')}</option>
-                        </select>
-                    </div>
+                            <div className="filter-group">
+                                <label>{t('form.age')}</label>
+                                <select name="petAge" value={filters.petAge} onChange={handleFilterChange}>
+                                    <option value="">{t('announcements.any_age')}</option>
+                                    <option value="baby">{t('common.baby')}</option>
+                                    <option value="young">{t('common.young')}</option>
+                                    <option value="adult">{t('common.adult')}</option>
+                                    <option value="senior">{t('common.senior')}</option>
+                                </select>
+                            </div>
 
-                    <div className="filter-group" ref={breedRef}>
-                        <label>{t('form.breed')}</label>
-                        <input 
-                            type="text" 
-                            name="petBreed" 
-                            placeholder={t('form.breed')} 
-                            value={filters.petBreed} 
-                            onChange={handleFilterChange}
-                            onFocus={() => setShowBreedSuggestions(true)}
-                            autoComplete="off"
-                        />
-                        {showBreedSuggestions && getFilteredBreeds().length > 0 && (
-                            <ul className="breed-suggestions-list">
-                                {getFilteredBreeds().map((breed, idx) => (
-                                    <li 
-                                        key={`${breed}-${idx}`} 
-                                        className="breed-suggestion-item"
-                                        onMouseDown={() => handleBreedSelect(breed)}
-                                    >
-                                        {breed}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
+                            <div className="filter-group" ref={breedRef}>
+                                <label>{t('form.breed')}</label>
+                                <input 
+                                    type="text" 
+                                    name="petBreed" 
+                                    placeholder={t('form.breed')} 
+                                    value={filters.petBreed} 
+                                    onChange={handleFilterChange}
+                                    onFocus={() => setShowBreedSuggestions(true)}
+                                    autoComplete="off"
+                                />
+                                {showBreedSuggestions && getFilteredBreeds().length > 0 && (
+                                    <ul className="breed-suggestions-list">
+                                        {getFilteredBreeds().map((breed, idx) => (
+                                            <li 
+                                                key={`${breed}-${idx}`} 
+                                                className="breed-suggestion-item"
+                                                onMouseDown={() => handleBreedSelect(breed)}
+                                            >
+                                                {breed}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
 
-                    <div className="filter-group">
-                        <label>{t('form.color')}</label>
-                        <input 
-                            type="text" 
-                            name="petColor" 
-                            placeholder={t('form.color')} 
-                            value={filters.petColor} 
-                            onChange={handleFilterChange}
-                        />
-                    </div>
+                            <div className="filter-group">
+                                <label>{t('form.color')}</label>
+                                <input 
+                                    type="text" 
+                                    name="petColor" 
+                                    placeholder={t('form.color')} 
+                                    value={filters.petColor} 
+                                    onChange={handleFilterChange}
+                                />
+                            </div>
 
-                    <div className="filter-group">
-                        <label>{t('maps.city_label')}</label>
-                        <input 
-                            type="text" 
-                            name="city" 
-                            placeholder={t('maps.city_label')} 
-                            value={filters.city} 
-                            onChange={handleFilterChange}
-                        />
-                    </div>
+                            <div className="filter-group">
+                                <label>{t('maps.city_label')}</label>
+                                <input 
+                                    type="text" 
+                                    name="city" 
+                                    placeholder={t('maps.city_label')} 
+                                    value={filters.city} 
+                                    onChange={handleFilterChange}
+                                />
+                            </div>
 
-                    <button className="clear-filters-btn" onClick={clearFilters}>
-                        {t('maps.reset_filters')}
-                    </button>
+                            <button className="clear-filters-btn" onClick={clearFilters}>
+                                {t('maps.reset_filters')}
+                            </button>
 
-                    <div className="stats-box">
-                        <p>{t('maps.found_reports', { count: totalReports })}</p>
-                    </div>
-                </aside>
+                            <div className="stats-box">
+                                <p>{t('maps.found_reports', { count: totalReports })}</p>
+                            </div>
+                        </motion.aside>
+                    )}
+                </AnimatePresence>
 
                 <main className="announcements-content">
                     <header className="content-header centered">
                         <div className="title-area">
-                            <h1>{t('announcements.title')}</h1>
-                            <p>{t('announcements.subtitle')}</p>
+                            <motion.h1
+                                initial={{ opacity: 0, y: -20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.5 }}
+                            >
+                                {t('announcements.title')}
+                            </motion.h1>
+                            <motion.p
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 0.5, delay: 0.2 }}
+                            >
+                                {t('announcements.subtitle')}
+                            </motion.p>
                         </div>
                         <div className="header-actions-row">
                             {!showFilters && (
-                                <button className="filter-toggle-btn-modern" onClick={() => setShowFilters(true)}>
+                                <motion.button 
+                                    className="filter-toggle-btn-modern" 
+                                    onClick={() => setShowFilters(true)}
+                                    initial={{ scale: 0.8, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
                                     <FiFilter /> <span>{t('announcements.filter_title')}</span>
-                                </button>
+                                </motion.button>
                             )}
                         </div>
                     </header>
@@ -233,10 +278,18 @@ const Announcements: React.FC = () => {
                         </div>
                     ) : (
                         <>
-                            <div className="announcements-grid">
+                            <motion.div 
+                                className="announcements-grid"
+                                variants={containerVariants}
+                                initial="hidden"
+                                animate="visible"
+                                key={currentPage} // Re-animate on page change
+                            >
                                 {reports.length > 0 ? (
                                     reports.map((report) => (
-                                        <PetCard key={report.id} pet={report} />
+                                        <motion.div key={report.id} variants={itemVariants}>
+                                            <PetCard pet={report} />
+                                        </motion.div>
                                     ))
                                 ) : (
                                     <div className="no-reports-box">
@@ -244,10 +297,15 @@ const Announcements: React.FC = () => {
                                         <button onClick={clearFilters}>{t('announcements.clear_filters')}</button>
                                     </div>
                                 )}
-                            </div>
+                            </motion.div>
 
                             {totalPages > 1 && (
-                                <div className="pagination">
+                                <motion.div 
+                                    className="pagination"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.5 }}
+                                >
                                     <button 
                                         disabled={currentPage === 1} 
                                         onClick={() => setCurrentPage(prev => prev - 1)}
@@ -273,7 +331,7 @@ const Announcements: React.FC = () => {
                                     >
                                         {t('announcements.next')} &rarr;
                                     </button>
-                                </div>
+                                </motion.div>
                             )}
                         </>
                     )}

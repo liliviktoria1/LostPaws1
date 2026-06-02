@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import VerificationModal from './VerificationModal';
 import './AuthModal.css';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface AuthModalProps {
     isOpen: boolean;
@@ -30,8 +31,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode }) =
     
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-
-    if (!isOpen) return null;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -78,100 +77,121 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode }) =
         }
     };
 
-    if (mode === 'verify') {
-        return (
-            <VerificationModal 
-                email={verifyEmail} 
-                onVerified={() => {
-                    onClose();
-                    setMode('login'); // reset for next time
-                }}
-                onLogout={() => {
-                    setMode('login');
-                }}
-            />
-        );
-    }
-
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-container" onClick={e => e.stopPropagation()}>
-                <button className="modal-close" onClick={onClose}>&times;</button>
-                
-                <div className="modal-header">
-                    <h2>{mode === 'login' ? 'Welcome Back' : 'Create Account'}</h2>
-                    <p>{mode === 'login' ? 'Login to manage your pet alerts' : 'Join our community to help find pets'}</p>
-                </div>
-
-                <form className="modal-form" onSubmit={handleSubmit}>
-                    {error && <div className="auth-error">{error}</div>}
-                    
-                    {mode === 'signup' && (
-                        <div className="auth-group">
-                            <label>Full Name</label>
-                            <input 
-                                type="text" 
-                                name="name" 
-                                value={formData.name} 
-                                onChange={handleChange} 
-                                placeholder="John Doe"
-                                required 
-                            />
-                        </div>
-                    )}
-
-                    <div className="auth-group">
-                        <label>Email Address</label>
-                        <input 
-                            type="email" 
-                            name="email" 
-                            value={formData.email} 
-                            onChange={handleChange} 
-                            placeholder="email@example.com"
-                            required 
+        <AnimatePresence>
+            {isOpen && (
+                <motion.div 
+                    className="modal-overlay" 
+                    onClick={onClose}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                >
+                    {mode === 'verify' ? (
+                        <VerificationModal 
+                            email={verifyEmail} 
+                            onVerified={() => {
+                                onClose();
+                                setMode('login'); // reset for next time
+                            }}
+                            onLogout={() => {
+                                setMode('login');
+                            }}
                         />
-                    </div>
-
-                    <div className="auth-group">
-                        <label>Password</label>
-                        <input 
-                            type="password" 
-                            name="password" 
-                            value={formData.password} 
-                            onChange={handleChange} 
-                            placeholder="********"
-                            required 
-                        />
-                    </div>
-
-                    {mode === 'signup' && (
-                        <div className="auth-group">
-                            <label>Confirm Password</label>
-                            <input 
-                                type="password" 
-                                name="confirmPassword" 
-                                value={formData.confirmPassword} 
-                                onChange={handleChange} 
-                                placeholder="********"
-                                required 
-                            />
-                        </div>
-                    )}
-
-                    <button type="submit" className="auth-submit" disabled={isLoading}>
-                        {isLoading ? 'Processing...' : (mode === 'login' ? 'Login' : 'Sign Up')}
-                    </button>
-                </form>
-
-                <div className="modal-footer">
-                    {mode === 'login' ? (
-                        <p>Don't have an account? <span onClick={() => setMode('signup')}>Sign Up</span></p>
                     ) : (
-                        <p>Already have an account? <span onClick={() => setMode('login')}>Login</span></p>
+                        <motion.div 
+                            className="modal-container" 
+                            onClick={e => e.stopPropagation()}
+                            initial={{ scale: 0.8, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.8, opacity: 0, y: 20 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                        >
+                            <button className="modal-close" onClick={onClose}>&times;</button>
+                            
+                            <div className="modal-header">
+                                <h2>{mode === 'login' ? 'Welcome Back' : 'Create Account'}</h2>
+                                <p>{mode === 'login' ? 'Login to manage your pet alerts' : 'Join our community to help find pets'}</p>
+                            </div>
+
+                            <form className="modal-form" onSubmit={handleSubmit}>
+                                {error && <div className="auth-error">{error}</div>}
+                                
+                                {mode === 'signup' && (
+                                    <div className="auth-group">
+                                        <label>Full Name</label>
+                                        <input 
+                                            type="text" 
+                                            name="name" 
+                                            value={formData.name} 
+                                            onChange={handleChange} 
+                                            placeholder="John Doe"
+                                            required 
+                                        />
+                                    </div>
+                                )}
+
+                                <div className="auth-group">
+                                    <label>Email Address</label>
+                                    <input 
+                                        type="email" 
+                                        name="email" 
+                                        value={formData.email} 
+                                        onChange={handleChange} 
+                                        placeholder="email@example.com"
+                                        required 
+                                    />
+                                </div>
+
+                                <div className="auth-group">
+                                    <label>Password</label>
+                                    <input 
+                                        type="password" 
+                                        name="password" 
+                                        value={formData.password} 
+                                        onChange={handleChange} 
+                                        placeholder="********"
+                                        required 
+                                    />
+                                </div>
+
+                                {mode === 'signup' && (
+                                    <div className="auth-group">
+                                        <label>Confirm Password</label>
+                                        <input 
+                                            type="password" 
+                                            name="confirmPassword" 
+                                            value={formData.confirmPassword} 
+                                            onChange={handleChange} 
+                                            placeholder="********"
+                                            required 
+                                        />
+                                    </div>
+                                )}
+
+                                <motion.button 
+                                    type="submit" 
+                                    className="auth-submit" 
+                                    disabled={isLoading}
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                >
+                                    {isLoading ? 'Processing...' : (mode === 'login' ? 'Login' : 'Sign Up')}
+                                </motion.button>
+                            </form>
+
+                            <div className="modal-footer">
+                                {mode === 'login' ? (
+                                    <p>Don't have an account? <span onClick={() => setMode('signup')}>Sign Up</span></p>
+                                ) : (
+                                    <p>Already have an account? <span onClick={() => setMode('login')}>Login</span></p>
+                                )}
+                            </div>
+                        </motion.div>
                     )}
-                </div>
-            </div>
-        </div>
+                </motion.div>
+            )}
+        </AnimatePresence>
     );
 };
 

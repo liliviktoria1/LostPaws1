@@ -14,6 +14,7 @@ import i18n from '../i18n/i18n';
 import { FiMessageSquare, FiFacebook, FiTwitter, FiShare2 } from 'react-icons/fi';
 import { FaTelegramPlane, FaViber } from 'react-icons/fa';
 import './PetDetail.css';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Fix for default Leaflet icon paths
 const DefaultIcon = L.Icon.Default as any;
@@ -221,58 +222,99 @@ const PetDetail: React.FC = () => {
 
     return (
         <div className="pet-detail-container">
-            <button className="back-button" onClick={() => navigate(-1)}>
+            <motion.button 
+                className="back-button" 
+                onClick={() => navigate(-1)}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+            >
                 &larr; {t('announcements.previous')}
-            </button>
+            </motion.button>
             
-            <div className="pet-detail-card">
+            <motion.div 
+                className="pet-detail-card"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+            >
                 <div className="pet-image-section">
-                    <div className="main-image-container">
+                    <motion.div 
+                        className="main-image-container"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.5 }}
+                    >
                         <img src={getImageUrl(report)} alt={report.petName} className="main-pet-image" />
                         <span className={`detail-status-badge ${report.petStatus}`}>
                             {t(`common.${report.petStatus}`).toUpperCase()}
                         </span>
-                    </div>
+                    </motion.div>
                     {report.photos && report.photos.length > 1 && (
-                        <div className="photos-thumbnail-grid">
+                        <motion.div 
+                            className="photos-thumbnail-grid"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.3 }}
+                        >
                             {report.photos.map((photo, index) => {
                                 const thumbUrl = getThumbnailUrl(photo);
                                 return (
-                                    <div key={index} className={`thumbnail-wrapper ${mainImage === thumbUrl ? 'active' : ''}`} onClick={() => {
-                                        setMainImage(thumbUrl);
-                                    }}>
+                                    <motion.div 
+                                        key={index} 
+                                        className={`thumbnail-wrapper ${mainImage === thumbUrl ? 'active' : ''}`} 
+                                        onClick={() => {
+                                            setMainImage(thumbUrl);
+                                        }}
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.9 }}
+                                    >
                                         <img src={thumbUrl} alt={`${report.petName} ${index + 1}`} />
-                                    </div>
+                                    </motion.div>
                                 );
                             })}
-                        </div>
+                        </motion.div>
                     )}
                 </div>
 
                 <div className="pet-info-section">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <h1 className="pet-detail-title">{report.petName}</h1>
+                        <h1 className="pet-detail-title">{report.petName || t(`common.${report.petSpecies}`)}</h1>
                         {isOwner && (
-                            <button 
+                            <motion.button 
                                 className="deep-scan-btn" 
                                 onClick={handleDeepScan}
                                 disabled={isScanning}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                             >
                                 {isScanning ? t('pet_detail.scanning') : '✨ ' + t('pet_detail.matches_found')}
-                            </button>
+                            </motion.button>
                         )}
                     </div>
                     
-                    <div className="detail-grid">
-                        <div className="detail-item">
+                    <motion.div 
+                        className="detail-grid"
+                        initial="hidden"
+                        animate="visible"
+                        variants={{
+                            hidden: { opacity: 0 },
+                            visible: {
+                                opacity: 1,
+                                transition: {
+                                    staggerChildren: 0.05
+                                }
+                            }
+                        }}
+                    >
+                        <motion.div className="detail-item" variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }}>
                             <span className="detail-label">{t('form.species')}</span>
                             <span className="detail-value">{t(`common.${report.petSpecies}`)}</span>
-                        </div>
-                        <div className="detail-item">
+                        </motion.div>
+                        <motion.div className="detail-item" variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }}>
                             <span className="detail-label">{t('form.breed')}</span>
                             <span className="detail-value">{report.petBreed || t('common.unknown')}</span>
-                        </div>
-                        <div className="detail-item">
+                        </motion.div>
+                        <motion.div className="detail-item" variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }}>
                             <span className="detail-label">{t('form.color')}</span>
                             <span className="detail-value" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 {report.petColor || t('common.unknown')}
@@ -287,26 +329,26 @@ const PetDetail: React.FC = () => {
                                     }}></span>
                                 )}
                             </span>
-                        </div>
-                        <div className="detail-item">
+                        </motion.div>
+                        <motion.div className="detail-item" variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }}>
                             <span className="detail-label">{t('form.age')}</span>
                             <span className="detail-value">{report.petAge ? t(`common.${report.petAge}`) : t('common.unknown')}</span>
-                        </div>
-                        <div className="detail-item">
+                        </motion.div>
+                        <motion.div className="detail-item" variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }}>
                             <span className="detail-label">{t('form.sex')}</span>
                             <span className="detail-value">{report.petSex ? t(`common.${report.petSex}`) : t('common.unknown')}</span>
-                        </div>
-                        <div className="detail-item">
+                        </motion.div>
+                        <motion.div className="detail-item" variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }}>
                             <span className="detail-label">{t('form.location')}</span>
                             <span className="detail-value">{report.locationAddress || 'N/A'}</span>
-                        </div>
-                        <div className="detail-item">
+                        </motion.div>
+                        <motion.div className="detail-item" variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }}>
                             <span className="detail-label">Date {t(`common.${report.petStatus}`)}</span>
                             <span className="detail-value">
                                 {report.dateLastSeen ? new Date(report.dateLastSeen).toLocaleDateString() : 'N/A'}
                             </span>
-                        </div>
-                    </div>
+                        </motion.div>
+                    </motion.div>
 
                     <div className="description-section">
                         <h3>{t('form.description')}</h3>
@@ -317,7 +359,7 @@ const PetDetail: React.FC = () => {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                             <h3>{t('pet_detail.contact')}</h3>
                             {!isOwner && user && (
-                                <button 
+                                <motion.button 
                                     className="message-owner-btn"
                                     onClick={async () => {
                                         try {
@@ -327,9 +369,11 @@ const PetDetail: React.FC = () => {
                                             console.error("Failed to start chat", err);
                                         }
                                     }}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
                                 >
                                     <FiMessageSquare /> {t('pet_detail.message_owner')}
-                                </button>
+                                </motion.button>
                             )}
                         </div>
                         <div className="contact-card">
@@ -345,7 +389,7 @@ const PetDetail: React.FC = () => {
                         <p className="share-desc-text">{t('pet_detail.share_desc')}</p>
                         <div className="share-buttons-grid">
                             {shareLinks.map(link => (
-                                <a 
+                                <motion.a 
                                     key={link.name} 
                                     href={link.url} 
                                     target="_blank" 
@@ -353,42 +397,59 @@ const PetDetail: React.FC = () => {
                                     className="share-btn"
                                     style={{ '--brand-color': link.color } as any}
                                     title={link.name}
+                                    whileHover={{ scale: 1.1, y: -2 }}
+                                    whileTap={{ scale: 0.9 }}
                                 >
                                     {link.icon}
-                                </a>
+                                </motion.a>
                             ))}
                         </div>
                     </div>
                 </div>
 
                 {report.locationLat && report.locationLng && (
-                    <div className="map-section">
+                    <motion.div 
+                        className="map-section"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5 }}
+                    >
                         <h3>{t('form.location')}</h3>
                         <div id="pet-detail-map" style={{ height: '350px', width: '100%', borderRadius: '15px', marginTop: '10px' }}></div>
-                    </div>
+                    </motion.div>
                 )}
-            </div>
+            </motion.div>
 
             {/* Deep Scan Results Section */}
             {deepMatches !== null && (
-                <div className="deep-matches-section">
+                <motion.div 
+                    className="deep-matches-section"
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                >
                     <h3>✨ {t('pet_detail.matches_found')}</h3>
                     {deepMatches.length > 0 ? (
                         <div className="announcements-grid" style={{ padding: 0 }}>
                             {deepMatches.map((match, idx) => (
-                                <div key={idx} className="match-result-wrapper">
+                                <motion.div 
+                                    key={idx} 
+                                    className="match-result-wrapper"
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: idx * 0.1 }}
+                                >
                                     <PetCard pet={match.report} />
                                     <div className="ai-reasoning-bubble">
                                         <p><strong>💡 AI:</strong> {match.reasoning}</p>
                                         <span className="match-score-pill">{(match.score * 100).toFixed(0)}% Match</span>
                                     </div>
-                                </div>
+                                </motion.div>
                             ))}
                         </div>
                     ) : (
                         <p className="no-matches-msg">{t('pet_detail.no_matches')}</p>
                     )}
-                </div>
+                </motion.div>
             )}
 
             <div className="other-pets-slider-section">
@@ -402,15 +463,27 @@ const PetDetail: React.FC = () => {
                 />
             </div>
             
-            {isScanning && (
-                <div className="scan-overlay">
-                    <div className="scan-modal">
-                        <div className="scan-spinner"></div>
-                        <h3>{t('pet_detail.scanning')}</h3>
-                        <p>{t('pet_detail.scanning_desc', { defaultValue: 'Our AI is visually comparing photos across the database.' })}</p>
-                    </div>
-                </div>
-            )}
+            <AnimatePresence>
+                {isScanning && (
+                    <motion.div 
+                        className="scan-overlay"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                    >
+                        <motion.div 
+                            className="scan-modal"
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.8, opacity: 0 }}
+                        >
+                            <div className="scan-spinner"></div>
+                            <h3>{t('pet_detail.scanning')}</h3>
+                            <p>{t('pet_detail.scanning_desc', { defaultValue: 'Our AI is visually comparing photos across the database.' })}</p>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

@@ -5,6 +5,7 @@ import { io, Socket } from 'socket.io-client';
 import { FiSend, FiMessageSquare, FiUser } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
 import './Chat.css';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Chat: React.FC = () => {
     const { t } = useTranslation();
@@ -109,7 +110,12 @@ const Chat: React.FC = () => {
 
     return (
         <div className="chat-page">
-            <div className="chat-container">
+            <motion.div 
+                className="chat-container"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+            >
                 {/* Sidebar */}
                 <div className="chat-sidebar">
                     <div className="sidebar-header">
@@ -119,26 +125,32 @@ const Chat: React.FC = () => {
                         {isLoading ? (
                             <p className="chat-loading">{t('common.loading')}</p>
                         ) : conversations.length > 0 ? (
-                            conversations.map(conv => (
-                                <div 
-                                    key={conv.id} 
-                                    className={`conversation-item ${activeConversation?.id === conv.id ? 'active' : ''}`}
-                                    onClick={() => setActiveConversation(conv)}
-                                >
-                                    <div className="conv-avatar">
-                                        <FiUser />
-                                    </div>
-                                    <div className="conv-info">
-                                        <div className="conv-header">
-                                            <strong>{conv.otherUser?.name || "User"}</strong>
-                                            <span className="conv-time">
-                                                {conv.lastMessageAt ? new Date(conv.lastMessageAt).toLocaleDateString() : ''}
-                                            </span>
+                            <AnimatePresence mode="popLayout">
+                                {conversations.map(conv => (
+                                    <motion.div 
+                                        layout
+                                        key={conv.id} 
+                                        className={`conversation-item ${activeConversation?.id === conv.id ? 'active' : ''}`}
+                                        onClick={() => setActiveConversation(conv)}
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        whileHover={{ x: 5, backgroundColor: "rgba(250, 198, 85, 0.1)" }}
+                                    >
+                                        <div className="conv-avatar">
+                                            <FiUser />
                                         </div>
-                                        <p className="conv-last-msg">{conv.lastMessage || "No messages yet"}</p>
-                                    </div>
-                                </div>
-                            ))
+                                        <div className="conv-info">
+                                            <div className="conv-header">
+                                                <strong>{conv.otherUser?.name || "User"}</strong>
+                                                <span className="conv-time">
+                                                    {conv.lastMessageAt ? new Date(conv.lastMessageAt).toLocaleDateString() : ''}
+                                                </span>
+                                            </div>
+                                            <p className="conv-last-msg">{conv.lastMessage || "No messages yet"}</p>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
                         ) : (
                             <p className="no-convs">No conversations yet.</p>
                         )}
@@ -147,49 +159,74 @@ const Chat: React.FC = () => {
 
                 {/* Main Chat Window */}
                 <div className="chat-window">
-                    {activeConversation ? (
-                        <>
-                            <div className="chat-header">
-                                <div className="user-info">
-                                    <FiUser />
-                                    <h3>{activeConversation.otherUser?.name || "User"}</h3>
-                                </div>
-                            </div>
-                            <div className="messages-container">
-                                {messages.map(msg => (
-                                    <div 
-                                        key={msg.id} 
-                                        className={`message-bubble ${msg.senderId === user.id ? 'mine' : 'theirs'}`}
-                                    >
-                                        <div className="msg-content">{msg.content}</div>
-                                        <span className="msg-time">
-                                            {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                        </span>
+                    <AnimatePresence mode="wait">
+                        {activeConversation ? (
+                            <motion.div 
+                                key={activeConversation.id}
+                                className="chat-active-container"
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 20 }}
+                                style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+                            >
+                                <div className="chat-header">
+                                    <div className="user-info">
+                                        <FiUser />
+                                        <h3>{activeConversation.otherUser?.name || "User"}</h3>
                                     </div>
-                                ))}
-                                <div ref={messagesEndRef} />
-                            </div>
-                            <form className="chat-input-area" onSubmit={handleSendMessage}>
-                                <input 
-                                    type="text" 
-                                    placeholder="Type a message..." 
-                                    value={newMessage}
-                                    onChange={(e) => setNewMessage(e.target.value)}
-                                    onKeyDown={handleKeyDown}
-                                />
-                                <button type="submit" disabled={!newMessage.trim()}>
-                                    <FiSend />
-                                </button>
-                            </form>
-                        </>
-                    ) : (
-                        <div className="chat-placeholder">
-                            <FiMessageSquare />
-                            <p>Select a conversation to start chatting</p>
-                        </div>
-                    )}
+                                </div>
+                                <div className="messages-container">
+                                    <AnimatePresence initial={false}>
+                                        {messages.map((msg, index) => (
+                                            <motion.div 
+                                                key={msg.id} 
+                                                className={`message-bubble ${msg.senderId === user.id ? 'mine' : 'theirs'}`}
+                                                initial={{ opacity: 0, scale: 0.8, y: 10, originX: msg.senderId === user.id ? 1 : 0 }}
+                                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                                transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                                            >
+                                                <div className="msg-content">{msg.content}</div>
+                                                <span className="msg-time">
+                                                    {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </span>
+                                            </motion.div>
+                                        ))}
+                                    </AnimatePresence>
+                                    <div ref={messagesEndRef} />
+                                </div>
+                                <form className="chat-input-area" onSubmit={handleSendMessage}>
+                                    <input 
+                                        type="text" 
+                                        placeholder="Type a message..." 
+                                        value={newMessage}
+                                        onChange={(e) => setNewMessage(e.target.value)}
+                                        onKeyDown={handleKeyDown}
+                                    />
+                                    <motion.button 
+                                        type="submit" 
+                                        disabled={!newMessage.trim()}
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.9 }}
+                                    >
+                                        <FiSend />
+                                    </motion.button>
+                                </form>
+                            </motion.div>
+                        ) : (
+                            <motion.div 
+                                key="placeholder"
+                                className="chat-placeholder"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                            >
+                                <FiMessageSquare />
+                                <p>Select a conversation to start chatting</p>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
-            </div>
+            </motion.div>
         </div>
     );
 };

@@ -3,6 +3,7 @@ import { PetReport } from '../../types';
 import PetCard from './PetCard';
 import { useTranslation } from 'react-i18next';
 import './PetSlider.css';
+import { motion } from 'framer-motion';
 
 interface PetSliderProps {
     title: string;
@@ -32,7 +33,13 @@ const PetSlider: React.FC<PetSliderProps> = ({
     };
 
     return (
-        <section className={`pet-slider-section ${sectionClass} full-width-section`}>
+        <motion.section 
+            className={`pet-slider-section ${sectionClass} full-width-section`}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.6 }}
+        >
             <h2>{title}</h2>
             <p>{subtitle}</p>
             <div className="slider-container-wrapper">
@@ -60,7 +67,7 @@ const PetSlider: React.FC<PetSliderProps> = ({
                     <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
                 </button>
             </div>
-        </section>
+        </motion.section>
     );
 };
 

@@ -9,6 +9,7 @@ import 'leaflet/dist/leaflet.css';
 import './LostPawsForm.css';
 import { dogBreeds, catBreeds } from '../data/breedData';
 import { useAuth } from '../context/AuthContext';
+import { motion } from 'framer-motion';
 
 // Fix for default Leaflet icon paths
 const DefaultIcon = L.Icon.Default as any;
@@ -302,11 +303,28 @@ const LostPawsForm: React.FC = () => {
 
      return (
         <div className="lostpaws-form">
-            <div className="form-container">
-                <img src="/assets/image/Dog2.png" alt="Decorative" className="form-decorative-image" />
+            <motion.div 
+                className="form-container"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+            >
+                <motion.img 
+                    src="/assets/image/Dog2.png" 
+                    alt="Decorative" 
+                    className="form-decorative-image"
+                    initial={{ opacity: 0, scale: 0.8, x: 50 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    transition={{ duration: 0.8, delay: 0.4 }}
+                />
                 <h2 className="form-title">{editId ? t('my_reports_page.edit_btn') : t('form.title')}</h2>
 
-                <div className="form-card">
+                <motion.div 
+                    className="form-card"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                >
                     <form onSubmit={handleSubmit}>
                         <div className="form-header">
                             <div className="form-group">
@@ -465,17 +483,29 @@ const LostPawsForm: React.FC = () => {
 
                         <div className="form-actions">
                             {editId && (
-                                <button type="button" className="delete-report-btn" onClick={handleDeleteReport}>
+                                <motion.button 
+                                    type="button" 
+                                    className="delete-report-btn" 
+                                    onClick={handleDeleteReport}
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                >
                                     {t('common.delete', { defaultValue: 'Delete Report' })}
-                                </button>
+                                </motion.button>
                             )}
-                            <button type="submit" className="submit-button" disabled={isSubmitting}>
+                            <motion.button 
+                                type="submit" 
+                                className="submit-button" 
+                                disabled={isSubmitting}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                            >
                                 {isSubmitting ? t('common.loading') : (editId ? t('my_reports_page.edit_btn') : t('form.submit'))}
-                            </button>
+                            </motion.button>
                         </div>
                     </form>
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
         </div>
     );
 };

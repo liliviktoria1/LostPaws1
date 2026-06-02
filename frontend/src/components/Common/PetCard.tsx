@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { PetReport } from '../../types';
 import { useTranslation } from 'react-i18next';
 import './PetCard.css';
+import { motion } from 'framer-motion';
 
 interface PetCardProps {
     pet: PetReport;
@@ -27,7 +28,15 @@ const PetCard: React.FC<PetCardProps> = ({ pet }) => {
     };
 
     return (
-        <div className={`slider-item ${pet.isReunited ? 'reunited-card' : ''}`} onClick={() => navigate(`/pet/${pet.id}`)}>
+        <motion.div 
+            className={`slider-item ${pet.isReunited ? 'reunited-card' : ''}`} 
+            onClick={() => navigate(`/pet/${pet.id}`)}
+            whileHover={{ y: -5 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            layout
+        >
             <div style={{ position: 'relative', width: '100%' }}>
                 {pet.isReunited && <div className="reunited-badge">{t('common.reunited_tag')}</div>}
                 <img src={getImageUrl(pet)} alt={pet.petName}/>
@@ -39,7 +48,7 @@ const PetCard: React.FC<PetCardProps> = ({ pet }) => {
             </div>
             <div className="pet-info-container">
                 <div className="info-row">
-                    <span className="pet-label">{t('form.pet_name')}:</span> <span className="pet-value">{pet.petName}</span>
+                    <span className="pet-label">{t('form.pet_name')}:</span> <span className="pet-value">{pet.petName || t(`common.${pet.petSpecies}`)}</span>
                 </div>
                 <div className="info-row">
                     <span className="pet-label">{t('form.status')}:</span> <span className={`status-label ${pet.petStatus}`}>{t(`common.${pet.petStatus}`)}</span>
@@ -62,9 +71,16 @@ const PetCard: React.FC<PetCardProps> = ({ pet }) => {
                 <div className="info-row location-row">
                     <span className="pet-label">{t('form.location')}:</span> <span className="pet-value truncate">{pet.locationAddress}</span>
                 </div>
-                <button className="view-post-btn" onClick={(e) => { e.stopPropagation(); navigate(`/pet/${pet.id}`); }}>{t('maps.view_details')}</button>
+                <motion.button 
+                    className="view-post-btn" 
+                    onClick={(e) => { e.stopPropagation(); navigate(`/pet/${pet.id}`); }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                >
+                    {t('maps.view_details')}
+                </motion.button>
             </div>
-        </div>
+        </motion.div>
     );
 };
 
